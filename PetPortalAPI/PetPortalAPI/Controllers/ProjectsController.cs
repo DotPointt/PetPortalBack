@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PetPortalAPI.Contracts;
+using PetPortalCore.Abstractions;
+using PetPortalCore.Models;
 
 namespace PetPortalAPI.Controllers
 {
