@@ -5,7 +5,17 @@
     /// </summary>
     public class Project
     {
+        /// <summary>
+        /// Max name length.
+        /// </summary>
         public const int MAX_NAME_LENGHT = 250;
+        
+        /// <summary>
+        /// Project constructor.
+        /// </summary>
+        /// <param name="id">Project identifier.</param>
+        /// <param name="name">Project name.</param>
+        /// <param name="description">Project description.</param>
         public Project(Guid id, string name, string description)
         {
             Id = id;
@@ -14,7 +24,7 @@
         }
 
         /// <summary>
-        /// Project identification.
+        /// Project identifier.
         /// </summary>
         public Guid Id;
 
@@ -33,6 +43,13 @@
         /// </summary>
         public Guid OwnerId;
 
+        /// <summary>
+        /// Creation new project.
+        /// </summary>
+        /// <param name="id">Project identifier.</param>
+        /// <param name="name">Project name.</param>
+        /// <param name="description">Project description.</param>
+        /// <returns>(project, error if it exist)</returns>
         public static (Project project, string Error) Create(Guid id, string name, string description)
         {
             var error = string.Empty;
@@ -47,6 +64,4 @@
             return (project, error);
         }
     }
-
-
 }

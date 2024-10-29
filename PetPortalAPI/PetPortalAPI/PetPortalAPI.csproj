@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\PetPortalApplication\PetPortalApplication.csproj" />
     <ProjectReference Include="..\..\PetPortalCore\PetPortalCore.csproj" />
-    <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
 
 </Project>

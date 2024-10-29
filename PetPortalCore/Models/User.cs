@@ -1,4 +1,6 @@
-﻿namespace PetPortalCore.Models
+﻿using System.Runtime.InteropServices;
+
+namespace PetPortalCore.Models
 {
     /// <summary>
     /// User.
@@ -6,7 +8,22 @@
     public class User
     {
         /// <summary>
-        /// Identification.
+        /// User constructor.
+        /// </summary>
+        /// <param name="id">User identifier.</param>
+        /// <param name="name">User name.</param>
+        /// <param name="email">User email.</param>
+        /// <param name="passwordHash">User password.</param>
+        public User(Guid id, string name, string email, string passwordHash)
+        {
+            Id = id;
+            Name = name;
+            Email = email;
+            PasswordHash = passwordHash;
+        }
+        
+        /// <summary>
+        /// User identifier.
         /// </summary>
         public Guid Id;
 
@@ -24,5 +41,21 @@
         /// User password.
         /// </summary>
         public string PasswordHash = string.Empty;
+
+        /// <summary>
+        /// Creation new user.
+        /// </summary>
+        /// <param name="id">User identifier.</param>
+        /// <param name="name">User name.</param>
+        /// <param name="email">User email.</param>
+        /// <param name="passwordHash">User password.</param>
+        /// <returns>(user, error if it exist)</returns>
+        public static (User user, string error) Create(Guid id, string name, string email, string passwordHash)
+        {
+            var error = string.Empty;
+            var user = new User(id, name, email, passwordHash);
+
+            return (user, error);
+        }
     }
 }

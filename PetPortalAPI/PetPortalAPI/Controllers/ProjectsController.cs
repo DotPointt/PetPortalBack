@@ -1,65 +1,129 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PetPortalAPI.Contracts;
-using PetPortalCore.Abstractions;
+using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Models;
 
 namespace PetPortalAPI.Controllers
 {
+    /// <summary>
+    /// Project controller.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectsController : ControllerBase
     {
+        /// <summary>
+        /// Project service.
+        /// </summary>
         private readonly IProjectsService _projectsService;
 
+        /// <summary>
+        /// Project controller constructor.
+        /// </summary>
+        /// <param name="projectsService">Project service.</param>
         public ProjectsController(IProjectsService projectsService)
         {
             _projectsService = projectsService;
         }
 
+        /// <summary>
+        /// Endpoint get all projects.
+        /// </summary>
+        /// <returns>Action result - List of projects.</returns>
         [HttpGet]
         public async Task<ActionResult<List<ProjectsResponse>>> GetProjects()
         {
-            var projects = await _projectsService.GetAllProjects();
+            try
+            {
+                var projects = await _projectsService.GetAllProjects();
+                var response = projects.Select(p => new ProjectsResponse(p.Id, p.Name, p.Description));
 
-            var response = projects.Select(p => new ProjectsResponse(p.Id, p.Name, p.Description));
-
-            return Ok(response);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
         }
 
+        /// <summary>
+        /// Endpoint create project.
+        /// </summary>
+        /// <param name="request">Project data.</param>
+        /// <returns>
+        /// Action result - created project guid or
+        /// Action result - error message.
+        /// </returns>
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectsRequest request)
         {
-            var (project, error) = Project.Create(
-                Guid.NewGuid(),
-                request.name,
-                request.description);
-
-            if (!string.IsNullOrEmpty(error))
+            try
             {
-                return BadRequest(error);
+                var (project, error) = Project.Create(
+                    Guid.NewGuid(),
+                    request.Name,
+                    request.Description);
+                
+                if (!string.IsNullOrEmpty(error))
+                {
+                    return BadRequest(error);
+                }
+                
+                var projectGuid = await _projectsService.CreateProject(project);
+
+                return Ok(projectGuid);
             }
-
-            await _projectsService.CreateProject(project);
-
-            return Ok(error);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
         }
 
+        /// <summary>
+        /// Endpoint update project.
+        /// </summary>
+        /// <param name="id">Project identifier.</param>
+        /// <param name="request">Project data.</param>
+        /// <returns>
+        /// Action result - updated project guid or
+        /// Action result - error message.
+        /// </returns>
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] ProjectsRequest request)
         {
-            var projectId = await _projectsService.UpdateProject(id, request.name, request.description);
-
-            return Ok(projectId);
+            try
+            {
+                var projectId = await _projectsService.UpdateProject(id, request.Name, request.Description);
+                
+                return Ok(projectId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
         }
 
-
+        /// <summary>
+        /// Endpoint delete project.
+        /// </summary>
+        /// <param name="id">Project identifier.</param>
+        /// <returns>
+        /// Action result - deleted project guid or
+        /// Action result - error message.
+        /// </returns>
         [HttpDelete]
         public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
         {
-            var projectId = await _projectsService.Delete(id);
+            try
+            {
+                var projectId = await _projectsService.Delete(id);
 
-            return Ok(projectId);
-        }
+                return Ok(projectId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }    
+        }   
     }
 }
