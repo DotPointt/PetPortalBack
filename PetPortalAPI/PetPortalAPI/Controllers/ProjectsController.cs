@@ -2,6 +2,8 @@
 using PetPortalAPI.Contracts;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Models;
+using System.Linq;
+using System.Reflection;
 
 namespace PetPortalAPI.Controllers
 {
@@ -30,12 +32,19 @@ namespace PetPortalAPI.Controllers
         /// Endpoint get all projects.
         /// </summary>
         /// <returns>Action result - List of projects.</returns>
-        [HttpGet]
-        public async Task<ActionResult<List<ProjectsResponse>>> GetProjects()
+        [HttpGet("{offset:int?}/{page:int?}")]
+        public async Task<ActionResult<List<ProjectsResponse>>> GetProjects(int offset = 10, int page = 1)
         {
+            if (offset < 1 || page < 1)
+            {
+                Response.StatusCode = 500;
+                await Response.WriteAsync("Error 500. DivideByZeroException occurred!");
+                return BadRequest();
+            }
+
             try
             {
-                var projects = await _projectsService.GetAllProjects();
+                var projects = await _projectsService.GetAllProjects(); projects = projects.Skip((page - 1) * offset).Take(offset).ToList();
                 var response = projects.Select(p => new ProjectsResponse(p.Id, p.Name, p.Description));
 
                 return Ok(response);
