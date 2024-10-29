@@ -13,15 +13,24 @@ public class ProjectService() :  IProjectsService
     /// <summary>
     /// Project repository.
     /// </summary>
-    private readonly IProjectsRepository projectsRepository; 
-        
+    private readonly IProjectsRepository _projectsRepository; 
+    
+    /// <summary>
+    /// Project service constructor.
+    /// </summary>
+    /// <param name="projectsRepository"></param>
+    public ProjectService(IProjectsRepository projectsRepository) : this()
+    {
+        _projectsRepository = projectsRepository;
+    }
+    
     /// <summary>
     /// Get all projects
     /// </summary>
     /// <returns>List of projects.</returns>
     public async Task<List<Project>> GetAllProjects()
     {
-        return await projectsRepository.Get();
+        return await _projectsRepository.Get();
     }
 
     /// <summary>
@@ -31,7 +40,7 @@ public class ProjectService() :  IProjectsService
     /// <returns>Created project guid.</returns>
     public async Task<Guid> CreateProject(Project project)
     {
-        return await projectsRepository.Create(project);
+        return await _projectsRepository.Create(project);
     }
 
     /// <summary>
@@ -43,7 +52,7 @@ public class ProjectService() :  IProjectsService
     /// <returns>Updated project guid.</returns>
     public async Task<Guid> UpdateProject(Guid id, string name, string description)
     {
-        return await projectsRepository.Update(id, name, description);
+        return await _projectsRepository.Update(id, name, description);
     }
 
     /// <summary>
@@ -53,6 +62,6 @@ public class ProjectService() :  IProjectsService
     /// <returns>Deleted project guid.</returns>
     public async Task<Guid> Delete(Guid id)
     {
-        return await projectsRepository.Delete(id);
+        return await _projectsRepository.Delete(id);
     }
 }

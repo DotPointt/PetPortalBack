@@ -1,5 +1,7 @@
 using PetPortalApplication.Services;
+using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
+using PetPortalDAL.Repositories;
 
 namespace PetPortalAPI
 {
@@ -14,6 +16,7 @@ namespace PetPortalAPI
             builder.Services.AddSwaggerGen();
             
             builder.Services.AddScoped<IProjectsService, ProjectService>();
+            builder.Services.AddSingleton<IProjectsRepository, ProjectRepository>();
 
             var app = builder.Build();
 
