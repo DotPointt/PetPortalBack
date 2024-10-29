@@ -8,19 +8,19 @@ using System.Reflection;
 namespace PetPortalAPI.Controllers
 {
     /// <summary>
-    /// Project controller.
+    /// Projects controller.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ProjectsController : ControllerBase
     {
         /// <summary>
-        /// Project service.
+        /// Projects service.
         /// </summary>
         private readonly IProjectsService _projectsService;
 
         /// <summary>
-        /// Project controller constructor.
+        /// Projects controller constructor.
         /// </summary>
         /// <param name="projectsService">Project service.</param>
         public ProjectsController(IProjectsService projectsService)
@@ -29,12 +29,18 @@ namespace PetPortalAPI.Controllers
         }
 
         /// <summary>
-        /// Endpoint get all projects.
+        /// Endpoint get paginated projects.
         /// </summary>
-        /// <returns>Action result - List of projects.</returns>
+        /// <returns>
+        /// Action result - List of projects or
+        /// Action result - error message.
+        /// </returns>
         [HttpGet("{offset:int?}/{page:int?}")]
         public async Task<ActionResult<List<ProjectsResponse>>> GetProjects(int offset = 10, int page = 1)
         {
+            
+            // TODO сделать отдельный метод получения проектов, дабы снизить нагрузку на бд. А то все проекты подтаскиваются, а используем только десяток.
+            
             if (offset < 1 || page < 1)
             {
                 Response.StatusCode = 500;
@@ -44,7 +50,8 @@ namespace PetPortalAPI.Controllers
 
             try
             {
-                var projects = await _projectsService.GetAllProjects(); projects = projects.Skip((page - 1) * offset).Take(offset).ToList();
+                var projects = await _projectsService.GetAll(); 
+                projects = projects.Skip((page - 1) * offset).Take(offset).ToList();
                 var response = projects.Select(p => new ProjectsResponse(p.Id, p.Name, p.Description));
 
                 return Ok(response);
@@ -78,7 +85,7 @@ namespace PetPortalAPI.Controllers
                     return BadRequest(error);
                 }
                 
-                var projectGuid = await _projectsService.CreateProject(project);
+                var projectGuid = await _projectsService.Create(project);
 
                 return Ok(projectGuid);
             }
@@ -102,7 +109,7 @@ namespace PetPortalAPI.Controllers
         {
             try
             {
-                var projectId = await _projectsService.UpdateProject(id, request.Name, request.Description);
+                var projectId = await _projectsService.Update(id, request.Name, request.Description);
                 
                 return Ok(projectId);
             }

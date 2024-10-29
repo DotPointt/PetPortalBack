@@ -8,7 +8,7 @@ namespace PetPortalApplication.Services;
 /// <summary>
 /// Projects service.
 /// </summary>
-public class ProjectService() :  IProjectsService
+public class ProjectService :  IProjectsService
 {
     /// <summary>
     /// Project repository.
@@ -19,7 +19,7 @@ public class ProjectService() :  IProjectsService
     /// Project service constructor.
     /// </summary>
     /// <param name="projectsRepository"></param>
-    public ProjectService(IProjectsRepository projectsRepository) : this()
+    public ProjectService(IProjectsRepository projectsRepository)
     {
         _projectsRepository = projectsRepository;
     }
@@ -28,7 +28,7 @@ public class ProjectService() :  IProjectsService
     /// Get all projects
     /// </summary>
     /// <returns>List of projects.</returns>
-    public async Task<List<Project>> GetAllProjects()
+    public async Task<List<Project>> GetAll()
     {
         return await _projectsRepository.Get();
     }
@@ -38,7 +38,7 @@ public class ProjectService() :  IProjectsService
     /// </summary>
     /// <param name="project">Project data.</param>
     /// <returns>Created project guid.</returns>
-    public async Task<Guid> CreateProject(Project project)
+    public async Task<Guid> Create(Project project)
     {
         return await _projectsRepository.Create(project);
     }
@@ -50,7 +50,7 @@ public class ProjectService() :  IProjectsService
     /// <param name="name">Project name.</param>
     /// <param name="description">Project description.</param>
     /// <returns>Updated project guid.</returns>
-    public async Task<Guid> UpdateProject(Guid id, string name, string description)
+    public async Task<Guid> Update(Guid id, string name, string description)
     {
         return await _projectsRepository.Update(id, name, description);
     }

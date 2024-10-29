@@ -11,23 +11,23 @@ namespace PetPortalCore.Abstractions.Services
         /// Get all projects.
         /// </summary>
         /// <returns>List of projects.</returns>
-        Task<List<Project>> GetAllProjects();
+        Task<List<Project>> GetAll();
         
         /// <summary>
         /// Create new project.
         /// </summary>
         /// <param name="project">Project data.</param>
         /// <returns>Identifier of new project.</returns>
-        Task<Guid> CreateProject(Project project);
+        Task<Guid> Create(Project project);
         
         /// <summary>
-        /// Project update.
+        /// Project updating.
         /// </summary>
         /// <param name="id">Project identifier.</param>
         /// <param name="name">Project name.</param>
         /// <param name="description">Project description.</param>
         /// <returns>Identifier of updated project.</returns>
-        Task<Guid> UpdateProject(Guid id, string name, string description);
+        Task<Guid> Update(Guid id, string name, string description);
         
         /// <summary>
         /// Delete project.
