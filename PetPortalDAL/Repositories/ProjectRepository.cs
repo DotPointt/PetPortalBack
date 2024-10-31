@@ -1,4 +1,5 @@
 using PetPortalCore.Abstractions.Repositories;
+using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 
 namespace PetPortalDAL.Repositories;
@@ -20,9 +21,9 @@ public class ProjectRepository : IProjectsRepository
     {
         _mockProjects = new List<Project>
         {
-            Project.Create(Guid.NewGuid(), "Project 1", "Description for project 1").project,
-            Project.Create(Guid.NewGuid(), "Project 2", "Description for project 2").project,
-            Project.Create(Guid.NewGuid(), "Project 3", "Description for project 3").project,
+            Project.Create(Guid.NewGuid(), "Project 1", "Description for project 1", Guid.NewGuid()).project,
+            Project.Create(Guid.NewGuid(), "Project 2", "Description for project 2", Guid.NewGuid()).project,
+            Project.Create(Guid.NewGuid(), "Project 3", "Description for project 3", Guid.NewGuid()).project,
         };
     }
     
@@ -46,17 +47,18 @@ public class ProjectRepository : IProjectsRepository
     /// <summary>
     /// Simulates updating an existing project and returns its ID
     /// </summary>
-    public Task<Guid> Update(Guid id, string name, string description)
+    public Task<Guid> Update(ProjectDetailDto request)
     {
-        var project = _mockProjects.Find(p => p.Id == id);
+        var project = _mockProjects.Find(p => p.Id == request.Id);
         
         if (project != null)
         {
-            project.Name = name;        
-            project.Description = description;
+            project.Name = request.Name;        
+            project.Description = request.Description;
+            project.OwnerId = request.OwnerId;
         }
         
-        return Task.FromResult(id);
+        return Task.FromResult(request.Id);
     }
 
     /// <summary>

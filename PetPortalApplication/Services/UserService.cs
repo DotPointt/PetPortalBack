@@ -1,5 +1,6 @@
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 
 namespace PetPortalApplication.Services;
@@ -35,24 +36,33 @@ public class UserService : IUserService
     /// <summary>
     /// User creation.
     /// </summary>
-    /// <param name="user">User data.</param>
+    /// <param name="request">User data.</param>
     /// <returns>Created user guid.</returns>
-    public async Task<Guid> Create(User user)
+    /// <exception cref="ArgumentException">Some parameters invalided.</exception>
+    public async Task<Guid> Create(UserDto request)
     {
+        var (user, error) = PetPortalCore.Models.User.Create(
+            Guid.NewGuid(),
+            request.Name,
+            request.Email,
+            request.Password);
+                
+        if (!string.IsNullOrEmpty(error))
+        {
+            throw new ArgumentException(error);
+        }
+        
         return await _usersRepository.Create(user);
     }
 
     /// <summary>
     /// User updating.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <param name="name">User name.</param>
-    /// <param name="email">User email.</param>
-    /// <param name="password">User password.</param>
+    /// <param name="user">User data.</param>
     /// <returns>Updated user guid.</returns>
-    public async Task<Guid> Update(Guid id, string name, string email, string password)
+    public async Task<Guid> Update(UserDto user)
     {
-        return await _usersRepository.Update(id, name, email, password);
+        return await _usersRepository.Update(user);
     }
 
     /// <summary>

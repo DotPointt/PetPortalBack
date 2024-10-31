@@ -1,4 +1,5 @@
-﻿using PetPortalCore.Models;
+﻿using PetPortalCore.DTOs;
+using PetPortalCore.Models;
 
 namespace PetPortalCore.Abstractions.Services
 {
@@ -18,16 +19,14 @@ namespace PetPortalCore.Abstractions.Services
         /// </summary>
         /// <param name="project">Project data.</param>
         /// <returns>Identifier of new project.</returns>
-        Task<Guid> Create(Project project);
-        
+        Task<Guid> Create(ProjectDetailDto project);
+
         /// <summary>
         /// Project updating.
         /// </summary>
-        /// <param name="id">Project identifier.</param>
-        /// <param name="name">Project name.</param>
-        /// <param name="description">Project description.</param>
+        /// <param name="project">Project data.</param>
         /// <returns>Identifier of updated project.</returns>
-        Task<Guid> Update(Guid id, string name, string description);
+        Task<Guid> Update(ProjectDetailDto project);
         
         /// <summary>
         /// Delete project.

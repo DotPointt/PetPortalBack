@@ -9,18 +9,20 @@
         /// Max name length.
         /// </summary>
         public const int MAX_NAME_LENGHT = 250;
-        
+
         /// <summary>
         /// Project constructor.
         /// </summary>
         /// <param name="id">Project identifier.</param>
         /// <param name="name">Project name.</param>
         /// <param name="description">Project description.</param>
-        public Project(Guid id, string name, string description)
+        /// <param name="ownerId">Project owner identifier.</param>
+        private Project(Guid id, string name, string description, Guid ownerId)
         {
             Id = id;
             Name = name;
             Description = description;
+            OwnerId = ownerId;
         }
 
         /// <summary>
@@ -49,8 +51,9 @@
         /// <param name="id">Project identifier.</param>
         /// <param name="name">Project name.</param>
         /// <param name="description">Project description.</param>
+        /// <param name="ownerId">Project owner identifier.</param>
         /// <returns>(project, error if it exist)</returns>
-        public static (Project project, string Error) Create(Guid id, string name, string description)
+        public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId)
         {
             var error = string.Empty;
 
@@ -59,7 +62,7 @@
                 error = "Name can not be empty or longer then 250 symbols";
             }
 
-            var project = new Project(id, name, description);
+            var project = new Project(id, name, description, ownerId);
 
             return (project, error);
         }

@@ -1,3 +1,4 @@
+using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 
 namespace PetPortalCore.Abstractions.Repositories
@@ -23,12 +24,9 @@ namespace PetPortalCore.Abstractions.Repositories
         /// <summary>
         /// User updating.
         /// </summary>
-        /// <param name="id">User identifier.</param>
-        /// <param name="name">User name.</param>
-        /// <param name="email">User email.</param>
-        /// <param name="password">User password.</param>
+        /// <param name="user">User data.</param>
         /// <returns>Identifier of updated user.</returns>
-        Task<Guid> Update(Guid id, string name, string email, string password);
+        Task<Guid> Update(UserDto user);
         
         /// <summary>
         /// Delete user.

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PetPortalAPI.Contracts;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Models;
 using System.Linq;
 using System.Reflection;
+using PetPortalCore.DTOs;
 
 namespace PetPortalAPI.Controllers
 {
@@ -36,7 +36,7 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpGet("{offset:int?}/{page:int?}")]
-        public async Task<ActionResult<List<ProjectsResponse>>> GetProjects(int offset = 10, int page = 1)
+        public async Task<ActionResult<List<ProjectDetailDto>>> GetProjects(int offset = 10, int page = 1)
         {
             
             // TODO сделать отдельный метод получения проектов, дабы снизить нагрузку на бд. А то все проекты подтаскиваются, а используем только десяток.
@@ -51,8 +51,21 @@ namespace PetPortalAPI.Controllers
             try
             {
                 var projects = await _projectsService.GetAll(); 
-                projects = projects.Skip((page - 1) * offset).Take(offset).ToList();
-                var response = projects.Select(p => new ProjectsResponse(p.Id, p.Name, p.Description));
+                projects = projects
+                    .Skip((page - 1) * offset)
+                    .Take(offset)
+                    .ToList();
+                
+                var response = projects
+                    .Select(p =>
+                        new ProjectDetailDto()
+                        {
+                            Id = p.Id,
+                            Name = p.Name,
+                            Description = p.Description,
+                            OwnerId = p.OwnerId
+                        }
+                    );
 
                 return Ok(response);
             }
@@ -65,27 +78,17 @@ namespace PetPortalAPI.Controllers
         /// <summary>
         /// Endpoint create project.
         /// </summary>
-        /// <param name="request">Project data.</param>
+        /// <param name="request">Project detail data.</param>
         /// <returns>
         /// Action result - created project guid or
         /// Action result - error message.
         /// </returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectsRequest request)
+        public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectDetailDto request)
         {
             try
             {
-                var (project, error) = Project.Create(
-                    Guid.NewGuid(),
-                    request.Name,
-                    request.Description);
-                
-                if (!string.IsNullOrEmpty(error))
-                {
-                    return BadRequest(error);
-                }
-                
-                var projectGuid = await _projectsService.Create(project);
+                var projectGuid = await _projectsService.Create(request);
 
                 return Ok(projectGuid);
             }
@@ -98,18 +101,17 @@ namespace PetPortalAPI.Controllers
         /// <summary>
         /// Endpoint update project.
         /// </summary>
-        /// <param name="id">Project identifier.</param>
         /// <param name="request">Project data.</param>
         /// <returns>
         /// Action result - updated project guid or
         /// Action result - error message.
         /// </returns>
-        [HttpPut("{id:guid}")]
-        public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] ProjectsRequest request)
+        [HttpPut]
+        public async Task<ActionResult<Guid>> UpdateProject([FromBody] ProjectDetailDto request)
         {
             try
             {
-                var projectId = await _projectsService.Update(id, request.Name, request.Description);
+                var projectId = await _projectsService.Update(request);
                 
                 return Ok(projectId);
             }

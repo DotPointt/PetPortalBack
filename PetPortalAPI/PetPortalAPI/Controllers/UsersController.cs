@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using PetPortalAPI.Contracts;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.DTOs;
 
 namespace PetPortalAPI.Controllers
 {
@@ -33,12 +33,21 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpGet]
-        public async Task<ActionResult<List<UsersResponse>>> GetUsers()
+        public async Task<ActionResult<List<UserDto>>> GetUsers()
         {  
             try
             {
                 var users = await _userService.GetAll();
-                var response = users.Select(p => new UsersResponse(p.Id, p.Name, p.Email, p.PasswordHash));
+                var response = users
+                    .Select(p => 
+                        new UserDto()
+                        {
+                            Id = p.Id,
+                            Name = p.Name,
+                            Email = p.Email,
+                            Password = p.PasswordHash
+                        }
+                    );
 
                 return Ok(response);
             }
@@ -57,22 +66,11 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateProject([FromBody] UsersRequest request)
+        public async Task<ActionResult<Guid>> CreateProject([FromBody] UserDto request)
         {
             try
             {
-                var (user, error) = PetPortalCore.Models.User.Create(
-                    Guid.NewGuid(),
-                    request.Name,
-                    request.Email,
-                    request.Password);
-                
-                if (!string.IsNullOrEmpty(error))
-                {
-                    return BadRequest(error);
-                }
-                
-                var userGuid = await _userService.Create(user);
+                var userGuid = await _userService.Create(request);
 
                 return Ok(userGuid);
             }
@@ -85,18 +83,24 @@ namespace PetPortalAPI.Controllers
         /// <summary>
         /// Endpoint update user.
         /// </summary>
-        /// <param name="id">User identifier.</param>
         /// <param name="request">User data.</param>
         /// <returns>
         /// Action result - updated user guid or
         /// Action result - error message.
         /// </returns>
-        [HttpPut("{id:guid}")]
-        public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] UsersRequest request)
+        [HttpPut]
+        public async Task<ActionResult<Guid>> UpdateProject([FromBody] UserDto request)
         {
             try
             {
-                var userId = await _userService.Update(id, request.Name, request.Email, request.Password);
+                var userId = await _userService.Update(
+                    new UserDto()
+                    {
+                        Id = request.Id, 
+                        Name = request.Name, 
+                        Email = request.Email, 
+                        Password = request.Password
+                    });
                 
                 return Ok(userId);
             }

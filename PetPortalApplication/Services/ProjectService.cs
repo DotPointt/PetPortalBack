@@ -1,6 +1,7 @@
 ﻿using PetPortalCore.Abstractions;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 
 namespace PetPortalApplication.Services;
@@ -36,23 +37,33 @@ public class ProjectService :  IProjectsService
     /// <summary>
     /// Project creation.
     /// </summary>
-    /// <param name="project">Project data.</param>
+    /// <param name="request">Project detail data.</param>
     /// <returns>Created project guid.</returns>
-    public async Task<Guid> Create(Project project)
+    /// <exception cref="ArgumentException">Some parameters invalided.</exception>
+    public async Task<Guid> Create(ProjectDetailDto request)
     {
+        var (project, error) = Project.Create(
+            Guid.NewGuid(),
+            request.Name,
+            request.Description,
+            request.OwnerId);
+        
+        if (!string.IsNullOrEmpty(error))
+        {
+            throw new ArgumentException(error);
+        }
+        
         return await _projectsRepository.Create(project);
     }
 
     /// <summary>
     /// Project updating.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
-    /// <param name="name">Project name.</param>
-    /// <param name="description">Project description.</param>
+    /// <param name="project">Project data.</param>
     /// <returns>Updated project guid.</returns>
-    public async Task<Guid> Update(Guid id, string name, string description)
+    public async Task<Guid> Update(ProjectDetailDto project)
     {
-        return await _projectsRepository.Update(id, name, description);
+        return await _projectsRepository.Update(project);
     }
 
     /// <summary>

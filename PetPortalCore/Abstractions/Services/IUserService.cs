@@ -1,3 +1,4 @@
+using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 
 namespace PetPortalCore.Abstractions.Services;
@@ -15,17 +16,14 @@ public interface IUserService
     /// </summary>
     /// <param name="user">User data.</param>
     /// <returns>Created user guid.</returns>
-    Task<Guid> Create(User user);
+    Task<Guid> Create(UserDto user);
 
     /// <summary>
     /// User updating.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <param name="name">User name.</param>
-    /// <param name="email">User email.</param>
-    /// <param name="password">User password.</param>
+    /// <param name="user">User data.</param>
     /// <returns>Updated user guid.</returns>
-    Task<Guid> Update(Guid id, string name, string email, string password);
+    Task<Guid> Update(UserDto user);
 
     /// <summary>
     /// User deleting.
