@@ -44,7 +44,7 @@ namespace PetPortalAPI.Controllers
             if (offset < 1 || page < 1)
             {
                 Response.StatusCode = 500;
-                await Response.WriteAsync("Error 500. DivideByZeroException occurred!");
+                await Response.WriteAsync("Error 500. Wrong parameters");
                 return BadRequest();
             }
 
@@ -132,6 +132,8 @@ namespace PetPortalAPI.Controllers
         [HttpDelete]
         public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
         {
+            var token = Request.Headers["Authorization"];
+
             try
             {
                 var projectId = await _projectsService.Delete(id);

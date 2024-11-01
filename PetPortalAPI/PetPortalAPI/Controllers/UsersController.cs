@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PetPortalAPI.Controllers
 {
@@ -66,7 +69,7 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateProject([FromBody] UserDto request)
+        public async Task<ActionResult<Guid>> CreateUser([FromBody] UserDto request)
         {
             try
             {
@@ -79,7 +82,29 @@ namespace PetPortalAPI.Controllers
                 return BadRequest(ex.ToString());
             }
         }
-        
+
+        [Route("login/{username}")]
+        [HttpPost()]
+        public async Task<ActionResult<string>> Login(string username)
+        {
+            try
+            {
+                var claims = new List<Claim> { new Claim(ClaimTypes.Name, username) };
+                var jwt = new JwtSecurityToken(
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        claims: claims,
+                        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(100)), // время действия 2 минуты
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+
+                return new JwtSecurityTokenHandler().WriteToken(jwt);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
+
         /// <summary>
         /// Endpoint update user.
         /// </summary>
@@ -89,7 +114,7 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpPut]
-        public async Task<ActionResult<Guid>> UpdateProject([FromBody] UserDto request)
+        public async Task<ActionResult<Guid>> UpdateUser([FromBody] UserDto request)
         {
             try
             {
