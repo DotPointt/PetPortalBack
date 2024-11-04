@@ -4,8 +4,10 @@ using Microsoft.IdentityModel.Tokens;
 using PetPortalApplication.Services;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
-using PetPortalDAL.Repositories;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using PetPortalDAL;
+using PetPortalDAL.Repositories;
 
 namespace PetPortalAPI
 {
@@ -14,36 +16,42 @@ namespace PetPortalAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-
+            
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        // указывает, будет ли валидироваться издатель при валидации токена
+                        // СѓРєР°Р·С‹РІР°РµС‚, Р±СѓРґРµС‚ Р»Рё РІР°Р»РёРґРёСЂРѕРІР°С‚СЊСЃСЏ РёР·РґР°С‚РµР»СЊ РїСЂРё РІР°Р»РёРґР°С†РёРё С‚РѕРєРµРЅР°
                         ValidateIssuer = true,
-                        // строка, представляющая издателя
+                        // СЃС‚СЂРѕРєР°, РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‰Р°СЏ РёР·РґР°С‚РµР»СЏ
                         ValidIssuer = AuthOptions.ISSUER,
-                        // будет ли валидироваться потребитель токена
+                        // Р±СѓРґРµС‚ Р»Рё РІР°Р»РёРґРёСЂРѕРІР°С‚СЊСЃСЏ РїРѕС‚СЂРµР±РёС‚РµР»СЊ С‚РѕРєРµРЅР°
                         ValidateAudience = true,
-                        // установка потребителя токена
+                        // СѓСЃС‚Р°РЅРѕРІРєР° РїРѕС‚СЂРµР±РёС‚РµР»СЏ С‚РѕРєРµРЅР°
                         ValidAudience = AuthOptions.AUDIENCE,
-                        // будет ли валидироваться время существования
+                        // Р±СѓРґРµС‚ Р»Рё РІР°Р»РёРґРёСЂРѕРІР°С‚СЊСЃСЏ РІСЂРµРјСЏ СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ
                         ValidateLifetime = true,
-                        // установка ключа безопасности
+                        // СѓСЃС‚Р°РЅРѕРІРєР° РєР»СЋС‡Р° Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                        // валидация ключа безопасности
+                        // РІР°Р»РёРґР°С†РёСЏ РєР»СЋС‡Р° Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё
                         ValidateIssuerSigningKey = true,
                     };
                 });
+            
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<PetPortalDbContext>(
+                options =>
+                {
+                    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(PetPortalDbContext)));
+                });
             
             builder.Services.AddScoped<IProjectsService, ProjectService>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddSingleton<IProjectsRepository, ProjectRepository>();
+            builder.Services.AddSingleton<IProjectsRepository, ProjectsRepository>();
 
             var app = builder.Build();
 
@@ -64,9 +72,9 @@ namespace PetPortalAPI
 
 public class AuthOptions
 {
-    public const string ISSUER = "MyAuthServer"; // издатель токена
-    public const string AUDIENCE = "MyAuthClient"; // потребитель токена
-    const string KEY = "mysupersecret_secretsecretsecretkey!123";   // ключ для шифрации
+    public const string ISSUER = "MyAuthServer"; // РёР·РґР°С‚РµР»СЊ С‚РѕРєРµРЅР°
+    public const string AUDIENCE = "MyAuthClient"; // РїРѕС‚СЂРµР±РёС‚РµР»СЊ С‚РѕРєРµРЅР°
+    const string KEY = "mysupersecret_secretsecretsecretkey!123";   // РєР»СЋС‡ РґР»СЏ С€РёС„СЂР°С†РёРё
     public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
 }
