@@ -17,16 +17,16 @@ namespace PetPortalCore.Abstractions.Repositories
         /// <summary>
         /// Create new user.
         /// </summary>
-        /// <param name="project">User data.</param>
+        /// <param name="user">User data.</param>
         /// <returns>Identifier of new user.</returns>
-        Task<Guid> Create(User project);
+        Task<Guid> Create(User user);
 
         /// <summary>
         /// User updating.
         /// </summary>
-        /// <param name="user">User data.</param>
+        /// <param name="userData">User data.</param>
         /// <returns>Identifier of updated user.</returns>
-        Task<Guid> Update(UserDto user);
+        Task<Guid> Update(UserDto userData);
         
         /// <summary>
         /// Delete user.

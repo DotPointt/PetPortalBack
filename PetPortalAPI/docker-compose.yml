@@ -1,0 +1,6 @@
+﻿services:
+  petportalapi:
+    image: petportalapi
+    build:
+      context: .
+      dockerfile: PetPortalAPI/Dockerfile
