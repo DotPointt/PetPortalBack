@@ -7,7 +7,7 @@ namespace PetPortalDAL
     /// <summary>
     /// Data base context.
     /// </summary>
-    public class PetPortalDbContext : DbContext
+    public class  PetPortalDbContext : DbContext
     {
         /// <summary>
         /// Context constructor.

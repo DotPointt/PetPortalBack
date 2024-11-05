@@ -10,12 +10,15 @@ namespace PetPortalDAL.Configurations
     /// </summary>
     public class ProjectConfigurations : IEntityTypeConfiguration<ProjectEntity>
     {
+        /// <summary>
+        /// Project entity configuration in data base.
+        /// </summary>
+        /// <param name="builder">Configurator.</param>
         public void Configure(EntityTypeBuilder<ProjectEntity> builder)
         {
             builder.HasKey(project => project.Id);
 
             builder.Property(project => project.Name)
-                .HasMaxLength(Project.MAX_NAME_LENGHT)
                 .IsRequired();
 
             builder.Property(project => project.Description)

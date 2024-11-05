@@ -1,0 +1,14 @@
+﻿version: latest
+services:
+  postgres:
+    container_name: PetPortalDb
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"
+      
+volumes: 
+  postgres-data:
