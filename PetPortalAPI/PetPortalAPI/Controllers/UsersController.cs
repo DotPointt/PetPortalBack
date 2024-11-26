@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using PetPortalCore.DTOs.Contracts;
 
 namespace PetPortalAPI.Controllers
 {
@@ -69,7 +70,7 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateUser([FromBody] UserDto request)
+        public async Task<ActionResult<Guid>> CreateUser([FromBody] UserContract request)
         {
             try
             {
@@ -94,7 +95,7 @@ namespace PetPortalAPI.Controllers
                         issuer: AuthOptions.ISSUER,
                         audience: AuthOptions.AUDIENCE,
                         claims: claims,
-                        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(100)), // время действия 2 минуты
+                        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(100)), // РІСЂРµРјСЏ РґРµР№СЃС‚РІРёСЏ 2 РјРёРЅСѓС‚С‹
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
 
                 return new JwtSecurityTokenHandler().WriteToken(jwt);

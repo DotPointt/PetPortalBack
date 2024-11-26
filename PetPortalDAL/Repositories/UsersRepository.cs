@@ -1,58 +1,94 @@
-﻿using PetPortalCore.Abstractions.Repositories;
+using Microsoft.EntityFrameworkCore;
+using PetPortalCore.Abstractions.Repositories;
+using PetPortalCore.DTOs;
 using PetPortalCore.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PetPortalDAL.Entities;
 
 namespace PetPortalDAL.Repositories
 {
+    /// <summary>
+    /// Users repository.
+    /// </summary>
     public class UsersRepository : IUsersRepository
     {
-        private readonly DbContext _context;
-
-        public ProjectsRepository(DbContext context)
+        /// <summary>
+        /// Data base context.
+        /// </summary>
+        private readonly PetPortalDbContext _context;
+        
+        /// <summary>
+        /// Repository constructor.
+        /// </summary>
+        /// <param name="context">Data base context.</param>
+        public UsersRepository(PetPortalDbContext context)
         {
             _context = context;
         }
-
-        public async Task<List<User>> Get()
+        
+        /// <summary>
+        /// Get data bases users.
+        /// </summary>
+        /// <returns>List of users.</returns>
+        public async Task<List<User>> GetAll()
         {
-            var projectEntities = await _context.Projects
+            var userEntities = await _context.Users
                 .AsNoTracking()
                 .ToListAsync();
 
-            var projects = projectEntities
-                .Select(p => Project.Create(p.Id, p.Name, p.Description).project)
+            var users = userEntities
+                .Select(user =>
+                    User.Create(user.Id, user.Name, user.Email, user.PasswordHash).user)
                 .ToList();
 
-            return projects;
+            return users;
         }
 
+        /// <summary>
+        /// Create new user in data base.
+        /// </summary>
+        /// <param name="user">User data.</param>
+        /// <returns>Created user identifier.</returns>
         public async Task<Guid> Create(User user)
         {
-            await _context.AddAsync(user);
+            var userEntity = new UserEntity()
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                PasswordHash = user.PasswordHash
+            };
+
+            await _context.AddAsync(userEntity);
             await _context.SaveChangesAsync();
 
-            return user.Id;
+            return userEntity.Id;
         }
 
-        public async Task<Guid> Update(Guid id, string name, string description)
+        /// <summary>
+        /// Update data base user.
+        /// </summary>
+        /// <param name="userData">User data.</param>
+        /// <returns>Updated user identifier.</returns>
+        public async Task<Guid> Update(UserDto userData)
         {
-            await _context.Projects
-                .Where(p => p.Id == id)
+            await _context.Users
+                .Where(project => project.Id == userData.Id)
                 .ExecuteUpdateAsync(s => s
-                    .SetProperty(p => p.Name, p => name)
-                    .SetProperty(p => p.Description, p => description));
+                    .SetProperty(project => project.Name, project => userData.Name)
+                );
 
-            return id;
+            return userData.Id;
         }
 
+        /// <summary>
+        /// Delete data base user.
+        /// </summary>
+        /// <param name="id">User identifier.</param>
+        /// <returns>Deleted user identifier.</returns>
         public async Task<Guid> Delete(Guid id)
         {
-            await _context.Projects
-                .Where(p => p.Id == id)
+            await _context.Users
+                .Where(user => user.Id == id)
                 .ExecuteDeleteAsync();
 
             return id;

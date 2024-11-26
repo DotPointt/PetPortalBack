@@ -1,6 +1,7 @@
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
+using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
 
 namespace PetPortalApplication.Services;
@@ -39,7 +40,7 @@ public class UserService : IUserService
     /// <param name="request">User data.</param>
     /// <returns>Created user guid.</returns>
     /// <exception cref="ArgumentException">Some parameters invalided.</exception>
-    public async Task<Guid> Create(UserDto request)
+    public async Task<Guid> Create(UserContract request)
     {
         var (user, error) = PetPortalCore.Models.User.Create(
             Guid.NewGuid(),

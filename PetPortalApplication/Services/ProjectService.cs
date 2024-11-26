@@ -2,6 +2,7 @@
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
+using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
 
 namespace PetPortalApplication.Services;
@@ -40,7 +41,7 @@ public class ProjectService :  IProjectsService
     /// <param name="request">Project detail data.</param>
     /// <returns>Created project guid.</returns>
     /// <exception cref="ArgumentException">Some parameters invalided.</exception>
-    public async Task<Guid> Create(ProjectDetailDto request)
+    public async Task<Guid> Create(ProjectContract request)
     {
         var (project, error) = Project.Create(
             Guid.NewGuid(),

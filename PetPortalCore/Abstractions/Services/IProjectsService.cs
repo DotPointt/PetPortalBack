@@ -1,4 +1,5 @@
 ﻿using PetPortalCore.DTOs;
+using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
 
 namespace PetPortalCore.Abstractions.Services
@@ -19,7 +20,7 @@ namespace PetPortalCore.Abstractions.Services
         /// </summary>
         /// <param name="project">Project data.</param>
         /// <returns>Identifier of new project.</returns>
-        Task<Guid> Create(ProjectDetailDto project);
+        Task<Guid> Create(ProjectContract project);
 
         /// <summary>
         /// Project updating.
