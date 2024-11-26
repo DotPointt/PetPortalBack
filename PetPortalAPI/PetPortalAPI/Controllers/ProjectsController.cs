@@ -4,6 +4,7 @@ using PetPortalCore.Models;
 using System.Linq;
 using System.Reflection;
 using PetPortalCore.DTOs;
+using PetPortalCore.DTOs.Contracts;
 
 namespace PetPortalAPI.Controllers
 {
@@ -84,7 +85,7 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectDetailDto request)
+        public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract request)
         {
             try
             {

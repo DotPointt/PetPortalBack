@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using PetPortalCore.DTOs.Contracts;
 
 namespace PetPortalAPI.Controllers
 {
@@ -69,7 +70,7 @@ namespace PetPortalAPI.Controllers
         /// Action result - error message.
         /// </returns>
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateUser([FromBody] UserDto request)
+        public async Task<ActionResult<Guid>> CreateUser([FromBody] UserContract request)
         {
             try
             {
