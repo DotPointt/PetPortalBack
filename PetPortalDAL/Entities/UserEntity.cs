@@ -24,5 +24,10 @@ namespace PetPortalDAL.Entities
         /// User password.
         /// </summary>
         public string PasswordHash { get; set; }
+        
+        /// <summary>
+        /// Project.
+        /// </summary>
+        public ICollection<ProjectEntity> Projects { get; set; } = new List<ProjectEntity>();
     }
 }

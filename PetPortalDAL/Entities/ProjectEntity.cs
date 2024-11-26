@@ -24,5 +24,10 @@ namespace PetPortalDAL.Entities
         /// Project owner.
         /// </summary>
         public Guid OwnerId { get; set; }
+        
+        /// <summary>
+        /// Owner.
+        /// </summary>
+        public UserEntity User { get; set; }
     }
 }

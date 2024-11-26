@@ -51,6 +51,7 @@ namespace PetPortalAPI
             
             builder.Services.AddScoped<IProjectsService, ProjectService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            
             builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
             builder.Services.AddScoped<IUsersRepository, UsersRepository>();
             

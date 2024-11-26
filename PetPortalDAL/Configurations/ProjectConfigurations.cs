@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PetPortalCore.Models;
 using PetPortalDAL.Entities;
 
 namespace PetPortalDAL.Configurations
