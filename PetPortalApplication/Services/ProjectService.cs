@@ -1,5 +1,4 @@
-﻿using PetPortalCore.Abstractions;
-using PetPortalCore.Abstractions.Repositories;
+﻿using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
@@ -62,7 +61,7 @@ public class ProjectService :  IProjectsService
     /// </summary>
     /// <param name="project">Project data.</param>
     /// <returns>Updated project guid.</returns>
-    public async Task<Guid> Update(ProjectDetailDto project)
+    public async Task<Guid> Update(ProjectDto project)
     {
         return await _projectsRepository.Update(project);
     }

@@ -1,70 +1,69 @@
-﻿namespace PetPortalCore.Models
+﻿namespace PetPortalCore.Models;
+
+/// <summary>
+/// Project.
+/// </summary>
+public class Project
 {
     /// <summary>
-    /// Project.
+    /// Max name length.
     /// </summary>
-    public class Project
+    public const int MAX_NAME_LENGHT = 250;
+
+    /// <summary>
+    /// Project constructor.
+    /// </summary>
+    /// <param name="id">Project identifier.</param>
+    /// <param name="name">Project name.</param>
+    /// <param name="description">Project description.</param>
+    /// <param name="ownerId">Project owner identifier.</param>
+    private Project(Guid id, string name, string description, Guid ownerId)
     {
-        /// <summary>
-        /// Max name length.
-        /// </summary>
-        public const int MAX_NAME_LENGHT = 250;
+        Id = id;
+        Name = name;
+        Description = description;
+        OwnerId = ownerId;
+    }
 
-        /// <summary>
-        /// Project constructor.
-        /// </summary>
-        /// <param name="id">Project identifier.</param>
-        /// <param name="name">Project name.</param>
-        /// <param name="description">Project description.</param>
-        /// <param name="ownerId">Project owner identifier.</param>
-        private Project(Guid id, string name, string description, Guid ownerId)
+    /// <summary>
+    /// Project identifier.
+    /// </summary>
+    public Guid Id;
+
+    /// <summary>
+    /// Project name.
+    /// </summary>
+    public string Name = string.Empty;
+
+    /// <summary>
+    /// Project description.
+    /// </summary>
+    public string Description = string.Empty;
+
+    /// <summary>
+    /// Project owner.
+    /// </summary>
+    public Guid OwnerId;
+
+    /// <summary>
+    /// Creation new project.
+    /// </summary>
+    /// <param name="id">Project identifier.</param>
+    /// <param name="name">Project name.</param>
+    /// <param name="description">Project description.</param>
+    /// <param name="ownerId">Project owner identifier.</param>
+    /// <returns>(project, error if it exist)</returns>
+    public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId)
+    {
+        var error = string.Empty;
+
+        if (string.IsNullOrEmpty(name) || name.Length > MAX_NAME_LENGHT)
         {
-            Id = id;
-            Name = name;
-            Description = description;
-            OwnerId = ownerId;
+            error = "Name can not be empty or longer then 250 symbols";
         }
 
-        /// <summary>
-        /// Project identifier.
-        /// </summary>
-        public Guid Id;
+        var project = new Project(id, name, description, ownerId);
 
-        /// <summary>
-        /// Project name.
-        /// </summary>
-        public string Name = string.Empty;
-
-        /// <summary>
-        /// Project description.
-        /// </summary>
-        public string Description = string.Empty;
-
-        /// <summary>
-        /// Project owner.
-        /// </summary>
-        public Guid OwnerId;
-
-        /// <summary>
-        /// Creation new project.
-        /// </summary>
-        /// <param name="id">Project identifier.</param>
-        /// <param name="name">Project name.</param>
-        /// <param name="description">Project description.</param>
-        /// <param name="ownerId">Project owner identifier.</param>
-        /// <returns>(project, error if it exist)</returns>
-        public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId)
-        {
-            var error = string.Empty;
-
-            if (string.IsNullOrEmpty(name) || name.Length > MAX_NAME_LENGHT)
-            {
-                error = "Name can not be empty or longer then 250 symbols";
-            }
-
-            var project = new Project(id, name, description, ownerId);
-
-            return (project, error);
-        }
+        return (project, error);
     }
 }
