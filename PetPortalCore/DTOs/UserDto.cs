@@ -1,28 +1,27 @@
-namespace PetPortalCore.DTOs
+namespace PetPortalCore.DTOs;
+
+/// <summary>
+/// User dto.
+/// </summary>
+public class UserDto
 {
     /// <summary>
-    /// User dto.
+    /// User identifier.
     /// </summary>
-    public class UserDto
-    {
-        /// <summary>
-        /// User identifier.
-        /// </summary>
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
         
-        /// <summary>
-        /// User name.
-        /// </summary>
-        public string Name { get; set; }
+    /// <summary>
+    /// User name.
+    /// </summary>
+    public string Name { get; set; }
         
-        /// <summary>
-        /// User email.
-        /// </summary>
-        public string Email { get; set; }
+    /// <summary>
+    /// User email.
+    /// </summary>
+    public string Email { get; set; }
         
-        /// <summary>
-        /// User password
-        /// </summary>
-        public string Password { get; set; }
-    }
+    /// <summary>
+    /// User password
+    /// </summary>
+    public string Password { get; set; }
 }

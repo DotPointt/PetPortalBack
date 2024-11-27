@@ -1,61 +1,60 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace PetPortalCore.Models
+namespace PetPortalCore.Models;
+
+/// <summary>
+/// User.
+/// </summary>
+public class User
 {
     /// <summary>
-    /// User.
+    /// User constructor.
     /// </summary>
-    public class User
+    /// <param name="id">User identifier.</param>
+    /// <param name="name">User name.</param>
+    /// <param name="email">User email.</param>
+    /// <param name="passwordHash">User password.</param>
+    public User(Guid id, string name, string email, string passwordHash)
     {
-        /// <summary>
-        /// User constructor.
-        /// </summary>
-        /// <param name="id">User identifier.</param>
-        /// <param name="name">User name.</param>
-        /// <param name="email">User email.</param>
-        /// <param name="passwordHash">User password.</param>
-        public User(Guid id, string name, string email, string passwordHash)
-        {
-            Id = id;
-            Name = name;
-            Email = email;
-            PasswordHash = passwordHash;
-        }
+        Id = id;
+        Name = name;
+        Email = email;
+        PasswordHash = passwordHash;
+    }
         
-        /// <summary>
-        /// User identifier.
-        /// </summary>
-        public Guid Id;
+    /// <summary>
+    /// User identifier.
+    /// </summary>
+    public Guid Id;
 
-        /// <summary>
-        /// User name.
-        /// </summary>
-        public string Name = string.Empty;
+    /// <summary>
+    /// User name.
+    /// </summary>
+    public string Name = string.Empty;
 
-        /// <summary>
-        /// User email.
-        /// </summary>
-        public string Email = string.Empty;
+    /// <summary>
+    /// User email.
+    /// </summary>
+    public string Email = string.Empty;
 
-        /// <summary>
-        /// User password.
-        /// </summary>
-        public string PasswordHash = string.Empty;
+    /// <summary>
+    /// User password.
+    /// </summary>
+    public string PasswordHash = string.Empty;
 
-        /// <summary>
-        /// Creation new user.
-        /// </summary>
-        /// <param name="id">User identifier.</param>
-        /// <param name="name">User name.</param>
-        /// <param name="email">User email.</param>
-        /// <param name="passwordHash">User password.</param>
-        /// <returns>(user, error if it exist)</returns>
-        public static (User user, string error) Create(Guid id, string name, string email, string passwordHash)
-        {
-            var error = string.Empty;
-            var user = new User(id, name, email, passwordHash);
+    /// <summary>
+    /// Creation new user.
+    /// </summary>
+    /// <param name="id">User identifier.</param>
+    /// <param name="name">User name.</param>
+    /// <param name="email">User email.</param>
+    /// <param name="passwordHash">User password.</param>
+    /// <returns>(user, error if it exist)</returns>
+    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash)
+    {
+        var error = string.Empty;
+        var user = new User(id, name, email, passwordHash);
 
-            return (user, error);
-        }
+        return (user, error);
     }
 }
