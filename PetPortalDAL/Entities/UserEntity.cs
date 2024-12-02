@@ -24,9 +24,19 @@ public class UserEntity
     /// User password.
     /// </summary>
     public string PasswordHash { get; set; }
-        
+    
+    /// <summary>
+    /// User role id.
+    /// </summary>
+    public Guid RoleId { get; set; }
+    
+    /// <summary>
+    /// Role.
+    /// </summary>
+    public RoleEntity RoleEntity { get; set; }
+    
     /// <summary>
     /// Project.
     /// </summary>
-    public ICollection<ProjectEntity> Projects { get; set; } = new List<ProjectEntity>();
+    public ICollection<UserProject> UserProjects { get; set; }
 }
