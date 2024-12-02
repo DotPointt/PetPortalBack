@@ -122,6 +122,19 @@ public class ProjectsController : ControllerBase
         }
     }
 
+    [HttpPut]
+    public async Task<ActionResult<Guid>> AddProjectMember([FromBody] Guid ProjectGuid, Guid UserGuid)
+    {
+        try
+        {
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.ToString());
+        }
+    }
+
     /// <summary>
     /// Endpoint delete project.
     /// </summary>
@@ -133,8 +146,8 @@ public class ProjectsController : ControllerBase
     [HttpDelete]
     public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
     {
-        var token = Request.Headers["Authorization"];
-
+        // var token = Request.Headers["Authorization"];
+        
         try
         {
             var projectId = await _projectsService.Delete(id);
