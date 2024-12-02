@@ -28,10 +28,5 @@ public class ProjectEntity
     /// <summary>
     /// Owner.
     /// </summary>
-    public UserEntity User { get; set; }
-    
-    /// <summary>
-    /// Project members.
-    /// </summary>
-    public List<UserEntity> Members { get; set; }
+    public UserEntity Owner { get; set; }
 }

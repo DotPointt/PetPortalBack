@@ -3,7 +3,7 @@ namespace PetPortalDAL.Entities;
 /// <summary>
 /// Project members.
 /// </summary>
-public class ProjectUser
+public class UserProject
 {
     /// <summary>
     /// Link identifier.
