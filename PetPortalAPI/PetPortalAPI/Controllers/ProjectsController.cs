@@ -102,32 +102,20 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Endpoint update project.
     /// </summary>
+    /// <param name="id">Project identifier.</param>
     /// <param name="request">Project data.</param>
     /// <returns>
     /// Action result - updated project guid or
     /// Action result - error message.
     /// </returns>
-    [HttpPut]
-    public async Task<ActionResult<Guid>> UpdateProject([FromBody] ProjectDto request)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] ProjectDto request)
     {
         try
         {
             var projectId = await _projectsService.Update(request);
                 
             return Ok(projectId);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.ToString());
-        }
-    }
-
-    [HttpPut]
-    public async Task<ActionResult<Guid>> AddProjectMember([FromBody] Guid ProjectGuid, Guid UserGuid)
-    {
-        try
-        {
-            return Ok();
         }
         catch (Exception ex)
         {

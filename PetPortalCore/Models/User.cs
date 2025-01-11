@@ -14,12 +14,14 @@ public class User
     /// <param name="name">User name.</param>
     /// <param name="email">User email.</param>
     /// <param name="passwordHash">User password.</param>
-    public User(Guid id, string name, string email, string passwordHash)
+    /// <param name="roleId">Role identifier.</param>
+    public User(Guid id, string name, string email, string passwordHash, Guid roleId)
     {
         Id = id;
         Name = name;
         Email = email;
         PasswordHash = passwordHash;
+        RoleId = roleId;
     }
         
     /// <summary>
@@ -41,6 +43,11 @@ public class User
     /// User password.
     /// </summary>
     public string PasswordHash = string.Empty;
+    
+    /// <summary>
+    /// Role identifier.
+    /// </summary>
+    public Guid RoleId = Guid.Empty;
 
     /// <summary>
     /// Creation new user.
@@ -50,10 +57,10 @@ public class User
     /// <param name="email">User email.</param>
     /// <param name="passwordHash">User password.</param>
     /// <returns>(user, error if it exist)</returns>
-    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash)
+    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash, Guid roleId)
     {
         var error = string.Empty;
-        var user = new User(id, name, email, passwordHash);
+        var user = new User(id, name, email, passwordHash, roleId);
 
         return (user, error);
     }

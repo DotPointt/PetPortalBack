@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Models;
+using PetPortalDAL.Entities;
 
 namespace PetPortalDAL.Repositories;
 
@@ -40,11 +41,46 @@ public class UserProjectRepository : IUserProjectRepository
             .AsNoTracking()
             .Where(e => projectMemberIds.Contains(e.Id))
             .Select(user =>
-                User.Create(user.Id, user.Name, user.Email, user.PasswordHash).user)
+                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId).user)
             .ToListAsync();
 
         return users;
     }
-    
-    // TODO Add and Delete methods.
+
+    /// <summary>
+    /// Add new member to project.
+    /// </summary>
+    /// <param name="memberId">Member identifier.</param>
+    /// <param name="projectId">Project identifier.</param>
+    /// <param name="userId">User identifier.</param>
+    /// <returns>Guid of new member.</returns>
+    public async Task<Guid> AddProjectMember(Guid memberId, Guid projectId, Guid userId)
+    {
+        var newProjectMember = new UserProject()
+        {
+            Id = memberId,
+            ProjectId = projectId,
+            UserId = userId
+        };
+        
+        await _context.UserProjects.AddAsync(newProjectMember);
+        await _context.SaveChangesAsync();
+        
+        return newProjectMember.Id;
+    }
+
+    /// <summary>
+    /// Delete member from database.
+    /// </summary>
+    /// <param name="memberId">Member identifier.</param>
+    /// <returns>Deleted member identifier.</returns>
+    public async Task<Guid> DeleteProjectMember(Guid memberId)
+    {
+        await _context.UserProjects
+            .Where(m => m.Id == memberId)
+            .ExecuteDeleteAsync();
+        
+        await _context.SaveChangesAsync();
+        return memberId;
+    }
 }

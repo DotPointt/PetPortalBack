@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using PetPortalCore.Models;
 using PetPortalDAL.Configurations;
 using PetPortalDAL.Entities;
 
@@ -27,17 +26,17 @@ public class  PetPortalDbContext : DbContext
     public DbSet<ProjectEntity> Projects { get; set; }
         
     /// <summary>
-    /// Data base users.
+    /// Database users.
     /// </summary>
     public DbSet<UserEntity> Users { get; set; }
 
     /// <summary>
-    /// Data base roles.
+    /// Database roles.
     /// </summary>
     public DbSet<RoleEntity> Roles { get; set; }
     
     /// <summary>
-    /// Data base user-projects.
+    /// Database user-projects.
     /// </summary>
     public DbSet<UserProject> UserProjects { get; set; }
     

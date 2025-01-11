@@ -95,7 +95,7 @@ public class UsersController : ControllerBase
                 issuer: AuthOptions.ISSUER,
                 audience: AuthOptions.AUDIENCE,
                 claims: claims,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(100)), // время действия 2 минуты
+                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(100)),
                 signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
 
             return new JwtSecurityTokenHandler().WriteToken(jwt);
@@ -125,7 +125,8 @@ public class UsersController : ControllerBase
                     Id = request.Id, 
                     Name = request.Name, 
                     Email = request.Email, 
-                    Password = request.Password
+                    Password = request.Password,
+                    RoleId = request.RoleId
                 });
                 
             return Ok(userId);
