@@ -5,6 +5,7 @@ using PetPortalCore.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using PetPortalCore.DTOs.Contracts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PetPortalAPI.Controllers;
 
@@ -95,15 +96,37 @@ public class UsersController : ControllerBase
                 issuer: AuthOptions.ISSUER,
                 audience: AuthOptions.AUDIENCE,
                 claims: claims,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(100)),
-                signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                expires: DateTime.UtcNow.Add(TimeSpan.FromHours(24)),
 
-            return new JwtSecurityTokenHandler().WriteToken(jwt);
+                signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+            string token = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+            HttpContext.Response.Cookies.Append("jwtToken", token); //change name
+
+            return token;
         }
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());
         }
+    }
+
+    /// <summary>
+    /// TO access this url Header Authorization:"BearerHere" needed
+    /// </summary>
+    /// <returns></returns>
+    [Authorize] 
+    [HttpGet("data")]
+    public  ActionResult<string> Data()
+    {
+        return "sensitive data recieved";
+    }
+
+    [HttpGet("testreply")]
+    public ActionResult<string> testreply()
+    {
+        var user = HttpContext.User;
+        return Ok(user);
     }
 
     /// <summary>
