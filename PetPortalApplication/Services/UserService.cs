@@ -46,7 +46,8 @@ public class UserService : IUserService
             Guid.NewGuid(),
             request.Name,
             request.Email,
-            request.Password);
+            request.Password,
+            request.RoleId);
                 
         if (!string.IsNullOrEmpty(error))
         {

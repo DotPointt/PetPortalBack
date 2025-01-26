@@ -102,13 +102,14 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Endpoint update project.
     /// </summary>
+    /// <param name="id">Project identifier.</param>
     /// <param name="request">Project data.</param>
     /// <returns>
     /// Action result - updated project guid or
     /// Action result - error message.
     /// </returns>
-    [HttpPut]
-    public async Task<ActionResult<Guid>> UpdateProject([FromBody] ProjectDto request)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] ProjectDto request)
     {
         try
         {
@@ -133,8 +134,8 @@ public class ProjectsController : ControllerBase
     [HttpDelete]
     public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
     {
-        var token = Request.Headers["Authorization"];
-
+        // var token = Request.Headers["Authorization"];
+        
         try
         {
             var projectId = await _projectsService.Delete(id);
