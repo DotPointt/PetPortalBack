@@ -3,6 +3,7 @@ using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
+using Mapster;
 
 namespace PetPortalDAL.Repositories;
 
@@ -24,7 +25,22 @@ public class UsersRepository : IUsersRepository
     {
         _context = context;
     }
-        
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public async Task<User> GetByEmail(string email)
+    {
+        var user= await _context.Users
+            .AsNoTracking()
+            .Where(user => user.Email == email)
+            .FirstOrDefaultAsync();
+
+        return user.Adapt<User>();
+    }
+    
     /// <summary>
     /// Get data bases users.
     /// </summary>
@@ -72,9 +88,9 @@ public class UsersRepository : IUsersRepository
     public async Task<Guid> Update(UserDto userData)
     {
         await _context.Users
-            .Where(project => project.Id == userData.Id)
+            .Where(user => user.Id == userData.Id)
             .ExecuteUpdateAsync(s => s
-                .SetProperty(project => project.Name, project => userData.Name)
+                .SetProperty(user => userData.Name, user => userData.Name)
             );
 
         return userData.Id;

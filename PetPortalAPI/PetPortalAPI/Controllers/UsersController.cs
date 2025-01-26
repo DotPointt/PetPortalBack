@@ -75,7 +75,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var userGuid = await _userService.Create(request);
+            var userGuid = await _userService.Register(request);
 
             return Ok(userGuid);
         }

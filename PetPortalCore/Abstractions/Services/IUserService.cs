@@ -17,7 +17,7 @@ public interface IUserService
     /// </summary>
     /// <param name="user">User data.</param>
     /// <returns>Created user guid.</returns>
-    Task<Guid> Create(UserContract user);
+    Task<Guid> Register(UserContract user);
 
     /// <summary>
     /// User updating.

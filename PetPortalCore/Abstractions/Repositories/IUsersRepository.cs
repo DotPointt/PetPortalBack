@@ -22,6 +22,13 @@ public interface IUsersRepository
     Task<Guid> Create(User user);
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public Task<User> GetByEmail(string email);
+    
+    /// <summary>
     /// User updating.
     /// </summary>
     /// <param name="userData">User data.</param>

@@ -25,5 +25,29 @@ public class UserConfigurations : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(user => user.PasswordHash)
             .IsRequired();
+
+        builder.HasData(
+            new UserEntity
+            {
+                Id = Guid.NewGuid(), // Генерация уникального идентификатора
+                Name = "John Doe",
+                Email = "johndoe@example.com",
+                PasswordHash = "hashedpassword1" // Здесь предполагается хэш пароля
+            },
+            new UserEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = "Jane Smith",
+                Email = "janesmith@example.com",
+                PasswordHash = "hashedpassword2"
+            },
+            new UserEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = "Alex Johnson",
+                Email = "alexjohnson@example.com",
+                PasswordHash = "hashedpassword3"
+            }
+        );
     }
 }

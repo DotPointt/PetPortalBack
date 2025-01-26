@@ -17,6 +17,8 @@
 3. Start the project.
     - Open on local host.
 
+#### **Can be run without docker, just follow from 2 step:** ####
+
 ### To create new migration you need to run next command:
 
 1. Open folder _\PetPortalBack_
@@ -24,3 +26,4 @@
     ```
         dotnet ef migrations add migrationName -s .\PetPortalAPI\PetPortalAPI\ -p .\PetPortalDAL\
     ```
+

@@ -66,12 +66,21 @@ namespace PetPortalAPI
             builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
             builder.Services.AddScoped<IUsersRepository, UsersRepository>();
             
+            builder.Services.AddAutoMapper()
+            
             var app = builder.Build();
 
+
+            
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                using (var scope = app.Services.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<PetPortalDbContext>();
+                    DbInitializer.Seed(context);  // Заполнение данных в базу данных
+                }
             }
 
             app.UseHttpsRedirection();

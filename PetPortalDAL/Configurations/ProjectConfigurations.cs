@@ -26,4 +26,4 @@ public class ProjectConfigurations : IEntityTypeConfiguration<ProjectEntity>
         builder.Property(project => project.OwnerId)
             .IsRequired();
     }
-}
+}   
