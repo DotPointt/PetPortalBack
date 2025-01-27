@@ -6,6 +6,7 @@ using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using PetPortalApplication.AuthConfiguration;
 using PetPortalDAL;
 using PetPortalDAL.Repositories;
 
@@ -49,6 +50,9 @@ namespace PetPortalAPI
                         }
                     };
                 });
+
+
+            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
             
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -67,6 +71,8 @@ namespace PetPortalAPI
             builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
             builder.Services.AddScoped<IUsersRepository, UsersRepository>();
             builder.Services.AddScoped<IUserProjectRepository, UserProjectRepository>();
+            
+            builder.Services.AddScoped<IJwtProvider, JwtProvider>();
             
             var app = builder.Build();
 
@@ -92,11 +98,3 @@ namespace PetPortalAPI
 }
 
 
-public class AuthOptions
-{
-    public const string ISSUER = "MyAuthServer"; // издатель токена
-    public const string AUDIENCE = "MyAuthClient"; // потребитель токена
-    const string KEY = "mysupersecret_secretsecretsecretkey!123";   // ключ для шифрации
-    public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
-}

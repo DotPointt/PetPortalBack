@@ -23,6 +23,11 @@ public class User
         PasswordHash = passwordHash;
         RoleId = roleId;
     }
+
+    public User()
+    {
+        
+    }
         
     /// <summary>
     /// User identifier.

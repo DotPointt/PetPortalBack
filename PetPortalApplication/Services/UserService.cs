@@ -14,15 +14,18 @@ public class UserService : IUserService
     /// <summary>
     /// User repository.
     /// </summary>
-    private readonly IUsersRepository _usersRepository; 
+    private readonly IUsersRepository _usersRepository;
+
+    private readonly IJwtProvider _jwtProvider;
     
     /// <summary>
     /// User service constructor.
     /// </summary>
     /// <param name="usersRepository"></param>
-    public UserService(IUsersRepository usersRepository)
+    public UserService(IUsersRepository usersRepository, IJwtProvider jwtProvider)
     {
         _usersRepository = usersRepository;
+        _jwtProvider = jwtProvider;
     }
     
     /// <summary>
@@ -61,11 +64,21 @@ public class UserService : IUserService
     }
 
 
-    public async Task<Guid> Login(string email, string password)
+    public async Task<string> Login(string email, string password)
     {
         var user = await _usersRepository.GetByEmail(email);
 
-        return user.Id;
+        if (user == null)
+            throw new Exception("No user registered");
+
+        var result = true;  // ВЕРИФИКАЦИЯ var result = _passwordHasher.Verify(password, hashedPassword);
+
+        if (result == false)
+            throw new Exception("failed to login");
+
+        var token = _jwtProvider.GenerateToken(user.Email);
+        
+        return token;
     }
 
 

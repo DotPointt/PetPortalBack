@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using PetPortalCore.DTOs.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using PetPortalCore.DTOs.Requests;
 
 namespace PetPortalAPI.Controllers;
 
@@ -20,6 +21,8 @@ public class UsersController : ControllerBase
     /// Users service.
     /// </summary>
     private readonly IUserService _userService;
+
+    private readonly IJwtProvider _jwtProvider;
 
     /// <summary>
     /// Users controller constructor.
@@ -78,32 +81,6 @@ public class UsersController : ControllerBase
             var userGuid = await _userService.Register(request);
 
             return Ok(userGuid);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.ToString());
-        }
-    }
-
-    [Route("login/{username}")]
-    [HttpPost()]
-    public async Task<ActionResult<string>> Login(string username)
-    {
-        try
-        {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, username) };
-            var jwt = new JwtSecurityToken(
-                issuer: AuthOptions.ISSUER,
-                audience: AuthOptions.AUDIENCE,
-                claims: claims,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromHours(24)),
-
-                signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            string token = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            HttpContext.Response.Cookies.Append("jwtToken", token); //change name
-
-            return token;
         }
         catch (Exception ex)
         {
