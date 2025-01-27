@@ -53,14 +53,14 @@ public class UsersRepository : IUsersRepository
 
         var users = userEntities
             .Select(user =>
-                User.Create(user.Id, user.Name, user.Email, user.PasswordHash).user)
+                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId).user)
             .ToList();
 
         return users;
     }
 
     /// <summary>
-    /// Create new user in data base.
+    /// Create new user in database.
     /// </summary>
     /// <param name="user">User data.</param>
     /// <returns>Created user identifier.</returns>
@@ -71,7 +71,8 @@ public class UsersRepository : IUsersRepository
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            PasswordHash = user.PasswordHash
+            PasswordHash = user.PasswordHash,
+            RoleId = user.RoleId
         };
 
         await _context.AddAsync(userEntity);

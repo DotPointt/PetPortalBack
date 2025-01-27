@@ -42,13 +42,15 @@ public class UserService : IUserService
     /// <exception cref="ArgumentException">Some parameters invalided.</exception>
     public async Task<Guid> Register(UserContract request)
     {
+        
         var hashedPassword = request.Password;
         
         var (user, error) = PetPortalCore.Models.User.Create(
             Guid.NewGuid(),
             request.Name,
             request.Email,
-            hashedPassword);
+            hashedPassword,
+            request.RoleId);
                 
         if (!string.IsNullOrEmpty(error))
         {
@@ -58,13 +60,15 @@ public class UserService : IUserService
         return await _usersRepository.Create(user);
     }
 
-    
+
     public async Task<Guid> Login(string email, string password)
     {
-        var userId = await _usersRepository.GetByEmail(email);
+        var user = await _usersRepository.GetByEmail(email);
+
+        return user.Id;
     }
-    
-    
+
+
     /// <summary>
     /// User updating.
     /// </summary>

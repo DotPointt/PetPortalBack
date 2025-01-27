@@ -62,11 +62,11 @@ namespace PetPortalAPI
             
             builder.Services.AddScoped<IProjectsService, ProjectService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserProjectService, UserProjectService>();
             
             builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
             builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-            
-            builder.Services.AddAutoMapper()
+            builder.Services.AddScoped<IUserProjectRepository, UserProjectRepository>();
             
             var app = builder.Build();
 

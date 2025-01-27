@@ -19,4 +19,9 @@ public class UserContract
     /// User password.
     /// </summary>
     public string Password { get; set; }
+    
+    /// <summary>
+    /// Role identifier.
+    /// </summary>
+    public Guid RoleId { get; set; }
 }

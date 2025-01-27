@@ -8,7 +8,7 @@ public class Project
     /// <summary>
     /// Max name length.
     /// </summary>
-    public const int MAX_NAME_LENGHT = 250;
+    private const int MAX_NAME_LENGHT = 250;
 
     /// <summary>
     /// Project constructor.
@@ -43,7 +43,7 @@ public class Project
     /// <summary>
     /// Project owner.
     /// </summary>
-    public Guid OwnerId;
+    public Guid OwnerId = Guid.Empty;
 
     /// <summary>
     /// Creation new project.

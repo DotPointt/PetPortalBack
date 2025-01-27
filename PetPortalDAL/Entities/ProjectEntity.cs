@@ -28,5 +28,5 @@ public class ProjectEntity
     /// <summary>
     /// Owner.
     /// </summary>
-    public UserEntity User { get; set; }
+    public UserEntity Owner { get; set; }
 }

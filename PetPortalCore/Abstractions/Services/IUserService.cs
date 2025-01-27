@@ -19,6 +19,8 @@ public interface IUserService
     /// <returns>Created user guid.</returns>
     Task<Guid> Register(UserContract user);
 
+    Task<Guid> Login(string email, string password);
+    
     /// <summary>
     /// User updating.
     /// </summary>
