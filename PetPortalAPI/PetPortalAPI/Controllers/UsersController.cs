@@ -26,7 +26,7 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Users controller constructor.
-    /// </summary>
+    /// </summary> 
     /// <param name="userService"></param>
     public UsersController(IUserService userService)
     {
@@ -146,7 +146,7 @@ public class UsersController : ControllerBase
     /// Action result - error message.
     /// </returns>
     [HttpDelete]
-    public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
+    public async Task<ActionResult<Guid>> DeleteUser([FromBody] Guid id)
     {
         try
         {
