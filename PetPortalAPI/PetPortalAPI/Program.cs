@@ -39,12 +39,12 @@ namespace PetPortalAPI
                         // валидация ключа безопасности
                         ValidateIssuerSigningKey = true,
                     };
-
+                    //аутентификация будет по проверке токена в куки:
                     options.Events = new JwtBearerEvents()
                     {
                         OnMessageReceived = context =>
                         {
-                            context.Token = context.Request.Cookies["jwtToken"];
+                            context.Token = context.Request.Cookies["jwttoken"];
 
                             return Task.CompletedTask;
                         }

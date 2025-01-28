@@ -25,7 +25,7 @@ public class JwtProvider (IOptions<JwtOptions> options) : IJwtProvider
                 audience: AuthOptions.AUDIENCE,
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(_options.ExpiresHours),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), SecurityAlgorithms.HmacSha256));
+                signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             
             string token = new JwtSecurityTokenHandler().WriteToken(jwt);
 

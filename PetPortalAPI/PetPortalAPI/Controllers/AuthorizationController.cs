@@ -33,7 +33,10 @@ public class AuthorizationController : ControllerBase
         try
         {
             string token = await _userService.Login(request.Email, request.Password);
-            return Results.Ok(token);
+
+            HttpContext.Response.Cookies.Append("jwttoken", token);
+            
+            return Results.Ok();
         }
         catch
         {
