@@ -4,8 +4,10 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MapsterMapper;
 using PetPortalCore.DTOs.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using PetPortalApplication.Services;
 using PetPortalCore.DTOs.Requests;
 
 namespace PetPortalAPI.Controllers;
@@ -22,15 +24,27 @@ public class UsersController : ControllerBase
     /// </summary>
     private readonly IUserService _userService;
 
+    /// <summary>
+    /// Auth provider.
+    /// </summary>
     private readonly IJwtProvider _jwtProvider;
 
     /// <summary>
+    /// MinIO service.
+    /// </summary>
+    private readonly IMinioService _minioService;
+    
+    /// <summary>
     /// Users controller constructor.
     /// </summary> 
-    /// <param name="userService"></param>
-    public UsersController(IUserService userService)
+    /// <param name="minioService">MinIO service.</param>
+    /// <param name="userService">Users service.</param>
+    /// <param name="jwtProvider">Auth provider.</param>
+    public UsersController(IUserService userService, IJwtProvider jwtProvider, IMinioService minioService)
     {
         _userService = userService;
+        _jwtProvider = jwtProvider;
+        _minioService = minioService;
     }
         
     /// <summary>
@@ -53,7 +67,8 @@ public class UsersController : ControllerBase
                         Id = p.Id,
                         Name = p.Name,
                         Email = p.Email,
-                        Password = p.PasswordHash
+                        Password = p.PasswordHash,
+                        AvatarUrl = p.AvatarUrl,
                     }
                 );
 
@@ -88,6 +103,8 @@ public class UsersController : ControllerBase
         }
     }
 
+    
+    
     /// <summary>
     /// TO access this url Header Authorization:"BearerHere" needed
     /// </summary>
@@ -106,35 +123,29 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
 
+
     /// <summary>
     /// Endpoint update user.
     /// </summary>
-    /// <param name="request">User data.</param>
+    /// <param name="request">User updated data.</param>
     /// <returns>
     /// Action result - updated user guid or
     /// Action result - error message.
     /// </returns>
     [HttpPut]
-    public async Task<ActionResult<Guid>> UpdateUser([FromBody] UserDto request)
+    public async Task<IActionResult> UpdateUser(UserDto request)
     {
         try
         {
-            var userId = await _userService.Update(
-                new UserDto()
-                {
-                    Id = request.Id, 
-                    Name = request.Name, 
-                    Email = request.Email, 
-                    Password = request.Password,
-                    RoleId = request.RoleId
-                });
-                
-            return Ok(userId);
+            var Id = await _userService.Update(request);
+            
+            return Ok(Id);
         }
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());
         }
+        
     }
         
     /// <summary>

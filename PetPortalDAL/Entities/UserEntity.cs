@@ -31,6 +31,11 @@ public class UserEntity
     public Guid RoleId { get; set; }
     
     /// <summary>
+    /// Avatar file path.
+    /// </summary>
+    public string AvatarUrl { get; set; }
+    
+    /// <summary>
     /// Role.
     /// </summary>
     public RoleEntity RoleEntity { get; set; }

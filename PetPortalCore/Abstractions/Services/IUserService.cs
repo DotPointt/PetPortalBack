@@ -20,13 +20,20 @@ public interface IUserService
     Task<Guid> Register(UserContract user);
 
     Task<string> Login(string email, string password);
-    
+
     /// <summary>
     /// User updating.
     /// </summary>
-    /// <param name="user">User data.</param>
+    /// <param name="userData">User updated data.</param>
     /// <returns>Updated user guid.</returns>
-    Task<Guid> Update(UserDto user);
+    Task<Guid> Update(UserDto userData);
+
+    /// <summary>
+    /// User avatar update.
+    /// </summary>
+    /// <param name="userData">User updated data.</param>
+    /// <returns>Updated user guid.</returns>
+    Task<Guid> UpdateAvatar(UserDto userData);
 
     /// <summary>
     /// User deleting.

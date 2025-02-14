@@ -21,9 +21,14 @@ public class UserDto
     public string Email { get; set; }
         
     /// <summary>
-    /// User password
+    /// User password.
     /// </summary>
     public string Password { get; set; }
+    
+    /// <summary>
+    /// Avatar file path.
+    /// </summary>
+    public string AvatarUrl { get; set; }
     
     /// <summary>
     /// Role identifier.

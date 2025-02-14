@@ -41,7 +41,7 @@ public class UserProjectRepository : IUserProjectRepository
             .AsNoTracking()
             .Where(e => projectMemberIds.Contains(e.Id))
             .Select(user =>
-                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId).user)
+                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user)
             .ToListAsync();
 
         return users;

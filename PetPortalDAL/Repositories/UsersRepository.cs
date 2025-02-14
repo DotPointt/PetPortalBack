@@ -27,19 +27,41 @@ public class UsersRepository : IUsersRepository
     }
 
     /// <summary>
-    /// 
+    /// Get user by email.
     /// </summary>
-    /// <param name="email"></param>
-    /// <returns></returns>
+    /// <param name="email">User email.</param>
+    /// <returns>User.</returns>
     public async Task<User> GetByEmail(string email)
     {
-        var user= await _context.Users
+        var user = await _context.Users
             .AsNoTracking()
             .Where(user => user.Email == email)
             .FirstOrDefaultAsync();
 
-        return user.Adapt<User>();
+        if (user == null)
+            throw new Exception("User not found");
+        
+        return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
     }
+
+    /// <summary>
+    /// Get user by identifier.
+    /// </summary>
+    /// <param name="userId">User identifier.</param>
+    /// <returns>User.</returns>
+    public async Task<User> GetById(Guid userId)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .Where(user => user.Id == userId)
+            .FirstOrDefaultAsync();
+        
+        if (user == null)
+            throw new Exception("User not found");
+        
+        return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
+    }
+    
     
     /// <summary>
     /// Get data bases users.
@@ -53,7 +75,7 @@ public class UsersRepository : IUsersRepository
 
         var users = userEntities
             .Select(user =>
-                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId).user)
+                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user)
             .ToList();
 
         return users;
@@ -72,7 +94,8 @@ public class UsersRepository : IUsersRepository
             Name = user.Name,
             Email = user.Email,
             PasswordHash = user.PasswordHash,
-            RoleId = user.RoleId
+            RoleId = user.RoleId,
+            AvatarUrl = user.AvatarUrl,
         };
 
         await _context.AddAsync(userEntity);
@@ -84,14 +107,15 @@ public class UsersRepository : IUsersRepository
     /// <summary>
     /// Update data base user.
     /// </summary>
-    /// <param name="userData">User data.</param>
+    /// <param name="userData">User updated data.</param>
     /// <returns>Updated user identifier.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
         await _context.Users
             .Where(user => user.Id == userData.Id)
             .ExecuteUpdateAsync(s => s
-                .SetProperty(user => userData.Name, user => userData.Name)
+                .SetProperty(u => u.Name, userData.Name)
+                .SetProperty(u => u.AvatarUrl, userData.AvatarUrl)
             );
 
         return userData.Id;

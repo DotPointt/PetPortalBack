@@ -26,5 +26,7 @@ public class UserConfigurations : IEntityTypeConfiguration<UserEntity>
         builder.Property(user => user.PasswordHash)
             .IsRequired();
         
+        builder.Property(user => user.AvatarUrl)
+            .IsRequired();
     }
 }

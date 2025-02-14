@@ -7,6 +7,7 @@ using PetPortalCore.Abstractions.Services;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using PetPortalApplication.AuthConfiguration;
+using PetPortalCore.Configs;
 using PetPortalDAL;
 using PetPortalDAL.Repositories;
 
@@ -51,8 +52,8 @@ namespace PetPortalAPI
                     };
                 });
 
-
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+            builder.Services.Configure<MinIOConfig>(builder.Configuration.GetSection("MinioConfig"));
             
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -67,6 +68,7 @@ namespace PetPortalAPI
             builder.Services.AddScoped<IProjectsService, ProjectService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserProjectService, UserProjectService>();
+            builder.Services.AddScoped<IMinioService, MinioService>();
             
             builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
             builder.Services.AddScoped<IUsersRepository, UsersRepository>();
@@ -75,8 +77,6 @@ namespace PetPortalAPI
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
             
             var app = builder.Build();
-
-
             
             if (app.Environment.IsDevelopment())
             {

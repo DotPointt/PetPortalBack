@@ -15,18 +15,15 @@ public class User
     /// <param name="email">User email.</param>
     /// <param name="passwordHash">User password.</param>
     /// <param name="roleId">Role identifier.</param>
-    public User(Guid id, string name, string email, string passwordHash, Guid roleId)
+    /// <param name="avatarUrl"></param>
+    public User(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl)
     {
         Id = id;
         Name = name;
         Email = email;
         PasswordHash = passwordHash;
         RoleId = roleId;
-    }
-
-    public User()
-    {
-        
+        AvatarUrl = avatarUrl ?? string.Empty; 
     }
         
     /// <summary>
@@ -53,6 +50,11 @@ public class User
     /// Role identifier.
     /// </summary>
     public Guid RoleId = Guid.Empty;
+    
+    /// <summary>
+    /// Avatar photo path.
+    /// </summary>
+    public string AvatarUrl = string.Empty;
 
     /// <summary>
     /// Creation new user.
@@ -61,11 +63,13 @@ public class User
     /// <param name="name">User name.</param>
     /// <param name="email">User email.</param>
     /// <param name="passwordHash">User password.</param>
-    /// <returns>(user, error if it exist)</returns>
-    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash, Guid roleId)
+    /// <param name="roleId">Role identifier.</param>
+    /// <param name="avatarUrl">Avatar photo path</param>
+    /// <returns>(user, error if it exists)</returns>
+    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl)
     {
         var error = string.Empty;
-        var user = new User(id, name, email, passwordHash, roleId);
+        var user = new User(id, name, email, passwordHash, roleId, avatarUrl);
 
         return (user, error);
     }

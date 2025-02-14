@@ -16,12 +16,16 @@ public class UserService : IUserService
     /// </summary>
     private readonly IUsersRepository _usersRepository;
 
+    /// <summary>
+    /// Auth provider.
+    /// </summary>
     private readonly IJwtProvider _jwtProvider;
-    
+
     /// <summary>
     /// User service constructor.
     /// </summary>
-    /// <param name="usersRepository"></param>
+    /// <param name="usersRepository">Users repository.</param>
+    /// <param name="jwtProvider">Auth provider.</param>
     public UserService(IUsersRepository usersRepository, IJwtProvider jwtProvider)
     {
         _usersRepository = usersRepository;
@@ -45,7 +49,6 @@ public class UserService : IUserService
     /// <exception cref="ArgumentException">Some parameters invalided.</exception>
     public async Task<Guid> Register(UserContract request)
     {
-        
         var hashedPassword = request.Password;
         
         var (user, error) = PetPortalCore.Models.User.Create(
@@ -53,7 +56,8 @@ public class UserService : IUserService
             request.Name,
             request.Email,
             hashedPassword,
-            request.RoleId);
+            request.RoleId,
+            string.Empty); // Указать путь к дэфолтной автарке.
                 
         if (!string.IsNullOrEmpty(error))
         {
@@ -62,8 +66,7 @@ public class UserService : IUserService
         
         return await _usersRepository.Create(user);
     }
-
-
+    
     public async Task<string> Login(string email, string password)
     {
         var user = await _usersRepository.GetByEmail(email);
@@ -80,16 +83,37 @@ public class UserService : IUserService
         
         return token;
     }
-
-
+    
     /// <summary>
     /// User updating.
     /// </summary>
-    /// <param name="user">User data.</param>
+    /// <param name="userData">User updated data.</param>
     /// <returns>Updated user guid.</returns>
-    public async Task<Guid> Update(UserDto user)
+    public async Task<Guid> Update(UserDto userData)
     {
-        return await _usersRepository.Update(user);
+        return await _usersRepository.Update(userData);
+    }
+
+    /// <summary>
+    /// User avatar update.
+    /// </summary>
+    /// <param name="userData">User updated data.</param>
+    /// <returns>Updated user guid.</returns>
+    public async Task<Guid> UpdateAvatar(UserDto userData)
+    {
+        var user = await _usersRepository.GetById(userData.Id);
+        
+        var fullUserData = new UserDto()
+        {
+            Id = user.Id,            
+            Name = user.Name,
+            Email = user.Email,
+            Password = user.PasswordHash,
+            AvatarUrl = userData.AvatarUrl,
+            RoleId = user.RoleId,
+        };
+        
+        return await _usersRepository.Update(fullUserData);
     }
 
     /// <summary>

@@ -22,16 +22,23 @@ public interface IUsersRepository
     Task<Guid> Create(User user);
 
     /// <summary>
-    /// 
+    /// Get user by email.
     /// </summary>
-    /// <param name="email"></param>
-    /// <returns></returns>
+    /// <param name="email">User email.</param>
+    /// <returns>User.</returns>
     public Task<User> GetByEmail(string email);
     
     /// <summary>
+    /// Get user by identifier.
+    /// </summary>
+    /// <param name="userId">User identifier.</param>
+    /// <returns>User.</returns>
+    public Task<User> GetById(Guid userId);
+
+    /// <summary>
     /// User updating.
     /// </summary>
-    /// <param name="userData">User data.</param>
+    /// <param name="userData"></param>
     /// <returns>Identifier of updated user.</returns>
     Task<Guid> Update(UserDto userData);
         
