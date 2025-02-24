@@ -54,7 +54,7 @@ public class User
     /// <summary>
     /// Avatar photo path.
     /// </summary>
-    public string AvatarUrl = string.Empty;
+    public string? AvatarUrl = string.Empty;
 
     /// <summary>
     /// Creation new user.
