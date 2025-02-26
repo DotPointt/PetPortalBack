@@ -28,9 +28,18 @@ namespace PetPortalDAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ApplyingDeadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsOpen")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()

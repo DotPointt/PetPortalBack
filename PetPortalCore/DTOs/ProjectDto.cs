@@ -24,4 +24,19 @@ public class ProjectDto
     /// Project owner identifier.
     /// </summary>
     public Guid OwnerId { get; set; }
+    
+    /// <summary>
+    /// Time when owner thinks project should be completed. Infinite when null
+    /// </summary>
+    public DateTime? Deadline;
+
+    /// <summary>
+    /// Interval of time left for joining project. Infinite when null( now interval will be calculated at frontend, but we can send TimeSpan or string)?
+    /// </summary>
+    public DateTime? ApplyingDeadline = null;
+
+    /// <summary>
+    /// If people can join the project at the moment
+    /// </summary>
+    public bool IsOpen = false;
 }

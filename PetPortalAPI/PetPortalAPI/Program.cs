@@ -75,6 +75,7 @@ namespace PetPortalAPI
             builder.Services.AddScoped<IUserProjectRepository, UserProjectRepository>();
             
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+            builder.Services.AddCors();
             
             var app = builder.Build();
             
@@ -92,6 +93,8 @@ namespace PetPortalAPI
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
+            app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin());
+            
             app.Run();
         }
     }

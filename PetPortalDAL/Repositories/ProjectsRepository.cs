@@ -37,7 +37,14 @@ public class ProjectsRepository : IProjectsRepository
 
         var projects = projectsEntities
             .Select(project =>
-                Project.Create(project.Id, project.Name, project.Description, project.OwnerId).project)
+                Project.Create(project.Id,
+                    project.Name, 
+                    project.Description, 
+                    project.OwnerId,
+                    project.Deadline,
+                    project.ApplyingDeadline,
+                    project.IsOpen
+                    ).project)
             .ToList();
 
         return projects;
@@ -55,7 +62,10 @@ public class ProjectsRepository : IProjectsRepository
             Id = projectData.Id,
             Name = projectData.Name,
             Description = projectData.Description,
-            OwnerId = projectData.OwnerId
+            OwnerId = projectData.OwnerId,
+            Deadline = projectData.Deadline,
+            ApplyingDeadline = projectData.ApplyingDeadline,
+            IsOpen = projectData.IsOpen
         };
 
         await _context.AddAsync(projectEntity);

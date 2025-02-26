@@ -46,7 +46,10 @@ public class ProjectService :  IProjectsService
             Guid.NewGuid(),
             request.Name,
             request.Description,
-            request.OwnerId);
+            request.OwnerId,
+            request.Deadline,
+            request.ApplyingDeadline,
+            request.IsOpen);
         
         if (!string.IsNullOrEmpty(error))
         {

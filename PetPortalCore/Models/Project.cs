@@ -24,6 +24,17 @@ public class Project
         Description = description;
         OwnerId = ownerId;
     }
+    
+    private Project(Guid id, string name, string description, Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, bool isOpen)
+    {
+        Id = id;
+        Name = name;
+        Description = description;
+        OwnerId = ownerId;
+        Deadline = deadline;
+        ApplyingDeadline = applyingDeadline;
+        IsOpen = isOpen;
+    }
 
     /// <summary>
     /// Project identifier.
@@ -46,6 +57,21 @@ public class Project
     public Guid OwnerId = Guid.Empty;
 
     /// <summary>
+    /// Time when owner thinks project should be completed. Infinite when null
+    /// </summary>
+    public DateTime? Deadline = null;
+
+    /// <summary>
+    /// Interval of time left for joining project. Infinite when null( now interval will be calculated at frontend, but we can send TimeSpan or string)?
+    /// </summary>
+    public DateTime? ApplyingDeadline = null;
+
+    /// <summary>
+    /// If people can join the project at the moment
+    /// </summary>
+    public bool IsOpen = false;
+    
+    /// <summary>
     /// Creation new project.
     /// </summary>
     /// <param name="id">Project identifier.</param>
@@ -53,7 +79,7 @@ public class Project
     /// <param name="description">Project description.</param>
     /// <param name="ownerId">Project owner identifier.</param>
     /// <returns>(project, error if it exist)</returns>
-    public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId)
+    public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, bool IsOpen = false)
     {
         var error = string.Empty;
 
@@ -62,7 +88,7 @@ public class Project
             error = "Name can not be empty or longer then 250 symbols";
         }
 
-        var project = new Project(id, name, description, ownerId);
+        var project = new Project(id, name, description, ownerId, Deadline, ApplyingDeadline, IsOpen);
 
         return (project, error);
     }

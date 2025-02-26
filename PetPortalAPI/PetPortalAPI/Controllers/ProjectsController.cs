@@ -64,7 +64,10 @@ public class ProjectsController : ControllerBase
                         Id = p.Id,
                         Name = p.Name,
                         Description = p.Description,
-                        OwnerId = p.OwnerId
+                        OwnerId = p.OwnerId,
+                        Deadline = p.Deadline,
+                        ApplyingDeadline = p.ApplyingDeadline,
+                        IsOpen = p.IsOpen
                     }
                 );
 
@@ -85,11 +88,11 @@ public class ProjectsController : ControllerBase
     /// Action result - error message.
     /// </returns>
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract request)
+    public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest)
     {
         try
         {
-            var projectGuid = await _projectsService.Create(request);
+            var projectGuid = await _projectsService.Create(projectRequest);
 
             return Ok(projectGuid);
         }
