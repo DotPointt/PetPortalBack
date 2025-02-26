@@ -71,7 +71,12 @@ public class Project
     /// </summary>
     public bool IsOpen = false;
     
-    /// <summary>
+    
+    ///Бюджет:
+    /// связка с фреймворками
+    
+    
+    /// <summary> 
     /// Creation new project.
     /// </summary>
     /// <param name="id">Project identifier.</param>

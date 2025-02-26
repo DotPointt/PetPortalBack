@@ -93,7 +93,7 @@ namespace PetPortalAPI
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin());
+            app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin()); //TODO: Поменять на более безоапсное
             
             app.Run();
         }
