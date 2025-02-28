@@ -1,4 +1,4 @@
-﻿namespace PetPortalCore.Models;
+﻿namespace PetPortalCore.Models.ProjectModels;
 
 /// <summary>
 /// Project.
@@ -24,8 +24,8 @@ public class Project
         Description = description;
         OwnerId = ownerId;
     }
-    
-    private Project(Guid id, string name, string description, Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, bool isOpen)
+
+    private Project(Guid id, string name, string description, Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, StateOfProject stateOfProject)
     {
         Id = id;
         Name = name;
@@ -33,7 +33,7 @@ public class Project
         OwnerId = ownerId;
         Deadline = deadline;
         ApplyingDeadline = applyingDeadline;
-        IsOpen = isOpen;
+        StateOfProject = stateOfProject;
     }
 
     /// <summary>
@@ -69,13 +69,16 @@ public class Project
     /// <summary>
     /// If people can join the project at the moment
     /// </summary>
-    public bool IsOpen = false;
-    
-    
-    ///Бюджет:
+    public StateOfProject StateOfProject = StateOfProject.Closed;
+
+    /// <summary>
+    /// Price of the project in rubles
+    /// </summary>
+    public uint Budget;
+
     /// связка с фреймворками
-    
-    
+
+
     /// <summary> 
     /// Creation new project.
     /// </summary>
@@ -84,7 +87,8 @@ public class Project
     /// <param name="description">Project description.</param>
     /// <param name="ownerId">Project owner identifier.</param>
     /// <returns>(project, error if it exist)</returns>
-    public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, bool IsOpen = false)
+
+    public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed)
     {
         var error = string.Empty;
 
@@ -93,8 +97,19 @@ public class Project
             error = "Name can not be empty or longer then 250 symbols";
         }
 
-        var project = new Project(id, name, description, ownerId, Deadline, ApplyingDeadline, IsOpen);
+        var project = new Project(id, name, description, ownerId, Deadline, ApplyingDeadline, StateOfProject);
 
         return (project, error);
     }
+
+    //public abstract (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed);
+
+}
+
+
+public enum StateOfProject
+{
+    Open = 0,
+    InProgress = 1,
+    Closed = 2
 }

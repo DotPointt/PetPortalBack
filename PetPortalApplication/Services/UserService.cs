@@ -41,6 +41,8 @@ public class UserService : IUserService
         return await _usersRepository.GetAll();
     }
 
+
+
     /// <summary>
     /// User creation.
     /// </summary>

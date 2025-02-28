@@ -2,6 +2,7 @@
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalAPI.Controllers;
 
@@ -67,7 +68,7 @@ public class ProjectsController : ControllerBase
                         OwnerId = p.OwnerId,
                         Deadline = p.Deadline,
                         ApplyingDeadline = p.ApplyingDeadline,
-                        IsOpen = p.IsOpen
+                        StateOfProject = p.StateOfProject
                     }
                 );
 
@@ -90,8 +91,14 @@ public class ProjectsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest)
     {
+        bool valRes = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
+        if (valRes)
+            return BadRequest("Вы превысили лимит проектов.");
+
         try
         {
+            projectRequest.StateOfProject = StateOfProject.Open;
+
             var projectGuid = await _projectsService.Create(projectRequest);
 
             return Ok(projectGuid);

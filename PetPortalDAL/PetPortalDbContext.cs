@@ -42,7 +42,7 @@ public class  PetPortalDbContext : DbContext
     
     # endregion
     
-    /// <summary>
+    /// <summary>    
     /// Models configuring.
     /// </summary>
     /// <param name="builder">Model builder.</param>
@@ -53,11 +53,13 @@ public class  PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new ProjectConfigurations());
         builder.ApplyConfiguration(new UserConfigurations());
         builder.ApplyConfiguration(new RoleConfigurations());
-            
+        builder.ApplyConfiguration(new FrameworkConfigurations());
+        builder.ApplyConfiguration(new ProjectFrameworkConfiguration());
+
         #endregion
 
         #region Setting up model links
-        
+
         builder.Entity<ProjectEntity>()
             .HasOne(project => project.Owner)
             .WithMany()

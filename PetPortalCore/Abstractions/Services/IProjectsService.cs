@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
-using PetPortalCore.Models;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalCore.Abstractions.Services;
 
@@ -36,4 +36,9 @@ public interface IProjectsService
     /// <param name="id">Project identifier.</param>
     /// <returns>Identifier of deleted project.</returns>
     Task<Guid> Delete(Guid id);
+
+    /// <summary>
+    /// Fasle - ok no limit violation, True - too many projects. basic anti ddos check, can be implemented in raw sql
+    /// </summary>
+    Task<bool> CheckCreatingLimit(Guid OwnerId, int limit);
 }

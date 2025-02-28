@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.DTOs;
-using PetPortalCore.Models;
+using PetPortalCore.Models.ProjectModels;
 using PetPortalDAL.Entities;
 
 namespace PetPortalDAL.Repositories;
@@ -43,7 +44,7 @@ public class ProjectsRepository : IProjectsRepository
                     project.OwnerId,
                     project.Deadline,
                     project.ApplyingDeadline,
-                    project.IsOpen
+                    project.StateOfProject
                     ).project)
             .ToList();
 
@@ -65,7 +66,7 @@ public class ProjectsRepository : IProjectsRepository
             OwnerId = projectData.OwnerId,
             Deadline = projectData.Deadline,
             ApplyingDeadline = projectData.ApplyingDeadline,
-            IsOpen = projectData.IsOpen
+            StateOfProject = projectData.StateOfProject
         };
 
         await _context.AddAsync(projectEntity);
@@ -103,5 +104,11 @@ public class ProjectsRepository : IProjectsRepository
             .ExecuteDeleteAsync();
 
         return id;
+    }
+
+    public async Task<int> GetProjectCountByOwnerIdAsync(Guid OwnerId)
+    {
+        return await _context.Projects
+            .CountAsync(p => p.OwnerId == OwnerId);
     }
 }

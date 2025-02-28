@@ -1,5 +1,5 @@
 ﻿using PetPortalCore.DTOs;
-using PetPortalCore.Models;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalCore.Abstractions.Repositories;
 
@@ -34,4 +34,6 @@ public interface IProjectsRepository
     /// <param name="id">Project identifier.</param>
     /// <returns>Identifier of deleted project.</returns>
     Task<Guid> Delete(Guid id);
+
+    Task<int> GetProjectCountByOwnerIdAsync(Guid OwnerId);
 }

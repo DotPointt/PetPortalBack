@@ -1,3 +1,5 @@
+using PetPortalCore.Models.ProjectModels;
+
 namespace PetPortalCore.DTOs.Contracts;
 
 /// <summary>
@@ -33,5 +35,6 @@ public class ProjectContract
     /// <summary>
     /// If people can join the project at the moment
     /// </summary>
-    public bool IsOpen { get; set; } = false;
+    /// 
+    public StateOfProject StateOfProject = StateOfProject.Closed;
 }

@@ -2,7 +2,7 @@
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
-using PetPortalCore.Models;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalApplication.Services;
 
@@ -42,6 +42,7 @@ public class ProjectService :  IProjectsService
     /// <exception cref="ArgumentException">Some parameters invalided.</exception>
     public async Task<Guid> Create(ProjectContract request)
     {
+
         var (project, error) = Project.Create(
             Guid.NewGuid(),
             request.Name,
@@ -49,7 +50,7 @@ public class ProjectService :  IProjectsService
             request.OwnerId,
             request.Deadline,
             request.ApplyingDeadline,
-            request.IsOpen);
+            request.StateOfProject);
         
         if (!string.IsNullOrEmpty(error))
         {
@@ -77,5 +78,19 @@ public class ProjectService :  IProjectsService
     public async Task<Guid> Delete(Guid id)
     {
         return await _projectsRepository.Delete(id);
+    }
+
+
+    /// <summary>
+    /// Fasle - ok no limit violation, True - too many projects. basic anti ddos check, can be implemented in raw sql
+    /// </summary>
+    /// <param name="OwnerId"></param>
+    /// <param name="limit"></param>
+    /// <returns></returns>
+    public async Task<bool> CheckCreatingLimit(Guid OwnerId, int limit)
+    {
+        var cnt = await _projectsRepository.GetProjectCountByOwnerIdAsync(OwnerId);
+
+        return cnt <= limit;
     }
 }

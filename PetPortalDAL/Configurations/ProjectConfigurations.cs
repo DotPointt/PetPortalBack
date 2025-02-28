@@ -18,12 +18,18 @@ public class ProjectConfigurations : IEntityTypeConfiguration<ProjectEntity>
         builder.HasKey(project => project.Id);
 
         builder.Property(project => project.Name)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(255);
 
         builder.Property(project => project.Description)
             .IsRequired();
 
         builder.Property(project => project.OwnerId)
             .IsRequired();
+
+        builder.HasMany(p => p.ProjectFrameworks)
+          .WithOne(pf => pf.Project)
+          .HasForeignKey(pf => pf.ProjectId)
+          .OnDelete(DeleteBehavior.Cascade);
     }
 }   

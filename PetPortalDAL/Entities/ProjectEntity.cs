@@ -1,3 +1,6 @@
+using PetPortalCore.Models.ProjectModels;
+using PetPortalDAL.Entities.LinkingTables;
+
 namespace PetPortalDAL.Entities;
 
 /// <summary>
@@ -40,8 +43,16 @@ public class ProjectEntity
     /// </summary>
     public DateTime? ApplyingDeadline { get; set; } = null;
 
+
     /// <summary>
     /// If people can join the project at the moment
     /// </summary>
-    public bool IsOpen { get; set; } = false;
+    public StateOfProject StateOfProject = StateOfProject.Closed;
+
+    /// <summary>
+    /// Price of the project in rubles
+    /// </summary>
+    public uint Budget;
+
+    public ICollection<ProjectFramework> ProjectFrameworks { get; set; } = new List<ProjectFramework>();
 }
