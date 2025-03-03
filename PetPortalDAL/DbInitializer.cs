@@ -1,4 +1,5 @@
 using PetPortalDAL.Entities;
+using PetPortalDAL.Entities.LinkingTables;
 
 namespace PetPortalDAL;
 
@@ -6,17 +7,17 @@ public class DbInitializer
 {
     public static void Seed(PetPortalDbContext context)
     {
-   if (!context.Roles.Any())
-        {
-            var roles = new List<RoleEntity>
+        if (!context.Roles.Any())
             {
-                new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Admin" },
-                new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "User" }
-            };
+                var roles = new List<RoleEntity>
+                {
+                    new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Admin" },
+                    new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "User" }
+                };
 
-            context.Roles.AddRange(roles);
-            context.SaveChanges();
-        }
+                context.Roles.AddRange(roles);
+                context.SaveChanges();
+            }
 
         // Добавление пользователей
         if (!context.Users.Any())
@@ -101,6 +102,60 @@ public class DbInitializer
             };
 
             context.UserProjects.AddRange(userProjects);
+            context.SaveChanges();
+        }
+
+            // Добавление тегов
+        if (!context.Tags.Any())
+        {
+            var tags = new List<TagEntity>
+            {
+                new TagEntity { Id = Guid.NewGuid(), Name = "ML" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "Ruby" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "C#" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "Algorithms" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "DataScience" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "Python" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "JavaScript" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "DevOps" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "AI" },
+                new TagEntity { Id = Guid.NewGuid(), Name = "Cloud" }
+            };
+
+                context.Tags.AddRange(tags);
+                context.SaveChanges();
+        }
+
+            // Добавление связей проектов и тегов
+            if (!context.ProjectTags.Any())
+        {
+            var projects = context.Projects.ToList();
+            var tags = context.Tags.ToList();
+
+            var projectTags = new List<ProjectTag>
+            {
+                // Связываем Project 1 (по Id) с тегами ML и DataScience
+                new ProjectTag { ProjectId = projects[0].Id, TagId = tags.First(t => t.Name == "ML").Id },
+                new ProjectTag { ProjectId = projects[0].Id, TagId = tags.First(t => t.Name == "DataScience").Id },
+
+                // Связываем Project 2 (по Id) с тегами Ruby и DevOps
+                new ProjectTag { ProjectId = projects[1].Id, TagId = tags.First(t => t.Name == "Ruby").Id },
+                new ProjectTag { ProjectId = projects[1].Id, TagId = tags.First(t => t.Name == "DevOps").Id },
+
+                // Связываем Project 3 (по Id) с тегами C# и Algorithms
+                new ProjectTag { ProjectId = projects[2].Id, TagId = tags.First(t => t.Name == "C#").Id },
+                new ProjectTag { ProjectId = projects[2].Id, TagId = tags.First(t => t.Name == "Algorithms").Id },
+
+                // Связываем Project 4 (по Id) с тегами Python и AI
+                new ProjectTag { ProjectId = projects[3].Id, TagId = tags.First(t => t.Name == "Python").Id },
+                new ProjectTag { ProjectId = projects[3].Id, TagId = tags.First(t => t.Name == "AI").Id },
+
+                // Связываем Project 5 (по Id) с тегами JavaScript и Cloud
+                new ProjectTag { ProjectId = projects[4].Id, TagId = tags.First(t => t.Name == "JavaScript").Id },
+                new ProjectTag { ProjectId = projects[4].Id, TagId = tags.First(t => t.Name == "Cloud").Id }
+            };
+
+            context.ProjectTags.AddRange(projectTags);
             context.SaveChanges();
         }
     }

@@ -27,7 +27,7 @@ public class ProjectConfigurations : IEntityTypeConfiguration<ProjectEntity>
         builder.Property(project => project.OwnerId)
             .IsRequired();
 
-        builder.HasMany(p => p.ProjectFrameworks)
+        builder.HasMany(p => p.ProjectTags)
           .WithOne(pf => pf.Project)
           .HasForeignKey(pf => pf.ProjectId)
           .OnDelete(DeleteBehavior.Cascade);

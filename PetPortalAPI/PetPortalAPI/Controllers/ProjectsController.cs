@@ -19,12 +19,18 @@ public class ProjectsController : ControllerBase
     private readonly IProjectsService _projectsService;
 
     /// <summary>
+    /// UsersService
+    /// </summary>
+    private readonly IUserService _usersService;
+
+    /// <summary>
     /// Projects controller constructor.
     /// </summary>
     /// <param name="projectsService">Project service.</param>
-    public ProjectsController(IProjectsService projectsService)
+    public ProjectsController(IProjectsService projectsService, IUserService usersService)
     {
         _projectsService = projectsService;
+        _usersService = usersService;
     }
 
     /// <summary>

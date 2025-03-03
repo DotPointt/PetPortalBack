@@ -54,5 +54,5 @@ public class ProjectEntity
     /// </summary>
     public uint Budget;
 
-    public ICollection<ProjectFramework> ProjectFrameworks { get; set; } = new List<ProjectFramework>();
+    public ICollection<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
 }

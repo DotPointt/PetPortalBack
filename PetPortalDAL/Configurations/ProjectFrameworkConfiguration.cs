@@ -10,23 +10,23 @@ using System.Threading.Tasks;
 
 namespace PetPortalDAL.Configurations
 {
-    public class ProjectFrameworkConfiguration : IEntityTypeConfiguration<ProjectFramework>
+    public class ProjectTagConfiguration : IEntityTypeConfiguration<ProjectTag>
     {
-        public void Configure(EntityTypeBuilder<ProjectFramework> builder)
+        public void Configure(EntityTypeBuilder<ProjectTag> builder)
         {
-            builder.HasKey(pf => new { pf.ProjectId, pf.FrameworkId }); // Составной ключ
+            builder.HasKey(pf => new { pf.ProjectId, pf.TagId }); // Составной ключ
 
             builder.HasOne(pf => pf.Project)
-                  .WithMany(p => p.ProjectFrameworks)
+                  .WithMany(p => p.ProjectTags)
                   .HasForeignKey(pf => pf.ProjectId);
 
-            builder.HasOne(pf => pf.Framework)
-                  .WithMany(f => f.ProjectFrameworks)
-                  .HasForeignKey(pf => pf.FrameworkId);
+            builder.HasOne(pf => pf.Tag)
+                  .WithMany(f => f.ProjectTags)
+                  .HasForeignKey(pf => pf.TagId);
 
             // Дополнительные настройки, если нужно
             builder.Property(pf => pf.ProjectId).IsRequired();
-            builder.Property(pf => pf.FrameworkId).IsRequired();
+            builder.Property(pf => pf.TagId).IsRequired();
         }   
     }
 }

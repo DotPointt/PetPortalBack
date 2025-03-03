@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PetPortalDAL.Configurations;
 using PetPortalDAL.Entities;
+using PetPortalDAL.Entities.LinkingTables;
 
 namespace PetPortalDAL;
 
@@ -39,9 +40,19 @@ public class  PetPortalDbContext : DbContext
     /// Database user-projects.
     /// </summary>
     public DbSet<UserProject> UserProjects { get; set; }
-    
-    # endregion
-    
+
+    /// <summary>
+    /// Database Tags
+    /// </summary>
+    public DbSet<TagEntity> Tags { get; set; }
+
+    /// <summary>
+    /// Database linking table between projects and tags(frameworks)
+    /// </summary>
+    public DbSet<ProjectTag> ProjectTags { get; set; }
+
+    #endregion
+
     /// <summary>    
     /// Models configuring.
     /// </summary>
@@ -53,8 +64,8 @@ public class  PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new ProjectConfigurations());
         builder.ApplyConfiguration(new UserConfigurations());
         builder.ApplyConfiguration(new RoleConfigurations());
-        builder.ApplyConfiguration(new FrameworkConfigurations());
-        builder.ApplyConfiguration(new ProjectFrameworkConfiguration());
+        builder.ApplyConfiguration(new TagConfigurations());
+        builder.ApplyConfiguration(new ProjectTagConfiguration());
 
         #endregion
 

@@ -21,6 +21,11 @@ public class ProjectContract
     /// Project owner.
     /// </summary>
     public Guid OwnerId { get; set; }
+
+    /// <summary>
+    /// Name of the owner
+    /// </summary>
+    public string OwnerName { get; set; }
     
     /// <summary>
     /// Time when owner thinks project should be completed. Infinite when null
@@ -37,4 +42,21 @@ public class ProjectContract
     /// </summary>
     /// 
     public StateOfProject StateOfProject = StateOfProject.Closed;
+
+    /// <summary>
+    /// Price of the project in rubles
+    /// </summary>
+    public uint Budget;
+
+    /// <summary>
+    /// If project is to be done for money
+    /// </summary>
+    public bool IsBusinesProject = false;
+    
+    /// <summary>
+    /// Tags related to Project. List of strings.
+    /// </summary>
+    public List<string> Tags { get; set; }
+
+    
 }

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace PetPortalDAL.Entities.LinkingTables
 {
-    public class ProjectFramework
+    public class ProjectTag
     {
         public Guid ProjectId { get; set; }
         public ProjectEntity Project { get; set; }
 
-        public Guid FrameworkId { get; set; }
-        public FrameworkEntity Framework { get; set; }
+        public Guid TagId { get; set; }
+        public TagEntity Tag { get; set; }
     }
 }

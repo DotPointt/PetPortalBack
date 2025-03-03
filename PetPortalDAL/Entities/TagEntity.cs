@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace PetPortalDAL.Entities
 {
-    public class FrameworkEntity
+    public class TagEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
 
-        public ICollection<ProjectFramework> ProjectFrameworks { get; set; } = new List<ProjectFramework>();
+        public ICollection<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
     }
 }

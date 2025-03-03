@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace PetPortalDAL.Configurations
 {
-    public class FrameworkConfigurations : IEntityTypeConfiguration<FrameworkEntity>
+    public class TagConfigurations : IEntityTypeConfiguration<TagEntity>
     {
-        public void Configure(EntityTypeBuilder<FrameworkEntity> builder)
+        public void Configure(EntityTypeBuilder<TagEntity> builder)
         {
-            builder.HasKey(Framework => Framework.Id);
+            builder.HasKey(Tag => Tag.Id);
 
-            builder.Property(Framework => Framework.Name)
+            builder.Property(Tag => Tag.Name)
                 .IsRequired()
                 .HasMaxLength(255);
 
-            builder.HasMany(f => f.ProjectFrameworks)
-              .WithOne(pf => pf.Framework)
-              .HasForeignKey(pf => pf.FrameworkId)
+            builder.HasMany(f => f.ProjectTags)
+              .WithOne(pf => pf.Tag)
+              .HasForeignKey(pf => pf.TagId)
               .OnDelete(DeleteBehavior.Cascade);
         }
     }

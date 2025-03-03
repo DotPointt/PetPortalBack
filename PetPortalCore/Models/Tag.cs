@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PetPortalCore.Models
 {
-    public class Framework
+    public class Tag
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
