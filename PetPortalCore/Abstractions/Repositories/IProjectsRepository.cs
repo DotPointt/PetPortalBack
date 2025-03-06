@@ -12,8 +12,14 @@ public interface IProjectsRepository
     /// Get projects from db.
     /// </summary>
     /// <returns>List of projects.</returns>
-    Task<List<Project>> Get();
-        
+    Task<List<Project>> Get(int offset = 10, int page = 1);
+
+    /// <summary>
+    /// Gets all projects
+    /// </summary>
+    /// <returns></returns>
+    public Task<List<Project>> GetAll();
+    
     /// <summary>
     /// Create new project in db.
     /// </summary>

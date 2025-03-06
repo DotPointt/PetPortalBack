@@ -20,6 +20,11 @@ public class MinioService : IMinioService
     /// Object storage bucket name.
     /// </summary>
     private readonly string _bucketName;
+
+    /// <summary>
+    /// The name of the default avatar bucket
+    /// </summary>
+    private readonly string _defaultKey;
     
     /// <summary>
     /// Constructor.
@@ -39,6 +44,7 @@ public class MinioService : IMinioService
             });
 
         _bucketName = config.BucketName;
+        _defaultKey = config.DefaultKey;
     }
     
     /// <summary>
@@ -76,8 +82,13 @@ public class MinioService : IMinioService
     /// <param name="fileName">File path.</param>
     /// <returns>File stream.</returns>
     /// <exception cref="FileNotFoundException">File not existed.</exception>
-    public async Task<Stream> GetFileAsync(string fileName)
+    public async Task<MemoryStream> GetFileAsync(string fileName = "DefaultBucket")
     {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            fileName = _defaultKey; // Заменяем пустое значение на дефолтное
+        }
+        
         try
         {
             var request = new GetObjectRequest
@@ -86,7 +97,9 @@ public class MinioService : IMinioService
                 Key = fileName
             };
 
+            
             using var response = await _s3Client.GetObjectAsync(request);
+            
             var memoryStream = new MemoryStream();
             await response.ResponseStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
@@ -98,5 +111,4 @@ public class MinioService : IMinioService
             throw new FileNotFoundException($"Файл {fileName} не найден в бакете {_bucketName}.");
         }
     }
-
 }

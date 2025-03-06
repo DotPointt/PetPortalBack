@@ -72,10 +72,15 @@ public class Project
     public StateOfProject StateOfProject = StateOfProject.Closed;
 
     /// <summary>
+    /// If project is to be done for money
+    /// </summary>
+    public bool IsBusinesProject = false;
+    
+    /// <summary>
     /// Price of the project in rubles
     /// </summary>
     public uint Budget;
-
+    
     /// связка с фреймворками
 
 

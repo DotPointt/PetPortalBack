@@ -27,10 +27,37 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Get data bases projects.
+    /// Get project paginated
     /// </summary>
     /// <returns>List of projects.</returns>
-    public async Task<List<Project>> Get()
+    public async Task<List<Project>> Get(int offset = 10, int page = 1)
+    {
+        var projectsEntities = await _context.Projects
+            .AsNoTracking()
+            .Skip((page - 1) * offset)
+            .Take(offset)
+            .ToListAsync();
+
+        var projects = projectsEntities
+            .Select(project =>
+                Project.Create(project.Id,
+                    project.Name, 
+                    project.Description, 
+                    project.OwnerId,
+                    project.Deadline,
+                    project.ApplyingDeadline,
+                    project.StateOfProject
+                    ).project)
+            .ToList();
+
+        return projects;
+    }
+    
+    /// <summary>
+    /// Gets all projects
+    /// </summary>
+    /// <returns></returns>
+    public async Task<List<Project>> GetAll()
     {
         var projectsEntities = await _context.Projects
             .AsNoTracking()
@@ -45,7 +72,7 @@ public class ProjectsRepository : IProjectsRepository
                     project.Deadline,
                     project.ApplyingDeadline,
                     project.StateOfProject
-                    ).project)
+                ).project)
             .ToList();
 
         return projects;

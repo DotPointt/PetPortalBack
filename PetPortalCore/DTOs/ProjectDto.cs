@@ -41,4 +41,11 @@ public class ProjectDto
     /// If people can join the project at the moment
     /// </summary>
     public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
+    
+    /// <summary>
+    /// If project is to be done for money
+    /// </summary>
+    public bool IsBusinesProject = false;
+    
+    public string AvatarImageBase64 { get; set; }
 }

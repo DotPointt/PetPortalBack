@@ -41,4 +41,11 @@ public interface IUserService
     /// <param name="id">User identifier.</param>
     /// <returns>Deleted user guid.</returns>
     Task<Guid> Delete(Guid id);
+
+    /// <summary>
+    ///  Gets user object by id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<User> GetUserById(Guid id);
 }

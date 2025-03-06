@@ -31,7 +31,18 @@ public class ProjectService :  IProjectsService
     /// <returns>List of projects.</returns>
     public async Task<List<Project>> GetAll()
     {
-        return await _projectsRepository.Get();
+        return await _projectsRepository.GetAll();
+    }
+
+    /// <summary>
+    /// Get Projects paginated
+    /// </summary>
+    /// <param name="offset"></param>
+    /// <param name="page"></param>
+    /// <returns></returns>
+    public async Task<List<Project>> GetPaginated(int offset = 10, int page = 1)
+    {
+        return await _projectsRepository.Get(offset, page );
     }
 
     /// <summary>

@@ -127,4 +127,14 @@ public class UserService : IUserService
     {
         return await _usersRepository.Delete(id);
     }
+
+    /// <summary>
+    /// Gets user object by id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<User> GetUserById(Guid id)
+    {
+        return await _usersRepository.GetById(id);
+    }
 }

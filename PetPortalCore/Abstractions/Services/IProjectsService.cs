@@ -15,6 +15,14 @@ public interface IProjectsService
     /// </summary>
     /// <returns>List of projects.</returns>
     Task<List<Project>> GetAll();
+
+    /// <summary>
+    /// Get Projects paginated
+    /// </summary>
+    /// <param name="offset"></param>
+    /// <param name="page"></param>
+    /// <returns></returns>
+    public Task<List<Project>> GetPaginated(int offset = 10, int page = 1);
         
     /// <summary>
     /// Create new project.

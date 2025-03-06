@@ -24,4 +24,9 @@ public class MinIOConfig
     /// Bucket name.
     /// </summary>
     public string BucketName { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// The name of the default avatar bucket
+    /// </summary>
+    public string DefaultKey { get; set; } = string.Empty;
 }

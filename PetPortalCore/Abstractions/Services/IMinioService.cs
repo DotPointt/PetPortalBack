@@ -17,5 +17,5 @@ public interface IMinioService
     /// <param name="fileName">File path.</param>
     /// <returns>File stream.</returns>
     /// <exception cref="FileNotFoundException">File not existed.</exception>
-    Task<Stream> GetFileAsync(string fileName);
+    Task<MemoryStream> GetFileAsync(string fileName);
 }

@@ -23,14 +23,17 @@ public class ProjectsController : ControllerBase
     /// </summary>
     private readonly IUserService _usersService;
 
+    private readonly IMinioService _minioService;
+
     /// <summary>
     /// Projects controller constructor.
     /// </summary>
     /// <param name="projectsService">Project service.</param>
-    public ProjectsController(IProjectsService projectsService, IUserService usersService)
+    public ProjectsController(IProjectsService projectsService, IUserService usersService, IMinioService minioService)
     {
         _projectsService = projectsService;
         _usersService = usersService;
+        _minioService = minioService;
     }
 
     /// <summary>
@@ -41,7 +44,7 @@ public class ProjectsController : ControllerBase
     /// Action result - error message.
     /// </returns>
     [HttpGet("{offset:int?}/{page:int?}")]
-    public async Task<ActionResult<List<ProjectDto>>> GetProjects(int offset = 10, int page = 1)
+    public async Task<ActionResult<List<ProjectDto>>> GetProjects(int offset = 10, int page = 1) //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
     {
         if (offset < 1 || page < 1)
         {
@@ -52,31 +55,53 @@ public class ProjectsController : ControllerBase
 
         try
         {
-            var projects = await _projectsService.GetAll();
+            var projects = await _projectsService.GetPaginated(offset, page);
 
             if (projects.Count == 0)
             {
                 return Ok("There are no projects here yet.");
             }
 
-            projects = projects
-                .Skip((page - 1) * offset)
-                .Take(offset)
-                .ToList();
+            List<ProjectDto> response = new List<ProjectDto>();
+            
+            
+            foreach (var p in projects)
+            {
+                var user = await _usersService.GetUserById(p.OwnerId);
+                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "DefaultBucketKey");
+                byte[] arrayimg = stream.ToArray();
+                var imageBase64 =  Convert.ToBase64String(arrayimg);
+                
+                
+                var projectDto = new ProjectDto()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    OwnerId = p.OwnerId,
+                    Deadline = p.Deadline,
+                    ApplyingDeadline = p.ApplyingDeadline,
+                    StateOfProject = p.StateOfProject,
+                    AvatarImageBase64 = imageBase64,
+                    IsBusinesProject = p.Is
+                };
+                
+                response.Add(projectDto);
+            }
 
-            var response = projects
-                .Select(p =>
-                    new ProjectDto()
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Description = p.Description,
-                        OwnerId = p.OwnerId,
-                        Deadline = p.Deadline,
-                        ApplyingDeadline = p.ApplyingDeadline,
-                        StateOfProject = p.StateOfProject
-                    }
-                );
+            // var response = projects
+            //     .Select(p =>
+            //         new ProjectDto()
+            //         {
+            //             Id = p.Id,
+            //             Name = p.Name,
+            //             Description = p.Description,
+            //             OwnerId = p.OwnerId,
+            //             Deadline = p.Deadline,
+            //             ApplyingDeadline = p.ApplyingDeadline,
+            //             StateOfProject = p.StateOfProject
+            //         }
+            //     );
 
             return Ok(response);
         }
@@ -106,7 +131,7 @@ public class ProjectsController : ControllerBase
             projectRequest.StateOfProject = StateOfProject.Open;
 
             var projectGuid = await _projectsService.Create(projectRequest);
-
+            
             return Ok(projectGuid);
         }
         catch (Exception ex)
