@@ -8,6 +8,9 @@ namespace PetPortalDAL.Entities.LinkingTables
 {
     public class ProjectTag
     {
+        /// <summary>
+        /// ProjectId
+        /// </summary>
         public Guid ProjectId { get; set; }
         public ProjectEntity Project { get; set; }
 

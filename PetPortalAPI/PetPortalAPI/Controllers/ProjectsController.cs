@@ -79,11 +79,14 @@ public class ProjectsController : ControllerBase
                     Name = p.Name,
                     Description = p.Description,
                     OwnerId = p.OwnerId,
+                    OwnerName = user.Name,
                     Deadline = p.Deadline,
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
                     AvatarImageBase64 = imageBase64,
-                    IsBusinesProject = p.Is
+                    IsBusinesProject = p.IsBusinesProject,
+                    Budget = p.Budget,
+                    Tags = new List<string>()
                 };
                 
                 response.Add(projectDto);

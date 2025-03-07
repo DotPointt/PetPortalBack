@@ -58,5 +58,8 @@ public class ProjectContract
     /// </summary>
     public List<string> Tags { get; set; }
 
-    
+    /// <summary>
+    /// Avatar img in Base64 encoding
+    /// </summary>
+    public string AvatarImageBase64 { get; set; }
 }

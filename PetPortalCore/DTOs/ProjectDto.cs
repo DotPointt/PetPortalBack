@@ -28,6 +28,11 @@ public class ProjectDto
     public Guid OwnerId { get; set; }
     
     /// <summary>
+    /// Name of the owner
+    /// </summary>
+    public string OwnerName { get; set; }
+    
+    /// <summary>
     /// Time when owner thinks project should be completed. Infinite when null
     /// </summary>
     public DateTime? Deadline { get; set; }
@@ -45,7 +50,20 @@ public class ProjectDto
     /// <summary>
     /// If project is to be done for money
     /// </summary>
-    public bool IsBusinesProject = false;
+    public bool IsBusinesProject { get; set; }  = false;
     
+    /// <summary>
+    /// Price of the project in rubles
+    /// </summary>
+    public uint Budget;  
+    
+    /// <summary>
+    /// Avatar img in Base64 encoding
+    /// </summary>
     public string AvatarImageBase64 { get; set; }
+    
+    /// <summary>
+    /// Tags related to Project. List of strings.
+    /// </summary>
+    public List<string> Tags { get; set; }
 }
