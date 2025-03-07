@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
+using PetPortalDAL.Repositories;
 
 namespace PetPortalApplication.Services;
 
@@ -15,21 +17,35 @@ public class UserService : IUserService
     /// User repository.
     /// </summary>
     private readonly IUsersRepository _usersRepository;
+    
+    /// <summary>
+    /// Role reporitoey.
+    /// </summary>
+    private readonly IRoleRepository _roleRepository;
 
     /// <summary>
     /// Auth provider.
     /// </summary>
     private readonly IJwtProvider _jwtProvider;
+    
+    /// <summary>
+    /// Password hasher.
+    /// </summary>
+    private readonly IPasswordHasher _passwordHasher;
 
     /// <summary>
     /// User service constructor.
     /// </summary>
     /// <param name="usersRepository">Users repository.</param>
     /// <param name="jwtProvider">Auth provider.</param>
-    public UserService(IUsersRepository usersRepository, IJwtProvider jwtProvider)
+    /// <param name="passwordHasher">Password hasher.</param>
+    /// <param name="roleRepository">Role repository.</param>
+    public UserService(IUsersRepository usersRepository, IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository)
     {
         _usersRepository = usersRepository;
         _jwtProvider = jwtProvider;
+        _passwordHasher = passwordHasher;
+        _roleRepository = roleRepository;
     }
     
     /// <summary>
@@ -41,8 +57,6 @@ public class UserService : IUserService
         return await _usersRepository.GetAll();
     }
 
-
-
     /// <summary>
     /// User creation.
     /// </summary>
@@ -51,7 +65,7 @@ public class UserService : IUserService
     /// <exception cref="ArgumentException">Some parameters invalided.</exception>
     public async Task<Guid> Register(UserContract request)
     {
-        var hashedPassword = request.Password;
+        var hashedPassword = _passwordHasher.HashPassword(request.Password);
         
         var (user, error) = PetPortalCore.Models.User.Create(
             Guid.NewGuid(),
@@ -59,7 +73,7 @@ public class UserService : IUserService
             request.Email,
             hashedPassword,
             request.RoleId,
-            string.Empty); // Указать путь к дэфолтной автарке.
+            string.Empty); //TODO Указать путь к дэфолтной автарке.
                 
         if (!string.IsNullOrEmpty(error))
         {
@@ -69,6 +83,13 @@ public class UserService : IUserService
         return await _usersRepository.Create(user);
     }
     
+    /// <summary>
+    /// User login.
+    /// </summary>
+    /// <param name="email">User email.</param>
+    /// <param name="password">User password.</param>
+    /// <returns>Jwt token.</returns>
+    /// <exception cref="Exception"></exception>
     public async Task<string> Login(string email, string password)
     {
         var user = await _usersRepository.GetByEmail(email);
@@ -76,12 +97,14 @@ public class UserService : IUserService
         if (user == null)
             throw new Exception("No user registered");
 
-        var result = true;  // ВЕРИФИКАЦИЯ var result = _passwordHasher.Verify(password, hashedPassword);
+        var verify = _passwordHasher.VerifyHashedPassword(user.PasswordHash, password);
 
-        if (result == false)
+        if (!verify)
             throw new Exception("failed to login");
 
-        var token = _jwtProvider.GenerateToken(user.Email);
+        var roleName = await _roleRepository.GetRoleByUserId(user.Id);
+        
+        var token = _jwtProvider.GenerateToken(user.Id, user.Email, roleName);
         
         return token;
     }

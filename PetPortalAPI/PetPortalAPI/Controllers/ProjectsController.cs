@@ -83,7 +83,7 @@ public class ProjectsController : ControllerBase
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
                     AvatarImageBase64 = imageBase64,
-                    IsBusinesProject = p.Is
+                    IsBusinesProject = p.IsBusinesProject
                 };
                 
                 response.Add(projectDto);

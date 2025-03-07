@@ -4,5 +4,5 @@ namespace PetPortalCore.Abstractions.Services;
 
 public interface IJwtProvider
 {
-    public string GenerateToken(string email);
+    public string GenerateToken(Guid userId, string email, string roleName);
 }
