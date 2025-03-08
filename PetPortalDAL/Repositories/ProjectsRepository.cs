@@ -79,7 +79,25 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Create new project in data base.
+    /// Get project by identifier.
+    /// </summary>
+    /// <param name="projectId">Project identifier.</param>
+    /// <returns>Project.</returns>
+    public async Task<Project> GetById(Guid projectId)
+    {
+        var project = await _context.Projects
+            .AsNoTracking()
+            .Where(p => p.Id == projectId)
+            .FirstOrDefaultAsync();
+        
+        if (project == null)
+            throw new Exception("Project not found");
+        
+        return Project.Create(project.Id, project.Name, project.Description, project.OwnerId, project.Deadline, project.ApplyingDeadline, project.StateOfProject).project;
+    }
+
+    /// <summary>
+    /// Create new project in database.
     /// </summary>
     /// <param name="projectData">Project data.</param>
     /// <returns>Created project identifier.</returns>
@@ -120,7 +138,7 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Delete data base project.
+    /// Delete database project.
     /// </summary>
     /// <param name="id">Project identifier.</param>
     /// <returns>Deleted project identifier.</returns>

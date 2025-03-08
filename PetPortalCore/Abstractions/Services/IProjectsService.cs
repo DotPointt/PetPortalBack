@@ -15,6 +15,13 @@ public interface IProjectsService
     /// </summary>
     /// <returns>List of projects.</returns>
     Task<List<Project>> GetAll();
+    
+    /// <summary>
+    /// Get project by id.
+    /// </summary>
+    /// <param name="id">Project identifier.</param>
+    /// <returns>Project.</returns>
+    Task<Project> GetById(Guid id);
 
     /// <summary>
     /// Get Projects paginated

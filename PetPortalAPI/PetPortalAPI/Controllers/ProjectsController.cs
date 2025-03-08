@@ -29,6 +29,8 @@ public class ProjectsController : ControllerBase
     /// Projects controller constructor.
     /// </summary>
     /// <param name="projectsService">Project service.</param>
+    /// <param name="usersService">Users service.</param>
+    /// <param name="minioService">Object storage service.</param>
     public ProjectsController(IProjectsService projectsService, IUserService usersService, IMinioService minioService)
     {
         _projectsService = projectsService;
@@ -114,7 +116,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Endpoint create project.
     /// </summary>
-    /// <param name="request">Project detail data.</param>
+    /// <param name="projectRequest">Project detail data.</param>
     /// <returns>
     /// Action result - created project guid or
     /// Action result - error message.
@@ -123,8 +125,8 @@ public class ProjectsController : ControllerBase
     public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest)
     {
         bool valRes = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
-        if (valRes)
-            return BadRequest("Вы превысили лимит проектов.");
+        // if (valRes)
+            // return BadRequest("Вы превысили лимит проектов.");
 
         try
         {
@@ -154,9 +156,26 @@ public class ProjectsController : ControllerBase
     {
         try
         {
-            var projectId = await _projectsService.Update(request);
-                
-            return Ok(projectId);
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in claims.");
+            }
+            
+            var project = await _projectsService.GetById(id);
+            var userId = Guid.Parse(userIdClaim);
+
+            if (project.OwnerId == userId)
+            {
+                var projectId = await _projectsService.Update(request);
+
+                return Ok(projectId);
+            }
+            else
+            {
+                return Forbid("You are not the owner of this project.");
+            }
         }
         catch (Exception ex)
         {
