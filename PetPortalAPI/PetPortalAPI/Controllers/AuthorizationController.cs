@@ -19,9 +19,8 @@ public class AuthorizationController : ControllerBase
     }
 
     /// <summary>
-    /// Authroization action.
+    /// Authorization action.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
     /// <param name="request">Project data.</param>
     /// <returns>
     /// Action result - updated project guid or
@@ -32,7 +31,7 @@ public class AuthorizationController : ControllerBase
     {
         try
         {
-            string token = await _userService.Login(request.Email, request.Password);
+            var token = await _userService.Login(request.Email, request.Password);
 
             HttpContext.Response.Cookies.Append("jwttoken", token);
             

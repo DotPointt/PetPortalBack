@@ -14,12 +14,17 @@ public class JwtProvider (IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
     
-    public string GenerateToken(string email)
+    public string GenerateToken(Guid userId, string email, string roleName)
     {
-        
         try
         {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, email) };
+            var claims = new List<Claim>
+            {
+                new Claim("userId", userId.ToString()),
+                new Claim(ClaimTypes.Role, roleName),
+                new Claim(ClaimTypes.Email, email)
+            };
+            
             var jwt = new JwtSecurityToken(
                 issuer: AuthOptions.ISSUER,
                 audience: AuthOptions.AUDIENCE,
@@ -27,12 +32,13 @@ public class JwtProvider (IOptions<JwtOptions> options) : IJwtProvider
                 expires: DateTime.UtcNow.AddHours(_options.ExpiresHours),
                 signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             
-            string token = new JwtSecurityTokenHandler().WriteToken(jwt);
+            var token = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             return token;
-        } catch (Exception ex)
+        } 
+        catch (Exception ex)
         {
-                throw new Exception(ex.ToString());
+            throw new Exception(ex.ToString());
         }
     }
 }
