@@ -46,6 +46,16 @@ public class ProjectService :  IProjectsService
     }
 
     /// <summary>
+    /// Get project by identifier.
+    /// </summary>
+    /// <param name="id">Project identifier.</param>
+    /// <returns>Project.</returns>
+    public async Task<Project> GetById(Guid id)
+    {
+        return await _projectsRepository.GetById(id);
+    }
+
+    /// <summary>
     /// Project creation.
     /// </summary>
     /// <param name="request">Project detail data.</param>

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.IdentityModel.Tokens;
@@ -18,69 +19,89 @@ namespace PetPortalAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            ConfigureServices(builder.Services, builder.Configuration);
 
-            builder.Services.AddAuthorization();
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            var app = builder.Build();
+            ConfigureApp(app);
+        }
+
+        /// <summary>
+        /// Services registration.
+        /// </summary>
+        /// <param name="services">Service collection.</param>
+        /// <param name="configuration">Configuration.</param>
+        private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+        {
+            #region Authorization
+            
+            services.AddAuthorizationBuilder()
+                .AddPolicy("AdminOnly", policy => 
+                    policy.RequireClaim(ClaimTypes.Role, "Admin"))
+                .AddPolicy("UserOnly", policy => 
+                    policy.RequireClaim(ClaimTypes.Role, "User"));
+            
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        // указывает, будет ли валидироваться издатель при валидации токена
                         ValidateIssuer = true,
-                        // строка, представляющая издателя
                         ValidIssuer = AuthOptions.ISSUER,
-                        // будет ли валидироваться потребитель токена
                         ValidateAudience = true,
-                        // установка потребителя токена
                         ValidAudience = AuthOptions.AUDIENCE,
-                        // будет ли валидироваться время существования
                         ValidateLifetime = true,
-                        // установка ключа безопасности
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                        // валидация ключа безопасности
                         ValidateIssuerSigningKey = true,
                     };
-                    //аутентификация будет по проверке токена в куки:
                     options.Events = new JwtBearerEvents()
                     {
                         OnMessageReceived = context =>
                         {
                             context.Token = context.Request.Cookies["jwttoken"];
-
                             return Task.CompletedTask;
                         }
                     };
                 });
+            
+            #endregion 
+            
+            #region Configs
+            
+            services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+            services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig"));
+            
+            #endregion
+            
+            services.AddControllers();
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
 
-            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
-            builder.Services.Configure<MinIOConfig>(builder.Configuration.GetSection("MinioConfig"));
-            
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            services.AddDbContext<PetPortalDbContext>(options =>
+            {
+                options.UseNpgsql(configuration.GetConnectionString(nameof(PetPortalDbContext)));
+            });
 
-            builder.Services.AddDbContext<PetPortalDbContext>(
-                options =>
-                {
-                    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(PetPortalDbContext)));
-                });
-            
-            builder.Services.AddScoped<IProjectsService, ProjectService>();
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IUserProjectService, UserProjectService>();
-            builder.Services.AddScoped<IMinioService, MinioService>();
-            
-            builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
-            builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-            builder.Services.AddScoped<IUserProjectRepository, UserProjectRepository>();
-            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+            #region DI
+            services.AddScoped<IProjectsService, ProjectService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserProjectService, UserProjectService>();
+            services.AddScoped<IMinioService, MinioService>();
 
-            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-            builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-            builder.Services.AddCors();
+            services.AddScoped<IProjectsRepository, ProjectsRepository>();
+            services.AddScoped<IUsersRepository, UsersRepository>();
+            services.AddScoped<IUserProjectRepository, UserProjectRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IJwtProvider, JwtProvider>();
+            #endregion
             
-            var app = builder.Build();
+            services.AddCors();
             
+        }
+
+        private static void ConfigureApp(WebApplication app)
+        {
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -88,15 +109,16 @@ namespace PetPortalAPI
                 using (var scope = app.Services.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<PetPortalDbContext>();
-                    DbInitializer.Seed(context);  // Заполнение данных в базу данных
+                    DbInitializer.Seed(context);  
                 }
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin()); //TODO: Поменять на более безоапсное
-            
+            app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin()); //TODO: Поменять на более безопасное
+
             app.Run();
         }
     }

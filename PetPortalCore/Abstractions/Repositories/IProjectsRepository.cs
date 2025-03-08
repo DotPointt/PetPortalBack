@@ -19,6 +19,13 @@ public interface IProjectsRepository
     /// </summary>
     /// <returns></returns>
     public Task<List<Project>> GetAll();
+
+    /// <summary>
+    /// Get project by id.
+    /// </summary>
+    /// <param name="projectId">Project identifier.</param>
+    /// <returns>Project.</returns>
+    public Task<Project> GetById(Guid projectId);
     
     /// <summary>
     /// Create new project in db.
