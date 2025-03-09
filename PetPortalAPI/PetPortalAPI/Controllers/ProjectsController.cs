@@ -124,9 +124,9 @@ public class ProjectsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest)
     {
-        bool valRes = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
-        // if (valRes)
-            // return BadRequest("Вы превысили лимит проектов.");
+        var valid = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
+        if (!valid) 
+            return BadRequest("Вы превысили лимит проектов.");
 
         try
         {

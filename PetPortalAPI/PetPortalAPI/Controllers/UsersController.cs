@@ -79,31 +79,6 @@ public class UsersController : ControllerBase
             return BadRequest(ex.ToString());
         }
     }
-        
-    /// <summary>
-    /// Endpoint create user.
-    /// </summary>
-    /// <param name="request">User data.</param>
-    /// <returns>
-    /// Action result - created user guid or
-    /// Action result - error message.
-    /// </returns>
-    [HttpPost]
-    public async Task<ActionResult<Guid>> CreateUser([FromBody] UserContract request)
-    {
-        try
-        {
-            var userGuid = await _userService.Register(request);
-
-            return Ok(userGuid);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.ToString());
-        }
-    }
-
-    
     
     /// <summary>
     /// TO access this url Header Authorization:"BearerHere" needed

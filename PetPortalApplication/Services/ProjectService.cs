@@ -103,14 +103,17 @@ public class ProjectService :  IProjectsService
 
 
     /// <summary>
-    /// Fasle - ok no limit violation, True - too many projects. basic anti ddos check, can be implemented in raw sql
+    /// Validate project creation limits.
     /// </summary>
-    /// <param name="OwnerId"></param>
+    /// <param name="ownerId"></param>
     /// <param name="limit"></param>
-    /// <returns></returns>
-    public async Task<bool> CheckCreatingLimit(Guid OwnerId, int limit)
+    /// <returns>
+    /// True - ok no limit violation,
+    /// False - too many projects. basic anti ddos check, can be implemented in raw sql
+    /// </returns>
+    public async Task<bool> CheckCreatingLimit(Guid ownerId, int limit)
     {
-        var cnt = await _projectsRepository.GetProjectCountByOwnerIdAsync(OwnerId);
+        var cnt = await _projectsRepository.GetProjectCountByOwnerIdAsync(ownerId);
 
         return cnt <= limit;
     }

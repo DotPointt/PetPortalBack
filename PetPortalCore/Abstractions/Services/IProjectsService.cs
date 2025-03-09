@@ -53,7 +53,8 @@ public interface IProjectsService
     Task<Guid> Delete(Guid id);
 
     /// <summary>
-    /// Fasle - ok no limit violation, True - too many projects. basic anti ddos check, can be implemented in raw sql
+    /// True - ok no limit violation,
+    /// False - too many projects. basic anti ddos check, can be implemented in raw sql
     /// </summary>
-    Task<bool> CheckCreatingLimit(Guid OwnerId, int limit);
+    Task<bool> CheckCreatingLimit(Guid ownerId, int limit);
 }

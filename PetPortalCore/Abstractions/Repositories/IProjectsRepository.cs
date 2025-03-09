@@ -48,5 +48,5 @@ public interface IProjectsRepository
     /// <returns>Identifier of deleted project.</returns>
     Task<Guid> Delete(Guid id);
 
-    Task<int> GetProjectCountByOwnerIdAsync(Guid OwnerId);
+    Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId);
 }

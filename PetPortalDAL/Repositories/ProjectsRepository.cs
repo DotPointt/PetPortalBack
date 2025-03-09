@@ -151,9 +151,10 @@ public class ProjectsRepository : IProjectsRepository
         return id;
     }
 
-    public async Task<int> GetProjectCountByOwnerIdAsync(Guid OwnerId)
+    public async Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId)
     {
         return await _context.Projects
-            .CountAsync(p => p.OwnerId == OwnerId);
+            .AsNoTracking()
+            .CountAsync(p => p.OwnerId == ownerId);
     }
 }
