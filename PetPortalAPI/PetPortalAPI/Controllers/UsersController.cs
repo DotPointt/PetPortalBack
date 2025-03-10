@@ -9,6 +9,7 @@ using PetPortalCore.DTOs.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using PetPortalApplication.Services;
 using PetPortalCore.DTOs.Requests;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalAPI.Controllers;
 
@@ -73,6 +74,34 @@ public class UsersController : ControllerBase
                 );
 
             return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Endpoint get projects by owner.
+    /// </summary>
+    /// <returns>List of projects.</returns>
+    [HttpGet("MyProjects")]
+    public async Task<ActionResult<List<Project>>> GetUserProjects()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in claims.");
+            }
+        
+            var userId = Guid.Parse(userIdClaim);
+
+            var projects = await _userService.GetOwnProjects(userId);
+        
+            return Ok(projects);
         }
         catch (Exception ex)
         {

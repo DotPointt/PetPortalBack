@@ -15,6 +15,13 @@ public interface IProjectsRepository
     Task<List<Project>> Get(int offset = 10, int page = 1);
 
     /// <summary>
+    /// Get projects by owner.
+    /// </summary>
+    /// <param name="ownerId">User identifier.</param>
+    /// <returns>List of projects.</returns>
+    Task<List<Project>> GetOwnProjects(Guid ownerId);
+
+    /// <summary>
     /// Gets all projects
     /// </summary>
     /// <returns></returns>
