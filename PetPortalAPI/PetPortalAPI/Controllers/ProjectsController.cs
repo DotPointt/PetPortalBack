@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
@@ -65,15 +66,18 @@ public class ProjectsController : ControllerBase
             }
 
             List<ProjectDto> response = new List<ProjectDto>();
-            
+            string imageBase64 = "";
             
             foreach (var p in projects)
             {
                 var user = await _usersService.GetUserById(p.OwnerId);
-                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "DefaultBucketKey");
-                byte[] arrayimg = stream.ToArray();
-                var imageBase64 =  Convert.ToBase64String(arrayimg);
-                
+                if (!user.AvatarUrl.IsNullOrEmpty())
+                {
+                    var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "DefaultBucketKey");
+                    byte[] arrayimg = stream.ToArray();
+                    imageBase64 = Convert.ToBase64String(arrayimg);
+                }
+
                 
                 var projectDto = new ProjectDto()
                 {
@@ -85,7 +89,8 @@ public class ProjectsController : ControllerBase
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
                     AvatarImageBase64 = imageBase64,
-                    IsBusinesProject = p.IsBusinesProject
+                    IsBusinesProject = p.IsBusinesProject,
+                    Budget = p.Budget
                 };
                 
                 response.Add(projectDto);
