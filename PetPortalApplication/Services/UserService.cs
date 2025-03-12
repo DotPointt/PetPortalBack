@@ -43,6 +43,7 @@ public class UserService : IUserService
     /// User service constructor.
     /// </summary>
     /// <param name="usersRepository">Users repository.</param>
+    /// <param name="projectsRepository">Project repository.</param>
     /// <param name="jwtProvider">Auth provider.</param>
     /// <param name="passwordHasher">Password hasher.</param>
     /// <param name="roleRepository">Role repository.</param>
@@ -90,7 +91,7 @@ public class UserService : IUserService
             request.Name,
             request.Email,
             hashedPassword,
-            request.RoleId,
+            DefaultValues.RoleId,
             string.Empty); //TODO Указать путь к дэфолтной автарке.
                 
         if (!string.IsNullOrEmpty(error))

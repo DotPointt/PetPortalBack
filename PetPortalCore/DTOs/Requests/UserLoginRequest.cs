@@ -6,11 +6,6 @@ namespace PetPortalCore.DTOs.Requests;
 public class UserLoginRequest
 {
     /// <summary>
-    /// Username
-    /// </summary>
-    public string Username { get; set;  }
-    
-    /// <summary>
     /// Email
     /// </summary>
     public string Email  { get; set;  }

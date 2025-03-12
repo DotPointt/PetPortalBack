@@ -13,8 +13,15 @@ namespace PetPortalAPI.Controllers;
 [ApiController]
 public class AuthorizationController : ControllerBase
 {
+    /// <summary>
+    /// User service. 
+    /// </summary>
     private readonly IUserService _userService;
     
+    /// <summary>
+    /// Controller constructor. 
+    /// </summary>
+    /// <param name="userService">User service.</param>
     public AuthorizationController(IUserService userService)
     {
         _userService = userService;
