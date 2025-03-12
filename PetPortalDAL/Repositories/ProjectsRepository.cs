@@ -69,6 +69,33 @@ public class ProjectsRepository : IProjectsRepository
     }
     
     /// <summary>
+    /// Get projects by owner.
+    /// </summary>
+    /// <param name="ownerId">User identifier.</param>
+    /// <returns>List of projects.</returns>
+    public async Task<List<Project>> GetOwnProjects(Guid ownerId)
+    {
+        var projectsEntities = await _context.Projects
+            .AsNoTracking()
+            .Where(project => project.OwnerId == ownerId)
+            .ToListAsync();
+        
+        var projects = projectsEntities
+            .Select(project =>
+                Project.Create(project.Id,
+                    project.Name, 
+                    project.Description, 
+                    project.OwnerId,
+                    project.Deadline,
+                    project.ApplyingDeadline,
+                    project.StateOfProject
+                ).project)
+            .ToList();
+
+        return projects;
+    }
+    
+    /// <summary>
     /// Gets all projects
     /// </summary>
     /// <returns></returns>
@@ -136,7 +163,7 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Update data base project.
+    /// Update database project.
     /// </summary>
     /// <param name="projectData">Project data.</param>
     /// <returns>Updated project identifier.</returns>
@@ -165,10 +192,16 @@ public class ProjectsRepository : IProjectsRepository
 
         return id;
     }
-
-    public async Task<int> GetProjectCountByOwnerIdAsync(Guid OwnerId)
+    
+    /// <summary>
+    /// Get project count by owm user.
+    /// </summary>
+    /// <param name="ownerId">User identifier.</param>
+    /// <returns>Count of projects.</returns>
+    public async Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId)
     {
         return await _context.Projects
-            .CountAsync(p => p.OwnerId == OwnerId);
+            .AsNoTracking()
+            .CountAsync(p => p.OwnerId == ownerId);
     }
 }

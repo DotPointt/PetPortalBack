@@ -1,5 +1,6 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
@@ -70,15 +71,18 @@ public class ProjectsController : ControllerBase
             }
 
             List<ProjectDto> response = new List<ProjectDto>();
-            
+            string imageBase64 = "";
             
             foreach (var p in projects)
             {
                 var user = await _usersService.GetUserById(p.OwnerId);
-                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
-                byte[] arrayimg = stream.ToArray();
-                var imageBase64 =  Convert.ToBase64String(arrayimg);
-                
+                if (!user.AvatarUrl.IsNullOrEmpty())
+                {
+                    var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
+                    byte[] arrayimg = stream.ToArray();
+                    imageBase64 = Convert.ToBase64String(arrayimg);
+                }
+
                 
                 var projectDto = new ProjectDto()
                 {
@@ -118,9 +122,9 @@ public class ProjectsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest) //сделать отдельный класс? в общем не должно быть неразберихи
     {
-        bool valRes = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
-        // if (valRes)
-            // return BadRequest("Вы превысили лимит проектов.");
+        var valid = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
+        if (!valid) 
+            return BadRequest("Вы превысили лимит проектов.");
 
         try
         {

@@ -9,6 +9,7 @@ using PetPortalCore.DTOs.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using PetPortalApplication.Services;
 using PetPortalCore.DTOs.Requests;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalAPI.Controllers;
 
@@ -79,31 +80,34 @@ public class UsersController : ControllerBase
             return BadRequest(ex.ToString());
         }
     }
-        
+
     /// <summary>
-    /// Endpoint create user.
+    /// Endpoint get projects by owner.
     /// </summary>
-    /// <param name="request">User data.</param>
-    /// <returns>
-    /// Action result - created user guid or
-    /// Action result - error message.
-    /// </returns>
-    [HttpPost]
-    public async Task<ActionResult<Guid>> CreateUser([FromBody] UserContract request)
+    /// <returns>List of projects.</returns>
+    [HttpGet("MyProjects")]
+    public async Task<ActionResult<List<Project>>> GetUserProjects()
     {
         try
         {
-            var userGuid = await _userService.Register(request);
+            var userIdClaim = User.FindFirst("userId")?.Value;
 
-            return Ok(userGuid);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in claims.");
+            }
+        
+            var userId = Guid.Parse(userIdClaim);
+
+            var projects = await _userService.GetOwnProjects(userId);
+        
+            return Ok(projects);
         }
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());
         }
     }
-
-    
     
     /// <summary>
     /// TO access this url Header Authorization:"BearerHere" needed

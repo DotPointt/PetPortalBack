@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
+using PetPortalCore.Models.ProjectModels;
 using PetPortalDAL.Repositories;
 
 namespace PetPortalApplication.Services;
@@ -19,10 +20,15 @@ public class UserService : IUserService
     private readonly IUsersRepository _usersRepository;
     
     /// <summary>
-    /// Role reporitoey.
+    /// Role repository.
     /// </summary>
     private readonly IRoleRepository _roleRepository;
 
+    /// <summary>
+    /// Project repository.
+    /// </summary>
+    private readonly IProjectsRepository _projectsRepository;
+    
     /// <summary>
     /// Auth provider.
     /// </summary>
@@ -37,11 +43,14 @@ public class UserService : IUserService
     /// User service constructor.
     /// </summary>
     /// <param name="usersRepository">Users repository.</param>
+    /// <param name="projectsRepository">Project repository.</param>
     /// <param name="jwtProvider">Auth provider.</param>
     /// <param name="passwordHasher">Password hasher.</param>
     /// <param name="roleRepository">Role repository.</param>
-    public UserService(IUsersRepository usersRepository, IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository)
+    public UserService(IUsersRepository usersRepository, IProjectsRepository projectsRepository, 
+        IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository)
     {
+        _projectsRepository = projectsRepository;
         _usersRepository = usersRepository;
         _jwtProvider = jwtProvider;
         _passwordHasher = passwordHasher;
@@ -55,6 +64,16 @@ public class UserService : IUserService
     public async Task<List<User>> GetAll()
     {
         return await _usersRepository.GetAll();
+    }
+
+    /// <summary>
+    /// Get projects by owner.
+    /// </summary>
+    /// <param name="userId">User identifier.</param>
+    /// <returns>List of projects.</returns>
+    public async Task<List<Project>> GetOwnProjects(Guid userId)
+    {
+        return await _projectsRepository.GetOwnProjects(userId);
     }
 
     /// <summary>
@@ -72,7 +91,7 @@ public class UserService : IUserService
             request.Name,
             request.Email,
             hashedPassword,
-            request.RoleId,
+            DefaultValues.RoleId,
             string.Empty); //TODO Указать путь к дэфолтной автарке.
                 
         if (!string.IsNullOrEmpty(error))

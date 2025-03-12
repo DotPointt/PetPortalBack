@@ -1,6 +1,7 @@
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
+using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalCore.Abstractions.Services;
 
@@ -13,12 +14,25 @@ public interface IUserService
     Task<List<User>> GetAll();
 
     /// <summary>
+    /// Get projects by owner.
+    /// </summary>
+    /// <param name="userId">User identifier.</param>
+    /// <returns>List of projects.</returns>
+    Task<List<Project>> GetOwnProjects(Guid userId);
+    
+    /// <summary>
     /// User creation.
     /// </summary>
     /// <param name="user">User data.</param>
     /// <returns>Created user guid.</returns>
     Task<Guid> Register(UserContract user);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
     Task<string> Login(string email, string password);
 
     /// <summary>

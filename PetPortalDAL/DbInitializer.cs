@@ -8,16 +8,16 @@ public class DbInitializer
     public static void Seed(PetPortalDbContext context)
     {
         if (!context.Roles.Any())
+        {
+            var roles = new List<RoleEntity>
             {
-                var roles = new List<RoleEntity>
-                {
-                    new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Admin" },
-                    new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "User" }
-                };
+                new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Admin" },
+                new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "User" }
+            };
 
-                context.Roles.AddRange(roles);
-                context.SaveChanges();
-            }
+            context.Roles.AddRange(roles);
+            context.SaveChanges();
+        }
 
         // Добавление пользователей
         if (!context.Users.Any())

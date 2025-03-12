@@ -104,8 +104,16 @@ namespace PetPortalAPI
             services.AddScoped<IJwtProvider, JwtProvider>();
             #endregion
             
-            services.AddCors();
-            
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
         }
 
         private static void ConfigureApp(WebApplication app)
@@ -125,7 +133,9 @@ namespace PetPortalAPI
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin()); //TODO: Поменять на более безопасное
+            
+            app.UseCors("AllowSpecificOrigin");
+            //app.UseCors(corsbuilder => corsbuilder.AllowAnyOrigin()); //TODO: Поменять на более безопасное
 
             app.Run();
         }

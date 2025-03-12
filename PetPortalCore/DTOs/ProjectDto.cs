@@ -43,6 +43,11 @@ public class ProjectDto
     public DateTime? ApplyingDeadline { get; set; } = null;
 
     /// <summary>
+    /// Price of the project in rubles
+    /// </summary>
+    public uint Budget { get; set; } = 0;
+
+    /// <summary>
     /// If people can join the project at the moment
     /// </summary>
     public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;

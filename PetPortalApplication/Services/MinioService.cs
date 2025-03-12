@@ -86,7 +86,7 @@ public class MinioService : IMinioService
     {
         if (string.IsNullOrEmpty(fileName))
         {
-            fileName = _defaultKey; // Заменяем пустое значение на дефолтное
+            throw new Exception("название файла не может быть пустым"); // Заменяем пустое значение на дефолтное
         }
         
         try

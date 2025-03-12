@@ -15,6 +15,13 @@ public interface IProjectsRepository
     Task<List<Project>> Get( string? sortOrder, string? sortItem, int offset = 10, int page = 1);
 
     /// <summary>
+    /// Get projects by owner.
+    /// </summary>
+    /// <param name="ownerId">User identifier.</param>
+    /// <returns>List of projects.</returns>
+    Task<List<Project>> GetOwnProjects(Guid ownerId);
+
+    /// <summary>
     /// Gets all projects
     /// </summary>
     /// <returns></returns>
@@ -48,5 +55,5 @@ public interface IProjectsRepository
     /// <returns>Identifier of deleted project.</returns>
     Task<Guid> Delete(Guid id);
 
-    Task<int> GetProjectCountByOwnerIdAsync(Guid OwnerId);
+    Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId);
 }
