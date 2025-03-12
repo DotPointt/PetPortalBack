@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models.ProjectModels;
@@ -29,7 +30,7 @@ public interface IProjectsService
     /// <param name="offset"></param>
     /// <param name="page"></param>
     /// <returns></returns>
-    public Task<List<Project>> GetPaginated(int offset = 10, int page = 1);
+    public Task<List<Project>> GetPaginatedFiltered(string? SortOrder, string? SortItem, int offset = 10, int page = 1);
         
     /// <summary>
     /// Create new project.

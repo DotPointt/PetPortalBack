@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
+using PetPortalCore.DTOs.Requests;
 using PetPortalCore.Models.ProjectModels;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace PetPortalAPI.Controllers;
 
@@ -45,10 +49,11 @@ public class ProjectsController : ControllerBase
     /// Action result - List of projects or
     /// Action result - error message.
     /// </returns>
-    [HttpGet("{offset:int?}/{page:int?}")]
-    public async Task<ActionResult<List<ProjectDto>>> GetProjects(int offset = 10, int page = 1) //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
+    [SwaggerOperation(Summary = "Стандартный метод получения проектов")]
+    [HttpGet()]
+    public async Task<ActionResult<List<ProjectDto>>> GetProjects([FromQuery] ProjectRequest request) //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
     {
-        if (offset < 1 || page < 1)
+        if (request.offset < 1 || request.page < 1)
         {
             Response.StatusCode = 500;
             await Response.WriteAsync("Wrong parameters");
@@ -57,7 +62,7 @@ public class ProjectsController : ControllerBase
 
         try
         {
-            var projects = await _projectsService.GetPaginated(offset, page);
+            var projects = await _projectsService.GetPaginatedFiltered(request.SortItem, request.SortOrder, request.offset, request.page);
 
             if (projects.Count == 0)
             {
@@ -70,7 +75,7 @@ public class ProjectsController : ControllerBase
             foreach (var p in projects)
             {
                 var user = await _usersService.GetUserById(p.OwnerId);
-                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "DefaultBucketKey");
+                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
                 byte[] arrayimg = stream.ToArray();
                 var imageBase64 =  Convert.ToBase64String(arrayimg);
                 
@@ -94,20 +99,6 @@ public class ProjectsController : ControllerBase
                 response.Add(projectDto);
             }
 
-            // var response = projects
-            //     .Select(p =>
-            //         new ProjectDto()
-            //         {
-            //             Id = p.Id,
-            //             Name = p.Name,
-            //             Description = p.Description,
-            //             OwnerId = p.OwnerId,
-            //             Deadline = p.Deadline,
-            //             ApplyingDeadline = p.ApplyingDeadline,
-            //             StateOfProject = p.StateOfProject
-            //         }
-            //     );
-
             return Ok(response);
         }
         catch (Exception ex)
@@ -125,7 +116,7 @@ public class ProjectsController : ControllerBase
     /// Action result - error message.
     /// </returns>
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest)
+    public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest) //сделать отдельный класс? в общем не должно быть неразберихи
     {
         bool valRes = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
         // if (valRes)

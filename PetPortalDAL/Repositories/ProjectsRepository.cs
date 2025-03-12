@@ -1,9 +1,11 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models.ProjectModels;
 using PetPortalDAL.Entities;
+
 
 namespace PetPortalDAL.Repositories;
 
@@ -30,14 +32,27 @@ public class ProjectsRepository : IProjectsRepository
     /// Get project paginated
     /// </summary>
     /// <returns>List of projects.</returns>
-    public async Task<List<Project>> Get(int offset = 10, int page = 1)
+    public async Task<List<Project>> Get( string? sortItem, string? sortOrder,  int offset = 10, int page = 1)
     {
-        var projectsEntities = await _context.Projects
+        var projectsQuery = _context.Projects
             .AsNoTracking()
             .Skip((page - 1) * offset)
-            .Take(offset)
-            .ToListAsync();
+            .Take(offset);
 
+        Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
+        {
+            "date" => project => project.CreatedDate,
+            "name" => project => project.Name,
+            "applyingdeadline" => project => project.ApplyingDeadline,
+            _ => project => project.Id
+        };
+
+        projectsQuery = sortOrder == "desc"
+            ? projectsQuery.OrderByDescending(selectorKey)
+            : projectsQuery.OrderBy(selectorKey);
+
+        var projectsEntities = await projectsQuery.ToListAsync();
+        
         var projects = projectsEntities
             .Select(project =>
                 Project.Create(project.Id,

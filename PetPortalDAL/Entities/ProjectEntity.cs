@@ -6,7 +6,7 @@ namespace PetPortalDAL.Entities;
 /// <summary>
 /// Project as data base model.
 /// </summary>
-public class ProjectEntity
+public class ProjectEntity : BaseAuditableEntity
 {
     /// <summary>
     /// Project identifier.

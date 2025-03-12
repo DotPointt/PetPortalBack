@@ -1,6 +1,6 @@
 using PetPortalCore.Models.ProjectModels;
 
-namespace PetPortalCore.DTOs.Contracts;
+namespace PetPortalCore.Contracts;
 
 /// <summary>
 /// Project create contract.

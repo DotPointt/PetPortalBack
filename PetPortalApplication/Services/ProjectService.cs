@@ -1,5 +1,6 @@
 ﻿using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models.ProjectModels;
@@ -40,9 +41,9 @@ public class ProjectService :  IProjectsService
     /// <param name="offset"></param>
     /// <param name="page"></param>
     /// <returns></returns>
-    public async Task<List<Project>> GetPaginated(int offset = 10, int page = 1)
+    public async Task<List<Project>> GetPaginatedFiltered( string? SortItem, string? SortOrder,  int offset = 10, int page = 1)
     {
-        return await _projectsRepository.Get(offset, page );
+        return await _projectsRepository.Get(SortItem, SortOrder, offset, page);
     }
 
     /// <summary>

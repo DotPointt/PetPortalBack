@@ -82,7 +82,7 @@ public class MinioService : IMinioService
     /// <param name="fileName">File path.</param>
     /// <returns>File stream.</returns>
     /// <exception cref="FileNotFoundException">File not existed.</exception>
-    public async Task<MemoryStream> GetFileAsync(string fileName = "DefaultBucket")
+    public async Task<MemoryStream> GetFileAsync(string fileName)
     {
         if (string.IsNullOrEmpty(fileName))
         {

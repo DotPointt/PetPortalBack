@@ -12,7 +12,7 @@ public interface IProjectsRepository
     /// Get projects from db.
     /// </summary>
     /// <returns>List of projects.</returns>
-    Task<List<Project>> Get(int offset = 10, int page = 1);
+    Task<List<Project>> Get( string? sortOrder, string? sortItem, int offset = 10, int page = 1);
 
     /// <summary>
     /// Gets all projects
