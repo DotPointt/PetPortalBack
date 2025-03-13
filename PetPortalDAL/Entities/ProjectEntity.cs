@@ -6,7 +6,7 @@ namespace PetPortalDAL.Entities;
 /// <summary>
 /// Сущность проекта в базе данных.
 /// </summary>
-public class ProjectEntity
+public class ProjectEntity : BaseAuditableEntity
 {
     /// <summary>
     /// Идентификатор проекта.

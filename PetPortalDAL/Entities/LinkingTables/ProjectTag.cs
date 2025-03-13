@@ -24,4 +24,9 @@ public class ProjectTag
     /// Ссылка на сущность тега.
     /// </summary>
     public TagEntity Tag { get; set; }
+
+    /// <summary>
+    /// Ссылка на сущность проекта.
+    /// </summary>     
+    public ProjectEntity Project { get; set; }
 }

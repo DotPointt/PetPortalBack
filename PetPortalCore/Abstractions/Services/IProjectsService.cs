@@ -26,10 +26,12 @@ public interface IProjectsService
     /// <summary>
     /// Получить проекты с пагинацией.
     /// </summary>
+    /// <param name="sortOrder">Очередь сортировки.</param>
+    /// <param name="sortItem">Элемент сортировки.</param>    
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
     /// <returns>Список проектов.</returns>
-    public Task<List<Project>> GetPaginated(int offset = 10, int page = 1);
+    public Task<List<Project>> GetPaginatedFiltered(string? SortOrder, string? SortItem, int offset = 10, int page = 1);
         
     /// <summary>
     /// Создать новый проект.

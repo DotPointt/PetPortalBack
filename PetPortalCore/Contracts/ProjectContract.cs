@@ -56,4 +56,9 @@ public class ProjectContract
     /// Список тегов, связанных с проектом.
     /// </summary>
     public List<string> Tags { get; set; }
+
+    /// <summary>
+    /// Аватарка в кодировке base64.
+    /// </summary>
+    public string AvatarImageBase64 { get; set; }
 }

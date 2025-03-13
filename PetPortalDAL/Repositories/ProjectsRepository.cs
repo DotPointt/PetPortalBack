@@ -1,8 +1,10 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
+
 
 namespace PetPortalDAL.Repositories;
 
@@ -28,17 +30,32 @@ public class ProjectsRepository : IProjectsRepository
     /// <summary>
     /// Получить проекты с пагинацией.
     /// </summary>
+    /// <param name="sortOrder">Очередь сортировки.</param>
+    /// <param name="sortItem">Элемент сортировки.</param>  
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
     /// <returns>Список проектов.</returns>
-    public async Task<List<Project>> Get(int offset = 10, int page = 1)
+    public async Task<List<Project>> Get( string? sortItem, string? sortOrder,  int offset = 10, int page = 1)
     {
-        var projectsEntities = await _context.Projects
+        var projectsQuery = _context.Projects
             .AsNoTracking()
             .Skip((page - 1) * offset)
-            .Take(offset)
-            .ToListAsync();
+            .Take(offset);
 
+        Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
+        {
+            "date" => project => project.CreatedDate,
+            "name" => project => project.Name,
+            "applyingdeadline" => project => project.ApplyingDeadline,
+            _ => project => project.Id
+        };
+
+        projectsQuery = sortOrder == "desc"
+            ? projectsQuery.OrderByDescending(selectorKey)
+            : projectsQuery.OrderBy(selectorKey);
+
+        var projectsEntities = await projectsQuery.ToListAsync();
+        
         var projects = projectsEntities
             .Select(project =>
                 Project.Create(project.Id,

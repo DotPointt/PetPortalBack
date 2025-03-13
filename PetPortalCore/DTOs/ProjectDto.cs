@@ -28,6 +28,11 @@ public class ProjectDto
     public Guid OwnerId { get; set; }
     
     /// <summary>
+    /// Имя владельца.
+    /// </summary>
+    public string OwnerName { get; set; }
+    
+    /// <summary>
     /// Срок завершения проекта. Если null, проект считается бессрочным.
     /// </summary>
     public DateTime? Deadline { get; set; }
@@ -50,10 +55,15 @@ public class ProjectDto
     /// <summary>
     /// Указывает, является ли проект коммерческим.
     /// </summary>
-    public bool IsBusinessProject = false;
+    public bool IsBusinessProject { get; set; } = false;
     
     /// <summary>
     /// Аватар проекта в формате Base64.
     /// </summary>
     public string AvatarImageBase64 { get; set; }
+    
+    /// <summary>
+    /// Tags related to Project. List of strings.
+    /// </summary>
+    public List<string> Tags { get; set; }
 }

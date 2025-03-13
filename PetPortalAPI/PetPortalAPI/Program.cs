@@ -7,6 +7,7 @@ using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using PetPortalApplication.AuthConfiguration;
 using PetPortalCore.Configs;
 using PetPortalDAL;
@@ -79,7 +80,14 @@ namespace PetPortalAPI
             // Регистрация контроллеров и Swagger
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.EnableAnnotations();
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\PetPortalAPI.xml");
+                
+                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\PetPortalCore.xml");
+            });
 
             // Настройка контекста базы данных
             services.AddDbContext<PetPortalDbContext>(options =>
