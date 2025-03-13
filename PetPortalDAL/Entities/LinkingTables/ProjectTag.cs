@@ -11,11 +11,6 @@ public class ProjectTag
     public Guid ProjectId { get; set; }
 
     /// <summary>
-    /// Ссылка на сущность проекта.
-    /// </summary>
-    public ProjectEntity Project { get; set; }
-
-    /// <summary>
     /// Идентификатор тега.
     /// </summary>
     public Guid TagId { get; set; }

@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Models;
-using PetPortalCore.DTOs.Contracts;
+using PetPortalCore.Contracts;
+using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Requests;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -98,7 +99,7 @@ public class ProjectsController : ControllerBase
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
                     AvatarImageBase64 = imageBase64,
-                    IsBusinesProject = p.IsBusinesProject,
+                    IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget,
                     Tags = new List<string>()
                 };
