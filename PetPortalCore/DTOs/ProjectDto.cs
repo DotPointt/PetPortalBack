@@ -56,11 +56,7 @@ public class ProjectDto
     /// If project is to be done for money
     /// </summary>
     public bool IsBusinesProject { get; set; }  = false;
-    
-    /// <summary>
-    /// Price of the project in rubles
-    /// </summary>
-    public uint Budget;  
+     
     
     /// <summary>
     /// Avatar img in Base64 encoding
