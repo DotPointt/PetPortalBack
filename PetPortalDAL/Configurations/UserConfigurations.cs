@@ -5,26 +5,25 @@ using PetPortalDAL.Entities;
 namespace PetPortalDAL.Configurations;
 
 /// <summary>
-/// User configurations in data base.
+/// Конфигурация для сущности UserEntity в базе данных.
 /// </summary>
 public class UserConfigurations : IEntityTypeConfiguration<UserEntity>
 {
     /// <summary>
-    /// User entity configuration in data base.
+    /// Настройка конфигурации для сущности UserEntity.
     /// </summary>
-    /// <param name="builder">Configurator.</param>
+    /// <param name="builder">Строитель для настройки сущности.</param>
     public void Configure(EntityTypeBuilder<UserEntity> builder)
     {
         builder.HasKey(user => user.Id);
 
         builder.Property(user => user.Name)
-            .IsRequired();
+            .IsRequired(); 
 
         builder.Property(user => user.Email)
             .IsRequired();
 
         builder.Property(user => user.PasswordHash)
             .IsRequired();
-        
     }
 }

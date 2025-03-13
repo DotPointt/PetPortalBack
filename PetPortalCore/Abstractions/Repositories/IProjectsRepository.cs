@@ -1,59 +1,66 @@
 ﻿using PetPortalCore.DTOs;
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 
 namespace PetPortalCore.Abstractions.Repositories;
 
 /// <summary>
-/// Project repository interface.
+/// Интерфейс репозитория для работы с проектами.
 /// </summary>
 public interface IProjectsRepository
 {
     /// <summary>
-    /// Get projects from db.
+    /// Получить проекты с пагинацией.
     /// </summary>
-    /// <returns>List of projects.</returns>
+    /// <param name="offset">Количество проектов на странице.</param>
+    /// <param name="page">Номер страницы.</param>
+    /// <returns>Список проектов.</returns>
     Task<List<Project>> Get(int offset = 10, int page = 1);
 
     /// <summary>
-    /// Get projects by owner.
+    /// Получить проекты, созданные определенным пользователем.
     /// </summary>
-    /// <param name="ownerId">User identifier.</param>
-    /// <returns>List of projects.</returns>
+    /// <param name="ownerId">Идентификатор пользователя.</param>
+    /// <returns>Список проектов.</returns>
     Task<List<Project>> GetOwnProjects(Guid ownerId);
 
     /// <summary>
-    /// Gets all projects
+    /// Получить все проекты.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Список проектов.</returns>
     public Task<List<Project>> GetAll();
 
     /// <summary>
-    /// Get project by id.
+    /// Получить проект по идентификатору.
     /// </summary>
-    /// <param name="projectId">Project identifier.</param>
-    /// <returns>Project.</returns>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <returns>Проект.</returns>
     public Task<Project> GetById(Guid projectId);
     
     /// <summary>
-    /// Create new project in db.
+    /// Создать новый проект в базе данных.
     /// </summary>
-    /// <param name="project">Project data.</param>
-    /// <returns>Project identifier.</returns>
+    /// <param name="project">Данные проекта.</param>
+    /// <returns>Идентификатор созданного проекта.</returns>
     Task<Guid> Create(Project project);
 
     /// <summary>
-    /// Update project in db.
+    /// Обновить проект в базе данных.
     /// </summary>
-    /// <param name="project">Project data.</param>
-    /// <returns>Identifier of updated project.</returns>
+    /// <param name="project">Данные проекта.</param>
+    /// <returns>Идентификатор обновленного проекта.</returns>
     Task<Guid> Update(ProjectDto project);
         
     /// <summary>
-    /// Delete project in db.
+    /// Удалить проект из базы данных.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
-    /// <returns>Identifier of deleted project.</returns>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Идентификатор удаленного проекта.</returns>
     Task<Guid> Delete(Guid id);
 
+    /// <summary>
+    /// Получить количество проектов, созданных определенным пользователем.
+    /// </summary>
+    /// <param name="ownerId">Идентификатор пользователя.</param>
+    /// <returns>Количество проектов.</returns>
     Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId);
 }

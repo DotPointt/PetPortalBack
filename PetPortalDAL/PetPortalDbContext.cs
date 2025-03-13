@@ -6,60 +6,60 @@ using PetPortalDAL.Entities.LinkingTables;
 namespace PetPortalDAL;
 
 /// <summary>
-/// Data base context.
+/// Контекст базы данных.
 /// </summary>
-public class  PetPortalDbContext : DbContext
+public class PetPortalDbContext : DbContext
 {
     /// <summary>
-    /// Context constructor.
+    /// Конструктор контекста.
     /// </summary>
-    /// <param name="options"></param>
+    /// <param name="options">Параметры контекста.</param>
     public PetPortalDbContext(DbContextOptions<PetPortalDbContext> options)
         : base(options)
     {
     }
         
-    # region Db sets
-    
+    # region DbSet
+
     /// <summary>
-    /// Data base projects.
+    /// Проекты в базе данных.
     /// </summary>
     public DbSet<ProjectEntity> Projects { get; set; }
         
     /// <summary>
-    /// Database users.
+    /// Пользователи в базе данных.
     /// </summary>
     public DbSet<UserEntity> Users { get; set; }
 
     /// <summary>
-    /// Database roles.
+    /// Роли пользователей в базе данных.
     /// </summary>
     public DbSet<RoleEntity> Roles { get; set; }
     
     /// <summary>
-    /// Database user-projects.
+    /// Связь пользователей и проектов.
     /// </summary>
     public DbSet<UserProject> UserProjects { get; set; }
 
     /// <summary>
-    /// Database Tags
+    /// Теги в базе данных.
     /// </summary>
     public DbSet<TagEntity> Tags { get; set; }
 
     /// <summary>
-    /// Database linking table between projects and tags(frameworks)
+    /// Связующая таблица между проектами и тегами (фреймворками).
     /// </summary>
     public DbSet<ProjectTag> ProjectTags { get; set; }
 
     #endregion
 
     /// <summary>    
-    /// Models configuring.
+    /// Конфигурация моделей.
     /// </summary>
-    /// <param name="builder">Model builder.</param>
+    /// <param name="builder">Конструктор моделей.</param>
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        #region Models configuration application
+        #region Применение конфигурации моделей
             
         builder.ApplyConfiguration(new ProjectConfigurations());
         builder.ApplyConfiguration(new UserConfigurations());
@@ -69,7 +69,7 @@ public class  PetPortalDbContext : DbContext
 
         #endregion
 
-        #region Setting up model links
+        #region Настройка связей между моделями
 
         builder.Entity<ProjectEntity>()
             .HasOne(project => project.Owner)
@@ -84,7 +84,7 @@ public class  PetPortalDbContext : DbContext
         
         #endregion
 
-        #region Setting up linking tables
+        #region Настройка связывающих таблиц
 
         builder.Entity<UserProject>(entity =>
         {

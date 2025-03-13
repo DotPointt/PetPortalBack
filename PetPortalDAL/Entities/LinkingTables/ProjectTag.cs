@@ -1,17 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace PetPortalDAL.Entities.LinkingTables;
 
-namespace PetPortalDAL.Entities.LinkingTables
+/// <summary>
+/// Связующая сущность между проектами и тегами.
+/// </summary>
+public class ProjectTag
 {
-    public class ProjectTag
-    {
-        public Guid ProjectId { get; set; }
-        public ProjectEntity Project { get; set; }
+    /// <summary>
+    /// Идентификатор проекта.
+    /// </summary>
+    public Guid ProjectId { get; set; }
 
-        public Guid TagId { get; set; }
-        public TagEntity Tag { get; set; }
-    }
+    /// <summary>
+    /// Ссылка на сущность проекта.
+    /// </summary>
+    public ProjectEntity Project { get; set; }
+
+    /// <summary>
+    /// Идентификатор тега.
+    /// </summary>
+    public Guid TagId { get; set; }
+
+    /// <summary>
+    /// Ссылка на сущность тега.
+    /// </summary>
+    public TagEntity Tag { get; set; }
 }

@@ -1,22 +1,22 @@
 namespace PetPortalDAL.Entities;
 
 /// <summary>
-/// Role as data base model.
+/// Сущность роли в базе данных.
 /// </summary>
 public class RoleEntity
 {
     /// <summary>
-    /// Role identifier. 
+    /// Идентификатор роли.
     /// </summary>
     public Guid Id { get; set; }
     
     /// <summary>
-    /// Role name.
+    /// Название роли.
     /// </summary>
     public string Name { get; set; }
     
     /// <summary>
-    /// Users.
+    /// Список пользователей, связанных с этой ролью.
     /// </summary>
     public ICollection<UserEntity> Users { get; set; }
 }

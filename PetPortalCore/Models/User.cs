@@ -1,21 +1,19 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PetPortalCore.Models;
+﻿namespace PetPortalCore.Models;
 
 /// <summary>
-/// User.
+/// Класс, представляющий пользователя.
 /// </summary>
 public class User
 {
     /// <summary>
-    /// User constructor.
+    /// Конструктор для создания пользователя.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <param name="name">User name.</param>
-    /// <param name="email">User email.</param>
-    /// <param name="passwordHash">User password.</param>
-    /// <param name="roleId">Role identifier.</param>
-    /// <param name="avatarUrl"></param>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="name">Имя пользователя.</param>
+    /// <param name="email">Электронная почта пользователя.</param>
+    /// <param name="passwordHash">Хэш пароля пользователя.</param>
+    /// <param name="roleId">Идентификатор роли пользователя.</param>
+    /// <param name="avatarUrl">Путь к аватару пользователя.</param>
     public User(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl)
     {
         Id = id;
@@ -27,45 +25,45 @@ public class User
     }
         
     /// <summary>
-    /// User identifier.
+    /// Идентификатор пользователя.
     /// </summary>
     public Guid Id;
 
     /// <summary>
-    /// User name.
+    /// Имя пользователя.
     /// </summary>
     public string Name = string.Empty;
 
     /// <summary>
-    /// User email.
+    /// Электронная почта пользователя.
     /// </summary>
     public string Email = string.Empty;
 
     /// <summary>
-    /// User password.
+    /// Хэш пароля пользователя.
     /// </summary>
     public string PasswordHash = string.Empty;
     
     /// <summary>
-    /// Role identifier.
+    /// Идентификатор роли пользователя.
     /// </summary>
     public Guid RoleId = Guid.Empty;
     
     /// <summary>
-    /// Avatar photo path.
+    /// Путь к аватарке пользователя.
     /// </summary>
     public string? AvatarUrl = string.Empty;
 
     /// <summary>
-    /// Creation new user.
+    /// Создание нового пользователя.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <param name="name">User name.</param>
-    /// <param name="email">User email.</param>
-    /// <param name="passwordHash">User password.</param>
-    /// <param name="roleId">Role identifier.</param>
-    /// <param name="avatarUrl">Avatar photo path</param>
-    /// <returns>(user, error if it exists)</returns>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="name">Имя пользователя.</param>
+    /// <param name="email">Электронная почта пользователя.</param>
+    /// <param name="passwordHash">Хэш пароля пользователя.</param>
+    /// <param name="roleId">Идентификатор роли пользователя.</param>
+    /// <param name="avatarUrl">Путь к аватару пользователя.</param>
+    /// <returns>Кортеж, содержащий созданного пользователя и сообщение об ошибке (если есть).</returns>
     public static (User user, string error) Create(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl)
     {
         var error = string.Empty;

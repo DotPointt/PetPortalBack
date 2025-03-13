@@ -5,42 +5,41 @@ using PetPortalCore.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using MapsterMapper;
-using PetPortalCore.DTOs.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using PetPortalApplication.Services;
 using PetPortalCore.DTOs.Requests;
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 
 namespace PetPortalAPI.Controllers;
 
 /// <summary>
-/// Users controller
+/// Контроллер для управления пользователями.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class UsersController : ControllerBase
 {
     /// <summary>
-    /// Users service.
+    /// Сервис для работы с пользователями.
     /// </summary>
     private readonly IUserService _userService;
 
     /// <summary>
-    /// Auth provider.
+    /// Провайдер для работы с JWT-токенами.
     /// </summary>
     private readonly IJwtProvider _jwtProvider;
 
     /// <summary>
-    /// MinIO service.
+    /// Сервис для работы с объектным хранилищем MinIO.
     /// </summary>
     private readonly IMinioService _minioService;
     
     /// <summary>
-    /// Users controller constructor.
-    /// </summary> 
-    /// <param name="minioService">MinIO service.</param>
-    /// <param name="userService">Users service.</param>
-    /// <param name="jwtProvider">Auth provider.</param>
+    /// Конструктор контроллера.
+    /// </summary>
+    /// <param name="userService">Сервис для работы с пользователями.</param>
+    /// <param name="jwtProvider">Провайдер для работы с JWT-токенами.</param>
+    /// <param name="minioService">Сервис для работы с объектным хранилищем.</param>
     public UsersController(IUserService userService, IJwtProvider jwtProvider, IMinioService minioService)
     {
         _userService = userService;
@@ -49,11 +48,11 @@ public class UsersController : ControllerBase
     }
         
     /// <summary>
-    /// Endpoint get users.
+    /// Получить список всех пользователей.
     /// </summary>
     /// <returns>
-    /// Action result - List of users or
-    /// Action result - error message.
+    /// Список пользователей.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetUsers()
@@ -61,6 +60,7 @@ public class UsersController : ControllerBase
         try
         {
             var users = await _userService.GetAll();
+            
             var response = users
                 .Select(p => 
                     new UserDto()
@@ -82,9 +82,12 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint get projects by owner.
+    /// Получить проекты, созданные текущим пользователем.
     /// </summary>
-    /// <returns>List of projects.</returns>
+    /// <returns>
+    /// Список проектов.
+    /// В случае ошибки возвращает сообщение об ошибке.
+    /// </returns>
     [HttpGet("MyProjects")]
     public async Task<ActionResult<List<Project>>> GetUserProjects()
     {
@@ -94,11 +97,10 @@ public class UsersController : ControllerBase
 
             if (userIdClaim == null)
             {
-                return Unauthorized("User ID not found in claims.");
+                return Unauthorized("Идентификатор пользователя не найден в токене.");
             }
         
             var userId = Guid.Parse(userIdClaim);
-
             var projects = await _userService.GetOwnProjects(userId);
         
             return Ok(projects);
@@ -110,55 +112,58 @@ public class UsersController : ControllerBase
     }
     
     /// <summary>
-    /// TO access this url Header Authorization:"BearerHere" needed
+    /// Получить защищенные данные (требуется авторизация).
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Защищенные данные.</returns>
     [Authorize] 
     [HttpGet("data")]
-    public  ActionResult<string> Data()
+    public ActionResult<string> Data()
     {
-        return "sensitive data recieved";
+        return "Получены защищенные данные.";
     }
 
+    /// <summary>
+    /// Тестовый метод для проверки данных пользователя из контекста.
+    /// </summary>
+    /// <returns>Данные пользователя из контекста.</returns>
     [HttpGet("testreply")]
-    public ActionResult<string> testreply()
+    public ActionResult<string> TestReply()
     {
         var user = HttpContext.User;
+        
         return Ok(user);
     }
 
-
     /// <summary>
-    /// Endpoint update user.
+    /// Обновить данные пользователя.
     /// </summary>
-    /// <param name="request">User updated data.</param>
+    /// <param name="request">Обновленные данные пользователя.</param>
     /// <returns>
-    /// Action result - updated user guid or
-    /// Action result - error message.
+    /// Идентификатор обновленного пользователя.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPut]
     public async Task<IActionResult> UpdateUser(UserDto request)
     {
         try
         {
-            var Id = await _userService.Update(request);
+            var id = await _userService.Update(request);
             
-            return Ok(Id);
+            return Ok(id);
         }
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());
         }
-        
     }
         
     /// <summary>
-    /// Endpoint delete user.
+    /// Удалить пользователя.
     /// </summary>
-    /// <param name="id">User identifier.</param>
+    /// <param name="id">Идентификатор пользователя.</param>
     /// <returns>
-    /// Action result - deleted user guid or
-    /// Action result - error message.
+    /// Идентификатор удаленного пользователя.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpDelete]
     public async Task<ActionResult<Guid>> DeleteUser([FromBody] Guid id)

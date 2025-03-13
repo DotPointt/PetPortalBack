@@ -5,25 +5,25 @@ using PetPortalCore.Models;
 namespace PetPortalDAL.Repositories;
 
 /// <summary>
-/// Role repository.
+/// Репозиторий для работы с ролями.
 /// </summary>
 public class RoleRepository : IRoleRepository
 {
     /// <summary>
-    /// Data base context.
+    /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
     
     /// <summary>
-    /// Users repository.
+    /// Репозиторий для работы с пользователями.
     /// </summary>
     private readonly IUsersRepository _usersRepository;
 
     /// <summary>
-    /// Repository constructor.
+    /// Конструктор репозитория.
     /// </summary>
-    /// <param name="context">Data base context.</param>
-    /// <param name="usersRepository">Users repository.</param>
+    /// <param name="context">Контекст базы данных.</param>
+    /// <param name="usersRepository">Репозиторий для работы с пользователями.</param>
     public RoleRepository(PetPortalDbContext context, IUsersRepository usersRepository)
     {
         _context = context;
@@ -31,10 +31,11 @@ public class RoleRepository : IRoleRepository
     }
 
     /// <summary>
-    /// get user role name.
+    /// Получить название роли пользователя по его идентификатору.
     /// </summary>
-    /// <param name="userId">user id.</param>
-    /// <returns>Role name.</returns>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Название роли.</returns>
+    /// <exception cref="KeyNotFoundException">Выбрасывается, если роль не найдена.</exception>
     public async Task<string> GetRoleByUserId(Guid userId)
     {
         var user = await _usersRepository.GetById(userId);
@@ -45,7 +46,7 @@ public class RoleRepository : IRoleRepository
             .FirstOrDefaultAsync();
         
         if (roleName is null)
-            throw new KeyNotFoundException();
+            throw new KeyNotFoundException("Роль не найдена.");
         
         return roleName;
     }

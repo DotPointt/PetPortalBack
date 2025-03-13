@@ -1,35 +1,36 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.DTOs;
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 using PetPortalDAL.Entities;
 
 namespace PetPortalDAL.Repositories;
 
 /// <summary>
-/// Project repository.
+/// Репозиторий для работы с проектами.
 /// </summary>
 public class ProjectsRepository : IProjectsRepository
 {
     /// <summary>
-    /// Data base context.
+    /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
         
     /// <summary>
-    /// Repository constructor.
+    /// Конструктор репозитория.
     /// </summary>
-    /// <param name="context">Data base context.</param>
+    /// <param name="context">Контекст базы данных.</param>
     public ProjectsRepository(PetPortalDbContext context)
     {
         _context = context;
     }
 
     /// <summary>
-    /// Get project paginated
+    /// Получить проекты с пагинацией.
     /// </summary>
-    /// <returns>List of projects.</returns>
+    /// <param name="offset">Количество проектов на странице.</param>
+    /// <param name="page">Номер страницы.</param>
+    /// <returns>Список проектов.</returns>
     public async Task<List<Project>> Get(int offset = 10, int page = 1)
     {
         var projectsEntities = await _context.Projects
@@ -54,10 +55,10 @@ public class ProjectsRepository : IProjectsRepository
     }
     
     /// <summary>
-    /// Get projects by owner.
+    /// Получить проекты, созданные определенным пользователем.
     /// </summary>
-    /// <param name="ownerId">User identifier.</param>
-    /// <returns>List of projects.</returns>
+    /// <param name="ownerId">Идентификатор пользователя.</param>
+    /// <returns>Список проектов.</returns>
     public async Task<List<Project>> GetOwnProjects(Guid ownerId)
     {
         var projectsEntities = await _context.Projects
@@ -81,9 +82,9 @@ public class ProjectsRepository : IProjectsRepository
     }
     
     /// <summary>
-    /// Gets all projects
+    /// Получить все проекты.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Список проектов.</returns>
     public async Task<List<Project>> GetAll()
     {
         var projectsEntities = await _context.Projects
@@ -106,10 +107,11 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Get project by identifier.
+    /// Получить проект по идентификатору.
     /// </summary>
-    /// <param name="projectId">Project identifier.</param>
-    /// <returns>Project.</returns>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <returns>Проект.</returns>
+    /// <exception cref="Exception">Выбрасывается, если проект не найден.</exception>
     public async Task<Project> GetById(Guid projectId)
     {
         var project = await _context.Projects
@@ -118,16 +120,16 @@ public class ProjectsRepository : IProjectsRepository
             .FirstOrDefaultAsync();
         
         if (project == null)
-            throw new Exception("Project not found");
+            throw new Exception("Проект не найден.");
         
         return Project.Create(project.Id, project.Name, project.Description, project.OwnerId, project.Deadline, project.ApplyingDeadline, project.StateOfProject).project;
     }
 
     /// <summary>
-    /// Create new project in database.
+    /// Создать новый проект в базе данных.
     /// </summary>
-    /// <param name="projectData">Project data.</param>
-    /// <returns>Created project identifier.</returns>
+    /// <param name="projectData">Данные проекта.</param>
+    /// <returns>Идентификатор созданного проекта.</returns>
     public async Task<Guid> Create(Project projectData)
     {
         var projectEntity = new ProjectEntity()
@@ -148,10 +150,10 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Update database project.
+    /// Обновить проект в базе данных.
     /// </summary>
-    /// <param name="projectData">Project data.</param>
-    /// <returns>Updated project identifier.</returns>
+    /// <param name="projectData">Данные проекта.</param>
+    /// <returns>Идентификатор обновленного проекта.</returns>
     public async Task<Guid> Update(ProjectDto projectData)
     {
         await _context.Projects
@@ -165,10 +167,10 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
-    /// Delete database project.
+    /// Удалить проект из базы данных.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
-    /// <returns>Deleted project identifier.</returns>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Идентификатор удаленного проекта.</returns>
     public async Task<Guid> Delete(Guid id)
     {
         await _context.Projects
@@ -179,10 +181,10 @@ public class ProjectsRepository : IProjectsRepository
     }
     
     /// <summary>
-    /// Get project count by owm user.
+    /// Получить количество проектов, созданных определенным пользователем.
     /// </summary>
-    /// <param name="ownerId">User identifier.</param>
-    /// <returns>Count of projects.</returns>
+    /// <param name="ownerId">Идентификатор пользователя.</param>
+    /// <returns>Количество проектов.</returns>
     public async Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId)
     {
         return await _context.Projects

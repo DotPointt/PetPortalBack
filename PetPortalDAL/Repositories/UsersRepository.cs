@@ -8,29 +8,29 @@ using Mapster;
 namespace PetPortalDAL.Repositories;
 
 /// <summary>
-/// Users repository.
+/// Репозиторий пользователей.
 /// </summary>
 public class UsersRepository : IUsersRepository
 {
     /// <summary>
-    /// Data base context.
+    /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
         
     /// <summary>
-    /// Repository constructor.
+    /// Конструктор репозитория.
     /// </summary>
-    /// <param name="context">Data base context.</param>
+    /// <param name="context">Контекст базы данных.</param>
     public UsersRepository(PetPortalDbContext context)
     {
         _context = context;
     }
 
     /// <summary>
-    /// Get user by email.
+    /// Получить пользователя по email.
     /// </summary>
-    /// <param name="email">User email.</param>
-    /// <returns>User.</returns>
+    /// <param name="email">Email пользователя.</param>
+    /// <returns>Пользователь.</returns>
     public async Task<User> GetByEmail(string email)
     {
         var user = await _context.Users
@@ -39,16 +39,15 @@ public class UsersRepository : IUsersRepository
             .FirstOrDefaultAsync();
 
         if (user == null)
-            throw new Exception("User not found");
+            throw new NullReferenceException("User not found");
         
         return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
     }
 
     /// <summary>
-    /// Get user by identifier.
+    /// Получить пользователя по идентификатору.
     /// </summary>
-    /// <param name="userId">User identifier.</param>
-    /// <returns>User.</returns>
+    /// <param name="userId">Идентификатор пользователя.</param>
     public async Task<User> GetById(Guid userId)
     {
         var user = await _context.Users
@@ -64,9 +63,9 @@ public class UsersRepository : IUsersRepository
     
     
     /// <summary>
-    /// Get data bases users.
+    /// Получить всех пользователей из базы данных.
     /// </summary>
-    /// <returns>List of users.</returns>
+    /// <returns>Список пользователей.</returns>
     public async Task<List<User>> GetAll()
     {
         var userEntities = await _context.Users
@@ -82,10 +81,10 @@ public class UsersRepository : IUsersRepository
     }
 
     /// <summary>
-    /// Create new user in database.
+    /// Создать нового пользователя в базе данных.
     /// </summary>
-    /// <param name="user">User data.</param>
-    /// <returns>Created user identifier.</returns>
+    /// <param name="user">Данные пользователя.</param>
+    /// <returns>Идентификатор созданного пользователя.</returns>
     public async Task<Guid> Create(User user)
     {
         var userEntity = new UserEntity()
@@ -105,10 +104,10 @@ public class UsersRepository : IUsersRepository
     }
 
     /// <summary>
-    /// Update data base user.
+    /// Обновить данные пользователя в базе данных.
     /// </summary>
-    /// <param name="userData">User updated data.</param>
-    /// <returns>Updated user identifier.</returns>
+    /// <param name="userData">Обновленные данные пользователя.</param>
+    /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
         await _context.Users
@@ -122,10 +121,10 @@ public class UsersRepository : IUsersRepository
     }
 
     /// <summary>
-    /// Delete data base user.
+    /// Удалить пользователя из базы данных.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <returns>Deleted user identifier.</returns>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <returns>Идентификатор удаленного пользователя.</returns>
     public async Task<Guid> Delete(Guid id)
     {
         await _context.Users

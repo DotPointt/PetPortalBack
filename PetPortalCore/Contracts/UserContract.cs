@@ -1,22 +1,22 @@
-namespace PetPortalCore.DTOs.Contracts;
+namespace PetPortalCore.Contracts;
 
 /// <summary>
-/// User create contract.
+/// Контракт для создания пользователя.
 /// </summary>
 public class UserContract
 {
     /// <summary>
-    /// User name.
+    /// Имя пользователя.
     /// </summary>
     public string Name { get; set; }
 
     /// <summary>
-    /// User email.
+    /// Электронная почта пользователя.
     /// </summary>
     public string Email { get; set; }
 
     /// <summary>
-    /// User password.
+    /// Пароль пользователя.
     /// </summary>
     public string Password { get; set; }
 }

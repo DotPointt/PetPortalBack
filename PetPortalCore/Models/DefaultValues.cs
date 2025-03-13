@@ -1,12 +1,12 @@
 namespace PetPortalCore.Models;
 
 /// <summary>
-/// Some default vlues.
+/// Класс для хранения значений по умолчанию.
 /// </summary>
 public static class DefaultValues
 {
     /// <summary>
-    /// Default new user role id.
+    /// Идентификатор роли по умолчанию для нового пользователя.
     /// </summary>
     public static Guid RoleId { get; private set; } = Guid.Parse("00000000-0000-0000-0000-000000000002");
 }

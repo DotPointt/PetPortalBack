@@ -1,69 +1,68 @@
 ﻿using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
-using PetPortalCore.DTOs.Contracts;
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 
 namespace PetPortalApplication.Services;
 
 /// <summary>
-/// Projects service.
+/// Сервис для работы с проектами.
 /// </summary>
-public class ProjectService :  IProjectsService
+public class ProjectService : IProjectsService
 {
     /// <summary>
-    /// Project repository.
+    /// Репозиторий для работы с проектами.
     /// </summary>
     private readonly IProjectsRepository _projectsRepository; 
     
     /// <summary>
-    /// Project service constructor.
+    /// Конструктор сервиса проектов.
     /// </summary>
-    /// <param name="projectsRepository"></param>
+    /// <param name="projectsRepository">Репозиторий проектов.</param>
     public ProjectService(IProjectsRepository projectsRepository)
     {
         _projectsRepository = projectsRepository;
     }
     
     /// <summary>
-    /// Get all projects
+    /// Получить все проекты.
     /// </summary>
-    /// <returns>List of projects.</returns>
+    /// <returns>Список проектов.</returns>
     public async Task<List<Project>> GetAll()
     {
         return await _projectsRepository.GetAll();
     }
 
     /// <summary>
-    /// Get Projects paginated
+    /// Получить проекты с пагинацией.
     /// </summary>
-    /// <param name="offset"></param>
-    /// <param name="page"></param>
-    /// <returns></returns>
+    /// <param name="offset">Количество проектов на странице.</param>
+    /// <param name="page">Номер страницы.</param>
+    /// <returns>Список проектов.</returns>
     public async Task<List<Project>> GetPaginated(int offset = 10, int page = 1)
     {
-        return await _projectsRepository.Get(offset, page );
+        return await _projectsRepository.Get(offset, page);
     }
 
     /// <summary>
-    /// Get project by identifier.
+    /// Получить проект по идентификатору.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
-    /// <returns>Project.</returns>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Проект.</returns>
     public async Task<Project> GetById(Guid id)
     {
         return await _projectsRepository.GetById(id);
     }
 
     /// <summary>
-    /// Project creation.
+    /// Создание проекта.
     /// </summary>
-    /// <param name="request">Project detail data.</param>
-    /// <returns>Created project guid.</returns>
-    /// <exception cref="ArgumentException">Some parameters invalided.</exception>
+    /// <param name="request">Данные для создания проекта.</param>
+    /// <returns>Идентификатор созданного проекта.</returns>
+    /// <exception cref="ArgumentException">Выбрасывается, если данные проекта невалидны.</exception>
     public async Task<Guid> Create(ProjectContract request)
     {
-
         var (project, error) = Project.Create(
             Guid.NewGuid(),
             request.Name,
@@ -82,34 +81,33 @@ public class ProjectService :  IProjectsService
     }
 
     /// <summary>
-    /// Project updating.
+    /// Обновление проекта.
     /// </summary>
-    /// <param name="project">Project data.</param>
-    /// <returns>Updated project guid.</returns>
+    /// <param name="project">Данные проекта для обновления.</param>
+    /// <returns>Идентификатор обновленного проекта.</returns>
     public async Task<Guid> Update(ProjectDto project)
     {
         return await _projectsRepository.Update(project);
     }
 
     /// <summary>
-    /// Project deleting.
+    /// Удаление проекта.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
-    /// <returns>Deleted project guid.</returns>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Идентификатор удаленного проекта.</returns>
     public async Task<Guid> Delete(Guid id)
     {
         return await _projectsRepository.Delete(id);
     }
 
-
     /// <summary>
-    /// Validate project creation limits.
+    /// Проверка лимита создания проектов.
     /// </summary>
-    /// <param name="ownerId"></param>
-    /// <param name="limit"></param>
+    /// <param name="ownerId">Идентификатор владельца проекта.</param>
+    /// <param name="limit">Лимит проектов.</param>
     /// <returns>
-    /// True - ok no limit violation,
-    /// False - too many projects. basic anti ddos check, can be implemented in raw sql
+    /// True - лимит не превышен,
+    /// False - лимит превышен.
     /// </returns>
     public async Task<bool> CheckCreatingLimit(Guid ownerId, int limit)
     {

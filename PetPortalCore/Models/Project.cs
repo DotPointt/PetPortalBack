@@ -1,4 +1,4 @@
-﻿namespace PetPortalCore.Models.ProjectModels;
+﻿namespace PetPortalCore.Models;
 
 /// <summary>
 /// Project.

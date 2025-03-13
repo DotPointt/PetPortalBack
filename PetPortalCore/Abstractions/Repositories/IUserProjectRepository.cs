@@ -3,30 +3,30 @@ using PetPortalCore.Models;
 namespace PetPortalCore.Abstractions.Repositories;
 
 /// <summary>
-/// Project memberships repository interface.
+/// Интерфейс репозитория для работы с участниками проектов.
 /// </summary>
 public interface IUserProjectRepository
 {
     /// <summary>
-    /// Get project members by project id.
+    /// Получить список участников проекта по идентификатору проекта.
     /// </summary>
-    /// <param name="projectId">Project identifier.</param>
-    /// <returns>List of project members.</returns>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <returns>Список участников проекта.</returns>
     Task<List<User>> GetProjectMembers(Guid projectId);
 
     /// <summary>
-    /// Add new member to project.
+    /// Добавить нового участника в проект.
     /// </summary>
-    /// <param name="memberId">Member identifier.</param>
-    /// <param name="projectId">Project identifier.</param>
-    /// <param name="userId">User identifier.</param>
-    /// <returns>Guid of new member.</returns>
+    /// <param name="memberId">Идентификатор участника.</param>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Идентификатор нового участника.</returns>
     Task<Guid> AddProjectMember(Guid memberId, Guid projectId, Guid userId);
 
     /// <summary>
-    /// Delete member from database.
+    /// Удалить участника из проекта.
     /// </summary>
-    /// <param name="memberId">Member identifier.</param>
-    /// <returns>Deleted member identifier.</returns>
+    /// <param name="memberId">Идентификатор участника.</param>
+    /// <returns>Идентификатор удаленного участника.</returns>
     Task<Guid> DeleteProjectMember(Guid memberId);
 }

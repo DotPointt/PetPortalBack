@@ -5,19 +5,19 @@ using PetPortalDAL.Entities;
 namespace PetPortalDAL.Configurations;
 
 /// <summary>
-/// Project configurations in data base.
+/// Конфигурация для сущности RoleEntity в базе данных.
 /// </summary>
 public class RoleConfigurations : IEntityTypeConfiguration<RoleEntity>
 {
     /// <summary>
-    /// Role entity configuration in data base.
+    /// Настройка конфигурации для сущности RoleEntity.
     /// </summary>
-    /// <param name="builder">Configurator.</param>
+    /// <param name="builder">Строитель для настройки сущности.</param>
     public void Configure(EntityTypeBuilder<RoleEntity> builder)
     {
         builder.HasKey(role => role.Id);
 
         builder.Property(role => role.Name)
-            .IsRequired();
+            .IsRequired(); 
     }
 }

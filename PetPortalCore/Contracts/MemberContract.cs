@@ -1,17 +1,17 @@
-namespace PetPortalCore.DTOs.Contracts;
+namespace PetPortalCore.Contracts;
 
 /// <summary>
-/// Member contract.
+/// Контракт для работы с участниками проекта.
 /// </summary>
 public class MemberContract
 {
     /// <summary>
-    /// User identifier.
+    /// Идентификатор пользователя.
     /// </summary>
     public Guid UserId { get; set; } 
     
     /// <summary>
-    /// Project identifier.
+    /// Идентификатор проекта.
     /// </summary>
     public Guid ProjectId { get; set; }
 }

@@ -4,48 +4,48 @@ using PetPortalCore.Models;
 namespace PetPortalCore.Abstractions.Repositories;
 
 /// <summary>
-/// User service interface.
+/// Интерфейс репозитория для работы с пользователями.
 /// </summary>
 public interface IUsersRepository
 {
     /// <summary>
-    /// Get all users.
+    /// Получить всех пользователей.
     /// </summary>
-    /// <returns>List of users.</returns>
+    /// <returns>Список пользователей.</returns>
     Task<List<User>> GetAll();
         
     /// <summary>
-    /// Create new user.
+    /// Создать нового пользователя.
     /// </summary>
-    /// <param name="user">User data.</param>
-    /// <returns>Identifier of new user.</returns>
+    /// <param name="user">Данные пользователя.</param>
+    /// <returns>Идентификатор созданного пользователя.</returns>
     Task<Guid> Create(User user);
 
     /// <summary>
-    /// Get user by email.
+    /// Получить пользователя по электронной почте.
     /// </summary>
-    /// <param name="email">User email.</param>
-    /// <returns>User.</returns>
+    /// <param name="email">Электронная почта пользователя.</param>
+    /// <returns>Пользователь.</returns>
     public Task<User> GetByEmail(string email);
     
     /// <summary>
-    /// Get user by identifier.
+    /// Получить пользователя по идентификатору.
     /// </summary>
-    /// <param name="userId">User identifier.</param>
-    /// <returns>User.</returns>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Пользователь.</returns>
     public Task<User> GetById(Guid userId);
 
     /// <summary>
-    /// User updating.
+    /// Обновить данные пользователя.
     /// </summary>
-    /// <param name="userData"></param>
-    /// <returns>Identifier of updated user.</returns>
+    /// <param name="userData">Обновленные данные пользователя.</param>
+    /// <returns>Идентификатор обновленного пользователя.</returns>
     Task<Guid> Update(UserDto userData);
         
     /// <summary>
-    /// Delete user.
+    /// Удалить пользователя.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <returns>Identifier of deleted user.</returns>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <returns>Идентификатор удаленного пользователя.</returns>
     Task<Guid> Delete(Guid id);
 }

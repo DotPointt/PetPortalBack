@@ -1,15 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PetPortalCore.Models
+namespace PetPortalCore.Models;
+
+/// <summary>
+/// Класс, представляющий тег.
+/// </summary>
+public class Tag
 {
-    public class Tag
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
+    /// <summary>
+    /// Идентификатор тега.
+    /// </summary>
+    public Guid Id { get; set; }
 
-    }
+    /// <summary>
+    /// Название тега.
+    /// </summary>
+    public string Name { get; set; }
 }

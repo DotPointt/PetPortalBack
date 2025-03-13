@@ -4,27 +4,27 @@ using PetPortalCore.Abstractions.Services;
 namespace PetPortalApplication.Services;
 
 /// <summary>
-/// Password hasher.
+/// Сервис для хеширования и проверки паролей.
 /// </summary>
 public class PasswordHasher : IPasswordHasher
 {
     /// <summary>
-    /// Hash password.
+    /// Хеширование пароля.
     /// </summary>
-    /// <param name="password">Password.</param>
-    /// <returns>Hash on password.</returns>
+    /// <param name="password">Пароль для хеширования.</param>
+    /// <returns>Хэшированный пароль.</returns>
     public string HashPassword(string password) 
-        => BCrypt.Net.BCrypt.EnhancedHashPassword(password);
+        => BCrypt.Net.BCrypt.EnhancedHashPassword(password); 
     
     /// <summary>
-    /// Verify hashed password.
+    /// Проверка соответствия пароля его хэшу.
     /// </summary>
-    /// <param name="hashedPassword">Hashed password.</param>
-    /// <param name="providedPassword">Original password.</param>
+    /// <param name="hashedPassword">Хэшированный пароль.</param>
+    /// <param name="providedPassword">Пароль для проверки.</param>
     /// <returns>
-    /// True - when hashed password is original;
-    /// False - when is not.
+    /// True - если пароль соответствует хэшу;
+    /// False - если пароль не соответствует хэшу.
     /// </returns>
     public bool VerifyHashedPassword(string hashedPassword, string providedPassword)
-        => BCrypt.Net.BCrypt.EnhancedVerify(providedPassword, hashedPassword);
+        => BCrypt.Net.BCrypt.EnhancedVerify(providedPassword, hashedPassword); 
 }

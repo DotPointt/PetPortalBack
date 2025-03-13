@@ -1,47 +1,49 @@
+using PetPortalDAL.Entities.LinkingTables;
+
 namespace PetPortalDAL.Entities;
 
 /// <summary>
-/// User as data base model.
+/// Сущность пользователя в базе данных.
 /// </summary>
 public class UserEntity
 {
     /// <summary>
-    /// User identifier.
+    /// Идентификатор пользователя.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// User name.
+    /// Имя пользователя.
     /// </summary>
     public string Name { get; set; }
 
     /// <summary>
-    /// User email.
+    /// Электронная почта пользователя.
     /// </summary>
     public string Email { get; set; }
 
     /// <summary>
-    /// User password.
+    /// Хэш пароля пользователя.
     /// </summary>
     public string PasswordHash { get; set; }
     
     /// <summary>
-    /// User role id.
+    /// Идентификатор роли пользователя.
     /// </summary>
     public Guid RoleId { get; set; }
     
     /// <summary>
-    /// Avatar file path.
+    /// Путь к файлу аватара пользователя.
     /// </summary>
     public string? AvatarUrl { get; set; }
     
     /// <summary>
-    /// Role.
+    /// Роль пользователя.
     /// </summary>
     public RoleEntity RoleEntity { get; set; }
     
     /// <summary>
-    /// Project.
+    /// Список проектов, связанных с пользователем.
     /// </summary>
     public ICollection<UserProject> UserProjects { get; set; }
 }

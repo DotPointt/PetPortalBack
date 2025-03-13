@@ -1,32 +1,32 @@
-namespace PetPortalDAL.Entities;
+namespace PetPortalDAL.Entities.LinkingTables;
 
 /// <summary>
-/// Project members.
+/// Связующая сущность между пользователями и проектами.
 /// </summary>
 public class UserProject
 {
     /// <summary>
-    /// Link identifier.
+    /// Идентификатор связи.
     /// </summary>
     public Guid Id { get; set; }
     
     /// <summary>
-    /// Project identifier.
+    /// Идентификатор проекта.
     /// </summary>
     public Guid ProjectId { get; set; }
     
     /// <summary>
-    /// User identifier.
+    /// Идентификатор пользователя.
     /// </summary>
     public Guid UserId { get; set; }
     
     /// <summary>
-    /// Project entity.
+    /// Ссылка на сущность проекта.
     /// </summary>
     public ProjectEntity Project { get; set; }
     
     /// <summary>
-    /// User entity.
+    /// Ссылка на сущность пользователя.
     /// </summary>
     public UserEntity User { get; set; }
 }

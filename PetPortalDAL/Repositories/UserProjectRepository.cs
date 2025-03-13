@@ -2,33 +2,34 @@ using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
+using PetPortalDAL.Entities.LinkingTables;
 
 namespace PetPortalDAL.Repositories;
 
 /// <summary>
-/// Projects memberships repository.
+/// Репозиторий для работы с участниками проектов.
 /// </summary>
 public class UserProjectRepository : IUserProjectRepository
 {
     /// <summary>
-    /// Data base context.
+    /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
     
     /// <summary>
-    /// Repository constructor.
+    /// Конструктор репозитория.
     /// </summary>
-    /// <param name="context">Data base context.</param>
+    /// <param name="context">Контекст базы данных.</param>
     public UserProjectRepository(PetPortalDbContext context)
     {
         _context = context;
     }
 
     /// <summary>
-    /// Get project members bu project id.
+    /// Получить список участников проекта по идентификатору проекта.
     /// </summary>
-    /// <param name="projectId">Project identifier.</param>
-    /// <returns>List of project members.</returns>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <returns>Список участников проекта.</returns>
     public async Task<List<User>> GetProjectMembers(Guid projectId)
     {
         var projectMemberIds = await _context.UserProjects
@@ -48,12 +49,12 @@ public class UserProjectRepository : IUserProjectRepository
     }
 
     /// <summary>
-    /// Add new member to project.
+    /// Добавить нового участника в проект.
     /// </summary>
-    /// <param name="memberId">Member identifier.</param>
-    /// <param name="projectId">Project identifier.</param>
-    /// <param name="userId">User identifier.</param>
-    /// <returns>Guid of new member.</returns>
+    /// <param name="memberId">Идентификатор участника.</param>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Идентификатор нового участника.</returns>
     public async Task<Guid> AddProjectMember(Guid memberId, Guid projectId, Guid userId)
     {
         var newProjectMember = new UserProject()
@@ -70,10 +71,10 @@ public class UserProjectRepository : IUserProjectRepository
     }
 
     /// <summary>
-    /// Delete member from database.
+    /// Удалить участника из проекта.
     /// </summary>
-    /// <param name="memberId">Member identifier.</param>
-    /// <returns>Deleted member identifier.</returns>
+    /// <param name="memberId">Идентификатор участника.</param>
+    /// <returns>Идентификатор удаленного участника.</returns>
     public async Task<Guid> DeleteProjectMember(Guid memberId)
     {
         await _context.UserProjects

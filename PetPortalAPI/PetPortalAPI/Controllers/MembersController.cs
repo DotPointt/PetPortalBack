@@ -1,38 +1,38 @@
 using Microsoft.AspNetCore.Mvc;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
-using PetPortalCore.DTOs.Contracts;
 
 namespace PetPortalAPI.Controllers;
 
 /// <summary>
-/// Projects controller.
+/// Контроллер для управления участниками проектов.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class MembersController : Controller
 {
     /// <summary>
-    /// Members service.
+    /// Сервис для работы с участниками проектов.
     /// </summary>
     private readonly IUserProjectService _membersService;
 
     /// <summary>
-    /// Members controller constructor.
+    /// Конструктор контроллера.
     /// </summary>
-    /// <param name="membersService">Members service.</param>
+    /// <param name="membersService">Сервис для работы с участниками проектов.</param>
     public MembersController(IUserProjectService membersService)
     {
         _membersService = membersService;
     }
 
     /// <summary>
-    /// Get project members.
+    /// Получить список участников проекта.
     /// </summary>
-    /// <param name="projectId">Project identifier.</param>
+    /// <param name="projectId">Идентификатор проекта.</param>
     /// <returns>
-    /// Action result - List of users or
-    /// Action result - error message.
+    /// Список участников проекта.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetProjectMembers([FromBody] Guid projectId)
@@ -40,6 +40,7 @@ public class MembersController : Controller
         try
         {
             var members = await _membersService.GetProjectMembers(projectId);
+            
             var response = members
                 .Select(p =>
                     new UserDto()
@@ -61,10 +62,13 @@ public class MembersController : Controller
     }
 
     /// <summary>
-    /// Add new project member.
+    /// Добавить нового участника в проект.
     /// </summary>
-    /// <param name="member">Member data.</param>
-    /// <returns>New member identifier.</returns>
+    /// <param name="member">Данные участника.</param>
+    /// <returns>
+    /// Идентификатор добавленного участника.
+    /// В случае ошибки возвращает сообщение об ошибке.
+    /// </returns>
     [HttpPost]
     public async Task<ActionResult<Guid>> AddProjectMember([FromBody] MemberContract member)
     {
@@ -81,10 +85,13 @@ public class MembersController : Controller
     }
 
     /// <summary>
-    /// Remove project member.
+    /// Удалить участника из проекта.
     /// </summary>
-    /// <param name="member">Member data.</param>
-    /// <returns>Deleted member identifier.</returns>
+    /// <param name="member">Данные участника.</param>
+    /// <returns>
+    /// Идентификатор удаленного участника.
+    /// В случае ошибки возвращает сообщение об ошибке.
+    /// </returns>
     [HttpDelete]
     public async Task<ActionResult<Guid>> RemoveProjectMember([FromBody] MemberContract member)
     {
@@ -100,4 +107,3 @@ public class MembersController : Controller
         }
     }
 }
-    

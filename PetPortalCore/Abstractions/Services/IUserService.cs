@@ -1,65 +1,67 @@
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
-using PetPortalCore.DTOs.Contracts;
 using PetPortalCore.Models;
-using PetPortalCore.Models.ProjectModels;
 
 namespace PetPortalCore.Abstractions.Services;
 
+/// <summary>
+/// Интерфейс сервиса для работы с пользователями.
+/// </summary>
 public interface IUserService
 {
     /// <summary>
-    /// Get all users
+    /// Получить всех пользователей.
     /// </summary>
-    /// <returns>List of users.</returns>
+    /// <returns>Список пользователей.</returns>
     Task<List<User>> GetAll();
 
     /// <summary>
-    /// Get projects by owner.
+    /// Получить проекты, созданные пользователем.
     /// </summary>
-    /// <param name="userId">User identifier.</param>
-    /// <returns>List of projects.</returns>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Список проектов.</returns>
     Task<List<Project>> GetOwnProjects(Guid userId);
     
     /// <summary>
-    /// User creation.
+    /// Регистрация нового пользователя.
     /// </summary>
-    /// <param name="user">User data.</param>
-    /// <returns>Created user guid.</returns>
+    /// <param name="user">Данные пользователя.</param>
+    /// <returns>Идентификатор созданного пользователя.</returns>
     Task<Guid> Register(UserContract user);
 
     /// <summary>
-    /// 
+    /// Аутентификация пользователя.
     /// </summary>
-    /// <param name="email"></param>
-    /// <param name="password"></param>
-    /// <returns></returns>
+    /// <param name="email">Электронная почта пользователя.</param>
+    /// <param name="password">Пароль пользователя.</param>
+    /// <returns>JWT-токен.</returns>
     Task<string> Login(string email, string password);
 
     /// <summary>
-    /// User updating.
+    /// Обновление данных пользователя.
     /// </summary>
-    /// <param name="userData">User updated data.</param>
-    /// <returns>Updated user guid.</returns>
+    /// <param name="userData">Обновленные данные пользователя.</param>
+    /// <returns>Идентификатор обновленного пользователя.</returns>
     Task<Guid> Update(UserDto userData);
 
     /// <summary>
-    /// User avatar update.
+    /// Обновление аватара пользователя.
     /// </summary>
-    /// <param name="userData">User updated data.</param>
-    /// <returns>Updated user guid.</returns>
+    /// <param name="userData">Обновленные данные пользователя.</param>
+    /// <returns>Идентификатор обновленного пользователя.</returns>
     Task<Guid> UpdateAvatar(UserDto userData);
 
     /// <summary>
-    /// User deleting.
+    /// Удаление пользователя.
     /// </summary>
-    /// <param name="id">User identifier.</param>
-    /// <returns>Deleted user guid.</returns>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <returns>Идентификатор удаленного пользователя.</returns>
     Task<Guid> Delete(Guid id);
 
     /// <summary>
-    ///  Gets user object by id
+    /// Получить пользователя по идентификатору.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <returns>Объект пользователя.</returns>
     public Task<User> GetUserById(Guid id);
 }

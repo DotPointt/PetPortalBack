@@ -1,58 +1,60 @@
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 using PetPortalDAL.Entities.LinkingTables;
 
 namespace PetPortalDAL.Entities;
 
 /// <summary>
-/// Project as data base model.
+/// Сущность проекта в базе данных.
 /// </summary>
 public class ProjectEntity
 {
     /// <summary>
-    /// Project identifier.
+    /// Идентификатор проекта.
     /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Project name.
+    /// Название проекта.
     /// </summary>
     public string Name { get; set; }
     
     /// <summary>
-    /// Project description.
+    /// Описание проекта.
     /// </summary>
     public string Description { get; set; }
 
     /// <summary>
-    /// Project owner.
+    /// Идентификатор владельца проекта.
     /// </summary>
     public Guid OwnerId { get; set; }
         
     /// <summary>
-    /// Owner.
+    /// Владелец проекта.
     /// </summary>
     public UserEntity Owner { get; set; }
     
     /// <summary>
-    /// Time when owner thinks project should be completed. Infinite when null
+    /// Срок завершения проекта. Если null, проект считается бессрочным.
     /// </summary>
     public DateTime? Deadline { get; set; } = null;
 
     /// <summary>
-    /// Interval of time left for joining project. Infinite when null( now interval will be calculated at frontend, but we can send TimeSpan or string)?
+    /// Срок подачи заявок на участие в проекте. Если null, срок считается бессрочным.
     /// </summary>
     public DateTime? ApplyingDeadline { get; set; } = null;
 
-
     /// <summary>
-    /// If people can join the project at the moment
+    /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
     public StateOfProject StateOfProject = StateOfProject.Closed;
 
     /// <summary>
-    /// Price of the project in rubles
+    /// Бюджет проекта в рублях.
     /// </summary>
     public uint Budget;
 
+    /// <summary>
+    /// Список тегов, связанных с проектом.
+    /// </summary>
     public ICollection<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
 }

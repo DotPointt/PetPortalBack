@@ -1,15 +1,15 @@
 namespace PetPortalCore.Helpers;
 
 /// <summary>
-/// Validation helper. 
+/// Вспомогательный класс для валидации данных.
 /// </summary>
 public class ValidationHelper
 {
     /// <summary>
-    /// Check guid is non empty.
+    /// Проверяет, что GUID не пустой.
     /// </summary>
-    /// <param name="id">Guid to check.</param>
-    /// <exception cref="ArgumentException">If guid is empty.</exception>
+    /// <param name="id">GUID для проверки.</param>
+    /// <exception cref="ArgumentException">Выбрасывается, если GUID пустой.</exception>
     public void CheckGuidIsNonEmpty(Guid id)
     {
         if (Guid.Empty == id)
@@ -19,10 +19,10 @@ public class ValidationHelper
     }
 
     /// <summary>
-    /// Check string is non null or empty.
+    /// Проверяет, что строка не является null или пустой.
     /// </summary>
-    /// <param name="checkedString">Checked string.</param>
-    /// <exception cref="ArgumentException">If string is null or empty.</exception>
+    /// <param name="checkedString">Строка для проверки.</param>
+    /// <exception cref="ArgumentException">Выбрасывается, если строка null или пустая.</exception>
     public void CheckStringIsNonEmpty(string checkedString)
     {
         if (string.IsNullOrEmpty(checkedString))
@@ -32,10 +32,10 @@ public class ValidationHelper
     }
 
     /// <summary>
-    /// check object is non null.
+    /// Проверяет, что объект не является null.
     /// </summary>
-    /// <param name="checkedObject">Checked object.</param>
-    /// <exception cref="NullReferenceException">if object is null.</exception>
+    /// <param name="checkedObject">Объект для проверки.</param>
+    /// <exception cref="NullReferenceException">Выбрасывается, если объект null.</exception>
     public void CheckObjectIsNonNull(object? checkedObject)
     {
         if (checkedObject is null)

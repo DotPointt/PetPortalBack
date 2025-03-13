@@ -1,17 +1,24 @@
 ﻿using PetPortalDAL.Entities.LinkingTables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PetPortalDAL.Entities
+namespace PetPortalDAL.Entities;
+
+/// <summary>
+/// Сущность фреймворка в базе данных.
+/// </summary>
+public class TagEntity
 {
-    public class TagEntity
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
+    /// <summary>
+    /// Идентификатор фреймворка.
+    /// </summary>
+    public Guid Id { get; set; }
 
-        public ICollection<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
-    }
+    /// <summary>
+    /// Название фреймворка.
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
+    /// Список связей между фреймворком и проектами.
+    /// </summary>
+    public ICollection<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
 }

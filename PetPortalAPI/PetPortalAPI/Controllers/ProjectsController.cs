@@ -1,37 +1,40 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
-using PetPortalCore.DTOs.Contracts;
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 
 namespace PetPortalAPI.Controllers;
 
 /// <summary>
-/// Projects controller.
+/// Контроллер для управления проектами.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class ProjectsController : ControllerBase
 {
     /// <summary>
-    /// Projects service.
+    /// Сервис для работы с проектами.
     /// </summary>
     private readonly IProjectsService _projectsService;
 
     /// <summary>
-    /// UsersService
+    /// Сервис для работы с пользователями.
     /// </summary>
     private readonly IUserService _usersService;
 
+    /// <summary>
+    /// Сервис для работы с объектным хранилищем MinIO.
+    /// </summary>
     private readonly IMinioService _minioService;
 
     /// <summary>
-    /// Projects controller constructor.
+    /// Конструктор контроллера.
     /// </summary>
-    /// <param name="projectsService">Project service.</param>
-    /// <param name="usersService">Users service.</param>
-    /// <param name="minioService">Object storage service.</param>
+    /// <param name="projectsService">Сервис для работы с проектами.</param>
+    /// <param name="usersService">Сервис для работы с пользователями.</param>
+    /// <param name="minioService">Сервис для работы с объектным хранилищем.</param>
     public ProjectsController(IProjectsService projectsService, IUserService usersService, IMinioService minioService)
     {
         _projectsService = projectsService;
@@ -40,19 +43,21 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint get paginated projects.
+    /// Получить список проектов с пагинацией.
     /// </summary>
+    /// <param name="offset">Количество проектов на странице.</param>
+    /// <param name="page">Номер страницы.</param>
     /// <returns>
-    /// Action result - List of projects or
-    /// Action result - error message.
+    /// Список проектов.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpGet("{offset:int?}/{page:int?}")]
-    public async Task<ActionResult<List<ProjectDto>>> GetProjects(int offset = 10, int page = 1) //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
+    public async Task<ActionResult<List<ProjectDto>>> GetProjects(int offset = 10, int page = 1)
     {
         if (offset < 1 || page < 1)
         {
             Response.StatusCode = 500;
-            await Response.WriteAsync("Wrong parameters");
+            await Response.WriteAsync("Некорректные параметры запроса.");
             return BadRequest();
         }
 
@@ -62,23 +67,22 @@ public class ProjectsController : ControllerBase
 
             if (projects.Count == 0)
             {
-                return Ok("There are no projects here yet.");
+                return Ok("Пока что проектов нет.");
             }
 
-            List<ProjectDto> response = new List<ProjectDto>();
-            string imageBase64 = "";
-            
+            var response = new List<ProjectDto>();
+            var imageBase64 = "";
+
             foreach (var p in projects)
             {
                 var user = await _usersService.GetUserById(p.OwnerId);
                 if (!user.AvatarUrl.IsNullOrEmpty())
                 {
                     var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "DefaultBucketKey");
-                    byte[] arrayimg = stream.ToArray();
-                    imageBase64 = Convert.ToBase64String(arrayimg);
+                    var arrayImg = stream.ToArray();
+                    imageBase64 = Convert.ToBase64String(arrayImg);
                 }
 
-                
                 var projectDto = new ProjectDto()
                 {
                     Id = p.Id,
@@ -89,26 +93,12 @@ public class ProjectsController : ControllerBase
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
                     AvatarImageBase64 = imageBase64,
-                    IsBusinesProject = p.IsBusinesProject,
+                    IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget
                 };
-                
+
                 response.Add(projectDto);
             }
-
-            // var response = projects
-            //     .Select(p =>
-            //         new ProjectDto()
-            //         {
-            //             Id = p.Id,
-            //             Name = p.Name,
-            //             Description = p.Description,
-            //             OwnerId = p.OwnerId,
-            //             Deadline = p.Deadline,
-            //             ApplyingDeadline = p.ApplyingDeadline,
-            //             StateOfProject = p.StateOfProject
-            //         }
-            //     );
 
             return Ok(response);
         }
@@ -119,18 +109,18 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint create project.
+    /// Создать новый проект.
     /// </summary>
-    /// <param name="projectRequest">Project detail data.</param>
+    /// <param name="projectRequest">Данные для создания проекта.</param>
     /// <returns>
-    /// Action result - created project guid or
-    /// Action result - error message.
+    /// Идентификатор созданного проекта.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest)
     {
-        var valid = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit : 100);
-        if (!valid) 
+        var valid = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit: 100);
+        if (!valid)
             return BadRequest("Вы превысили лимит проектов.");
 
         try
@@ -138,7 +128,7 @@ public class ProjectsController : ControllerBase
             projectRequest.StateOfProject = StateOfProject.Open;
 
             var projectGuid = await _projectsService.Create(projectRequest);
-            
+
             return Ok(projectGuid);
         }
         catch (Exception ex)
@@ -148,13 +138,13 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint update project.
+    /// Обновить данные проекта.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
-    /// <param name="request">Project data.</param>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <param name="request">Данные для обновления проекта.</param>
     /// <returns>
-    /// Action result - updated project guid or
-    /// Action result - error message.
+    /// Идентификатор обновленного проекта.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] ProjectDto request)
@@ -165,9 +155,9 @@ public class ProjectsController : ControllerBase
 
             if (userIdClaim == null)
             {
-                return Unauthorized("User ID not found in claims.");
+                return Unauthorized("Идентификатор пользователя не найден в токене.");
             }
-            
+
             var project = await _projectsService.GetById(id);
             var userId = Guid.Parse(userIdClaim);
 
@@ -179,7 +169,7 @@ public class ProjectsController : ControllerBase
             }
             else
             {
-                return Forbid("You are not the owner of this project.");
+                return Forbid("Вы не являетесь владельцем этого проекта.");
             }
         }
         catch (Exception ex)
@@ -189,18 +179,16 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
-    /// Endpoint delete project.
+    /// Удалить проект.
     /// </summary>
-    /// <param name="id">Project identifier.</param>
+    /// <param name="id">Идентификатор проекта.</param>
     /// <returns>
-    /// Action result - deleted project guid or
-    /// Action result - error message.
+    /// Идентификатор удаленного проекта.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpDelete]
     public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
     {
-        // var token = Request.Headers["Authorization"];
-        
         try
         {
             var projectId = await _projectsService.Delete(id);
@@ -210,6 +198,6 @@ public class ProjectsController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());
-        }    
-    }   
+        }
+    }
 }

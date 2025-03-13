@@ -1,39 +1,39 @@
 using Microsoft.AspNetCore.Mvc;
 using PetPortalCore.Abstractions.Services;
-using PetPortalCore.DTOs.Contracts;
+using PetPortalCore.Contracts;
 using PetPortalCore.DTOs.Requests;
 using Exception = System.Exception;
 
 namespace PetPortalAPI.Controllers;
 
 /// <summary>
-/// Authorization controller.
+/// Контроллер для авторизации и регистрации пользователей.
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class AuthorizationController : ControllerBase
 {
     /// <summary>
-    /// User service. 
+    /// Сервис для работы с пользователями.
     /// </summary>
     private readonly IUserService _userService;
     
     /// <summary>
-    /// Controller constructor. 
+    /// Конструктор контроллера.
     /// </summary>
-    /// <param name="userService">User service.</param>
+    /// <param name="userService">Сервис для работы с пользователями.</param>
     public AuthorizationController(IUserService userService)
     {
         _userService = userService;
     }
 
     /// <summary>
-    /// Endpoint create user.
+    /// Регистрация нового пользователя.
     /// </summary>
-    /// <param name="request">User data.</param>
+    /// <param name="request">Данные пользователя для регистрации.</param>
     /// <returns>
-    /// Action result - created user guid or
-    /// Action result - error message.
+    /// Возвращает идентификатор созданного пользователя и токен аутентификации.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] UserContract request)
@@ -43,23 +43,24 @@ public class AuthorizationController : ControllerBase
             var userId = await _userService.Register(request);
             var token = await _userService.Login(request.Email, request.Password);
             
+            // Устанавливаем токен в cookies
             HttpContext.Response.Cookies.Append("jwttoken", token);
 
             return Ok(new { UserId = userId, Token = token });
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.ToString());
+            return BadRequest(ex.Message);
         }
     }
 
     /// <summary>
-    /// Authorization action.
+    /// Аутентификация пользователя.
     /// </summary>
-    /// <param name="request">Project data.</param>
+    /// <param name="request">Данные для входа (email и пароль).</param>
     /// <returns>
-    /// Action result - updated project guid or
-    /// Action result - error message.
+    /// Возвращает токен аутентификации.
+    /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPost("login")]
     public async Task<ActionResult> Login([FromBody] UserLoginRequest request)
@@ -68,6 +69,7 @@ public class AuthorizationController : ControllerBase
         {
             var token = await _userService.Login(request.Email, request.Password);
 
+            // Устанавливаем токен в cookies
             HttpContext.Response.Cookies.Append("jwttoken", token);
 
             return Ok(new { Token = token });

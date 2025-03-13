@@ -1,21 +1,24 @@
 namespace PetPortalCore.Abstractions.Services;
 
+/// <summary>
+/// Интерфейс для работы с объектным хранилищем MinIO.
+/// </summary>
 public interface IMinioService
 {
     /// <summary>
-    /// Upload file on object storage.
+    /// Загрузить файл в объектное хранилище.
     /// </summary>
-    /// <param name="fileName">File name.</param>
-    /// <param name="fileStream">File stream.</param>
-    /// <param name="contentType">Content type.</param>
-    /// <returns>Path to file on object storage.</returns>
+    /// <param name="fileName">Имя файла.</param>
+    /// <param name="fileStream">Поток файла.</param>
+    /// <param name="contentType">Тип содержимого файла.</param>
+    /// <returns>Путь к файлу в объектном хранилище.</returns>
     Task<string> UploadFileAsync(string fileName, Stream fileStream, string contentType);
 
     /// <summary>
-    /// Get file from object storage.
+    /// Получить файл из объектного хранилища.
     /// </summary>
-    /// <param name="fileName">File path.</param>
-    /// <returns>File stream.</returns>
-    /// <exception cref="FileNotFoundException">File not existed.</exception>
+    /// <param name="fileName">Путь к файлу.</param>
+    /// <returns>Поток файла.</returns>
+    /// <exception cref="FileNotFoundException">Выбрасывается, если файл не найден.</exception>
     Task<MemoryStream> GetFileAsync(string fileName);
 }

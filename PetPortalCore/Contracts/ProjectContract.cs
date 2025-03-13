@@ -1,62 +1,59 @@
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 
-namespace PetPortalCore.DTOs.Contracts;
+namespace PetPortalCore.Contracts;
 
 /// <summary>
-/// Project create contract.
+/// Контракт для создания проекта.
 /// </summary>
 public class ProjectContract
 {
     /// <summary>
-    /// Project name.
+    /// Название проекта.
     /// </summary>
     public string Name { get; set; }
 
     /// <summary>
-    /// Project description.
+    /// Описание проекта.
     /// </summary>
     public string Description { get; set; }
 
     /// <summary>
-    /// Project owner.
+    /// Идентификатор владельца проекта.
     /// </summary>
     public Guid OwnerId { get; set; }
 
     /// <summary>
-    /// Name of the owner
+    /// Имя владельца проекта.
     /// </summary>
     public string OwnerName { get; set; }
     
     /// <summary>
-    /// Time when owner thinks project should be completed. Infinite when null
+    /// Срок завершения проекта. Если null, проект считается бессрочным.
     /// </summary>
     public DateTime? Deadline  { get; set; }
 
     /// <summary>
-    /// Interval of time left for joining project. Infinite when null( now interval will be calculated at frontend, but we can send TimeSpan or string)?
+    /// Срок подачи заявок на участие в проекте. Если null, срок считается бессрочным.
     /// </summary>
     public DateTime? ApplyingDeadline { get; set; } = null;
 
     /// <summary>
-    /// If people can join the project at the moment
+    /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
-    /// 
     public StateOfProject StateOfProject = StateOfProject.Closed;
 
     /// <summary>
-    /// Price of the project in rubles
+    /// Бюджет проекта в рублях.
     /// </summary>
     public uint Budget;
 
     /// <summary>
-    /// If project is to be done for money
+    /// Указывает, является ли проект коммерческим.
     /// </summary>
-    public bool IsBusinesProject = false;
+    public bool IsBusinessProject = false;
     
     /// <summary>
-    /// Tags related to Project. List of strings.
+    /// Список тегов, связанных с проектом.
     /// </summary>
     public List<string> Tags { get; set; }
-
-    
 }

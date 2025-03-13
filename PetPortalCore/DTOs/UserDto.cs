@@ -1,37 +1,37 @@
 namespace PetPortalCore.DTOs;
 
 /// <summary>
-/// User dto.
+/// DTO (Data Transfer Object) для пользователя.
 /// </summary>
 public class UserDto
 {
     /// <summary>
-    /// User identifier.
+    /// Идентификатор пользователя.
     /// </summary>
     public Guid Id { get; set; }
         
     /// <summary>
-    /// User name.
+    /// Имя пользователя.
     /// </summary>
     public string Name { get; set; }
         
     /// <summary>
-    /// User email.
+    /// Электронная почта пользователя.
     /// </summary>
     public string Email { get; set; }
         
     /// <summary>
-    /// User password.
+    /// Пароль пользователя.
     /// </summary>
     public string Password { get; set; }
     
     /// <summary>
-    /// Avatar file path.
+    /// Путь к файлу аватара пользователя.
     /// </summary>
     public string AvatarUrl { get; set; }
     
     /// <summary>
-    /// Role identifier.
+    /// Идентификатор роли пользователя.
     /// </summary>
     public Guid RoleId { get; set; }
 }

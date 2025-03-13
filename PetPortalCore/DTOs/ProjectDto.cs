@@ -1,56 +1,59 @@
-using PetPortalCore.Models.ProjectModels;
+using PetPortalCore.Models;
 
 namespace PetPortalCore.DTOs;
 
 /// <summary>
-/// Project dto.
+/// DTO (Data Transfer Object) для проекта.
 /// </summary>
 public class ProjectDto
 {
     /// <summary>
-    /// Project identifier.
+    /// Идентификатор проекта.
     /// </summary>
     public Guid Id { get; set; }
         
     /// <summary>
-    /// Project name.
+    /// Название проекта.
     /// </summary>
     public string Name { get; set; }
 
     /// <summary>
-    /// Project description.
+    /// Описание проекта.
     /// </summary>
     public string Description { get; set; }
         
     /// <summary>
-    /// Project owner identifier.
+    /// Идентификатор владельца проекта.
     /// </summary>
     public Guid OwnerId { get; set; }
     
     /// <summary>
-    /// Time when owner thinks project should be completed. Infinite when null
+    /// Срок завершения проекта. Если null, проект считается бессрочным.
     /// </summary>
     public DateTime? Deadline { get; set; }
 
     /// <summary>
-    /// Interval of time left for joining project. Infinite when null( now interval will be calculated at frontend, but we can send TimeSpan or string)?
+    /// Срок подачи заявок на участие в проекте. Если null, срок считается бессрочным.
     /// </summary>
     public DateTime? ApplyingDeadline { get; set; } = null;
 
     /// <summary>
-    /// Price of the project in rubles
+    /// Бюджет проекта в рублях.
     /// </summary>
     public uint Budget { get; set; } = 0;
 
     /// <summary>
-    /// If people can join the project at the moment
+    /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
     public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
     
     /// <summary>
-    /// If project is to be done for money
+    /// Указывает, является ли проект коммерческим.
     /// </summary>
-    public bool IsBusinesProject = false;
+    public bool IsBusinessProject = false;
     
+    /// <summary>
+    /// Аватар проекта в формате Base64.
+    /// </summary>
     public string AvatarImageBase64 { get; set; }
 }

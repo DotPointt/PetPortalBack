@@ -1,11 +1,14 @@
-namespace PetPortalDAL.Repositories;
+namespace PetPortalCore.Abstractions.Repositories;
 
+/// <summary>
+/// Интерфейс репозитория для работы с ролями пользователей.
+/// </summary>
 public interface IRoleRepository
 {
     /// <summary>
-    /// get user role name.
+    /// Получить название роли пользователя по его идентификатору.
     /// </summary>
-    /// <param name="userId">user id.</param>
-    /// <returns>Role name.</returns>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Название роли.</returns>
     Task<string> GetRoleByUserId(Guid userId);
 }

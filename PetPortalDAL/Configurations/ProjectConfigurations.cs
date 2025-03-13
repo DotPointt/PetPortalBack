@@ -5,31 +5,31 @@ using PetPortalDAL.Entities;
 namespace PetPortalDAL.Configurations;
 
 /// <summary>
-/// Project configurations in data base.
+/// Конфигурация для сущности ProjectEntity в базе данных.
 /// </summary>
 public class ProjectConfigurations : IEntityTypeConfiguration<ProjectEntity>
 {
     /// <summary>
-    /// Project entity configuration in data base.
+    /// Настройка конфигурации для сущности ProjectEntity.
     /// </summary>
-    /// <param name="builder">Configurator.</param>
+    /// <param name="builder">Строитель для настройки сущности.</param>
     public void Configure(EntityTypeBuilder<ProjectEntity> builder)
     {
         builder.HasKey(project => project.Id);
 
         builder.Property(project => project.Name)
-            .IsRequired()
-            .HasMaxLength(255);
+            .IsRequired() 
+            .HasMaxLength(255); 
 
         builder.Property(project => project.Description)
-            .IsRequired();
+            .IsRequired(); 
 
         builder.Property(project => project.OwnerId)
-            .IsRequired();
+            .IsRequired(); 
 
         builder.HasMany(p => p.ProjectTags)
-          .WithOne(pf => pf.Project)
-          .HasForeignKey(pf => pf.ProjectId)
-          .OnDelete(DeleteBehavior.Cascade);
+            .WithOne(pf => pf.Project)
+            .HasForeignKey(pf => pf.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
-}   
+}

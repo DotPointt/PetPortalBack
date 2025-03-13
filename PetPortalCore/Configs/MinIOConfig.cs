@@ -1,32 +1,32 @@
 namespace PetPortalCore.Configs;
 
 /// <summary>
-/// MinIO service configuration.
+/// Конфигурация для работы с объектным хранилищем MinIO.
 /// </summary>
 public class MinIOConfig
 {
     /// <summary>
-    /// Service path.
+    /// URL сервиса MinIO.
     /// </summary>
     public string ServiceUrl { get; set; } = string.Empty;
     
     /// <summary>
-    /// Access key.
+    /// Ключ доступа к MinIO.
     /// </summary>
     public string AccessKey { get; set; } = string.Empty;
     
     /// <summary>
-    /// Secret key.
+    /// Секретный ключ для доступа к MinIO.
     /// </summary>
     public string SecretKey { get; set; } = string.Empty;
     
     /// <summary>
-    /// Bucket name.
+    /// Имя корзины (контейнера) в MinIO.
     /// </summary>
     public string BucketName { get; set; } = string.Empty;
     
     /// <summary>
-    /// The name of the default avatar bucket
+    /// Имя файла по умолчанию для аватара.
     /// </summary>
     public string DefaultKey { get; set; } = string.Empty;
 }
