@@ -30,18 +30,27 @@ public class UsersRepository : IUsersRepository
     /// Получить пользователя по email.
     /// </summary>
     /// <param name="email">Email пользователя.</param>
-    /// <returns>Пользователь.</returns>
+    /// <exception cref="NullReferenceException">Если пользователь не найден.</exception>
+    /// <returns>Пользователь если имеется, в ином случае null.</returns>
     public async Task<User> GetByEmail(string email)
-    {
+    { 
         var user = await _context.Users
             .AsNoTracking()
             .Where(user => user.Email == email)
             .FirstOrDefaultAsync();
-
+     
         if (user == null)
-            throw new NullReferenceException("User not found");
+        {
+            throw new NullReferenceException("Пользователь не найден.");
+        }
         
-        return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
+        return User.Create(
+            user.Id, 
+            user.Name, 
+            user.Email, 
+            user.PasswordHash, 
+            user.RoleId, 
+            user.AvatarUrl).user;
     }
 
     /// <summary>

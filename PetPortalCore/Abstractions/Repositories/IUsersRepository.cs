@@ -26,6 +26,8 @@ public interface IUsersRepository
     /// </summary>
     /// <param name="email">Электронная почта пользователя.</param>
     /// <returns>Пользователь.</returns>
+    /// <exception cref="ArgumentException">Выбрасывается, если данные пользователя невалидны.</exception>
+    /// <exception cref="InvalidOperationException">Выбрасывается, если пользователь с такой почтой уже существует.</exception>
     public Task<User> GetByEmail(string email);
     
     /// <summary>

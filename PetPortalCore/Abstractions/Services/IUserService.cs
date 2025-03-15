@@ -26,6 +26,8 @@ public interface IUserService
     /// Регистрация нового пользователя.
     /// </summary>
     /// <param name="user">Данные пользователя.</param>
+    /// <exception cref="ArgumentException">Выбрасывается, если данные пользователя невалидны.</exception>
+    /// <exception cref="InvalidOperationException">Выбрасывается, если пользователь с такой почтой уже существует.</exception>
     /// <returns>Идентификатор созданного пользователя.</returns>
     Task<Guid> Register(UserContract user);
 
@@ -34,6 +36,7 @@ public interface IUserService
     /// </summary>
     /// <param name="email">Электронная почта пользователя.</param>
     /// <param name="password">Пароль пользователя.</param>
+    /// <exception cref="UnauthorizedAccessException">Выбрасывается, если пользователь с такой почтой не найден или пароль неверен.</exception>
     /// <returns>JWT-токен.</returns>
     Task<string> Login(string email, string password);
 

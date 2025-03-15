@@ -82,10 +82,9 @@ public class ProjectsController : ControllerBase
                 var user = await _usersService.GetUserById(p.OwnerId);
                 if (!user.AvatarUrl.IsNullOrEmpty())
                 {
-
                     var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
-                    var arrayimg = stream.ToArray();
-                    imageBase64 = Convert.ToBase64String(arrayimg);
+                    var arrayImg = stream.ToArray();
+                    imageBase64 = Convert.ToBase64String(arrayImg);
                 }
 
                 var projectDto = new ProjectDto()

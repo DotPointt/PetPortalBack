@@ -43,7 +43,7 @@ public class UserService : IUserService
     /// <param name="usersRepository">Репозиторий пользователей.</param>
     /// <param name="projectsRepository">Репозиторий проектов.</param>
     /// <param name="jwtProvider">Провайдер JWT-токенов.</param>
-    /// <param name="passwordHasher">Сервис хэширования паролей.</param>
+    /// <param name="passwordHasher">Сервис хеширования паролей.</param>
     /// <param name="roleRepository">Репозиторий ролей.</param>
     public UserService(IUsersRepository usersRepository, IProjectsRepository projectsRepository, 
         IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository)
@@ -78,59 +78,56 @@ public class UserService : IUserService
     /// Регистрация нового пользователя.
     /// </summary>
     /// <param name="request">Данные пользователя.</param>
-    /// <returns>Идентификатор созданного пользователя.</returns>
     /// <exception cref="ArgumentException">Выбрасывается, если данные пользователя невалидны.</exception>
     /// <exception cref="InvalidOperationException">Выбрасывается, если пользователь с такой почтой уже существует.</exception>
+    /// <returns>Идентификатор созданного пользователя.</returns>
     public async Task<Guid> Register(UserContract request)
     {
         var hashedPassword = _passwordHasher.HashPassword(request.Password);
 
-        try
+        var existingUser = await _usersRepository.GetByEmail(request.Email);
+        
+        if (existingUser != null)
         {
-            await _usersRepository.GetByEmail(request.Email);
-            
             throw new InvalidOperationException("Пользователь с такой почтой уже существует.");
         }
-        catch (NullReferenceException exception)
-        {
-            var (user, error) = PetPortalCore.Models.User.Create(
-                Guid.NewGuid(),
-                request.Name,
-                request.Email,
-                hashedPassword,
-                DefaultValues.RoleId,
-                string.Empty); //TODO Указать путь к дефолтной аватарке.
-                
-            if (!string.IsNullOrEmpty(error))
-            {
-                throw new ArgumentException(error);
-            }
         
-            return await _usersRepository.Create(user);
+        var (user, error) = PetPortalCore.Models.User.Create(
+            Guid.NewGuid(),
+            request.Name,
+            request.Email,
+            hashedPassword,
+            DefaultValues.RoleId,
+            string.Empty); //TODO Указать путь к дефолтной аватарке.
+            
+        if (!string.IsNullOrEmpty(error))
+        {
+            throw new ArgumentException(error);
         }
-    }
     
+        return await _usersRepository.Create(user);
+    }
+
     /// <summary>
     /// Аутентификация пользователя.
     /// </summary>
     /// <param name="email">Электронная почта пользователя.</param>
     /// <param name="password">Пароль пользователя.</param>
+    /// <exception cref="UnauthorizedAccessException">Выбрасывается, если пользователь с такой почтой не найден или пароль неверен.</exception>
     /// <returns>JWT-токен.</returns>
-    /// <exception cref="Exception">Выбрасывается, если пользователь не найден или пароль неверен.</exception>
     public async Task<string> Login(string email, string password)
     {
         var user = await _usersRepository.GetByEmail(email);
 
         if (user == null)
-            throw new Exception("Пользователь не найден.");
+            throw new UnauthorizedAccessException("Пользователь не найден.");
 
         var verify = _passwordHasher.VerifyHashedPassword(user.PasswordHash, password);
 
         if (!verify)
-            throw new Exception("Не удалось войти: неверный пароль.");
+            throw new UnauthorizedAccessException("Не удалось войти: неверный пароль.");
 
         var roleName = await _roleRepository.GetRoleByUserId(user.Id);
-        
         var token = _jwtProvider.GenerateToken(user.Id, user.Email, roleName);
         
         return token;

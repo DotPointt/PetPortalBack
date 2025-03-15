@@ -42,15 +42,27 @@ public class AuthorizationController : ControllerBase
         {
             var userId = await _userService.Register(request);
             var token = await _userService.Login(request.Email, request.Password);
-            
+
             // Устанавливаем токен в cookies
             HttpContext.Response.Cookies.Append("jwttoken", token);
 
             return Ok(new { UserId = userId, Token = token });
         }
+        catch (InvalidOperationException ex)
+        {
+            // 409
+            return Conflict(new { Message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            // 400 
+            return BadRequest(new { Message = ex.Message });
+        }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            // 500
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { Message = "Произошла внутренняя ошибка сервера." });
         }
     }
 
@@ -74,9 +86,16 @@ public class AuthorizationController : ControllerBase
 
             return Ok(new { Token = token });
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            // 401
+            return Unauthorized(new { Message = ex.Message });
+        }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            // 500
+            return StatusCode(StatusCodes.Status500InternalServerError, 
+                new { Message = "Произошла внутренняя ошибка сервера." });
         }
     }
 }
