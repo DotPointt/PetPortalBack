@@ -48,17 +48,17 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Получить список проектов с пагинацией.
     /// </summary>
-    /// <param name="offset">Количество проектов на странице.</param>
-    /// <param name="page">Номер страницы.</param>
+    /// <param name="request">Запрос на получение проекта.</param>
     /// <returns>
     /// Список проектов.
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [SwaggerOperation(Summary = "Стандартный метод получения проектов")]
     [HttpGet()]
-    public async Task<ActionResult<List<ProjectDto>>> GetProjects([FromQuery] ProjectRequest request) //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
+    public async Task<ActionResult<List<ProjectDto>>> GetProjects([FromQuery] ProjectRequest request) 
+    //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
     {
-        if (request.offset < 1 || request.page < 1)
+        if (request.Offset < 1 || request.Page < 1)
         {
             Response.StatusCode = 500;
             await Response.WriteAsync("Некорректные параметры запроса.");
@@ -67,7 +67,7 @@ public class ProjectsController : ControllerBase
 
         try
         {
-            var projects = await _projectsService.GetPaginatedFiltered(request.SortItem, request.SortOrder, request.offset, request.page);
+            var projects = await _projectsService.GetPaginatedFiltered(request.SortItem, request.SortOrder, request.Offset, request.Page);
 
             if (projects.Count == 0)
             {

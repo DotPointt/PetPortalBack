@@ -2,20 +2,31 @@ using System.ComponentModel;
 
 namespace PetPortalCore.DTOs.Requests;
 
+/// <summary>
+/// Запрос на получение проектов.
+/// </summary>
 public class ProjectRequest
 {
     /// <summary>
-    /// asc or desc
+    /// Порядок проектов.
     /// </summary>
     public string? SortOrder { get; set; }
     
     /// <summary>
-    /// Item by which projects sorted: "date", "name", "applyingdeadline"
+    /// Элемент, по которому сортируются проекты: «дата», «название», «срок подачи заявки»
     /// </summary>
     /// <example>date</example>
     public string? SortItem { get; set; }
+    
+    /// <summary>
+    /// Ограничение в количество проектов на странице.
+    /// </summary>
     [DefaultValue(10)]
-    public int offset { get; set; } = 10;
+    public int Offset { get; set; } = 10;
+    
+    /// <summary>
+    /// Номер страницы.
+    /// </summary>
     [DefaultValue(1)]
-    public int page { get; set; } = 1;
+    public int Page { get; set; } = 1;
 }
