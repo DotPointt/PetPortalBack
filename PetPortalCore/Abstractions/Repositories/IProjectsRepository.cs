@@ -12,11 +12,12 @@ public interface IProjectsRepository
     /// Получить проекты с пагинацией.
     /// </summary>
     /// <param name="sortOrder">Очередь сортировки.</param>
-    /// <param name="sortItem">Элемент сортировки.</param>    
+    /// <param name="sortItem">Элемент сортировки.</param>
+    /// <param name="searchElement">Поиск.</param>
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
     /// <returns>Список отсортированных проектов.</returns>
-    Task<List<Project>> Get(bool sortOrder, string? sortItem, int offset = 10, int page = 1);
+    Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1);
 
     /// <summary>
     /// Получить проекты, созданные определенным пользователем.

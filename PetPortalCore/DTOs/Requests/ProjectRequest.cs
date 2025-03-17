@@ -19,7 +19,12 @@ public class ProjectRequest
     /// </summary>
     /// <example>date</example>
     public string? SortItem { get; set; }
-    
+
+    /// <summary>
+    /// Поиск по строчке.
+    /// </summary>
+    public string SearchElement { get; set; } = string.Empty;
+
     /// <summary>
     /// Ограничение в количество проектов на странице.
     /// </summary>
