@@ -15,8 +15,8 @@ public interface IProjectsRepository
     /// <param name="sortItem">Элемент сортировки.</param>    
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
-    /// <returns>Список проектов.</returns>
-    Task<List<Project>> Get( string? sortOrder, string? sortItem, int offset = 10, int page = 1);
+    /// <returns>Список отсортированных проектов.</returns>
+    Task<List<Project>> Get(bool sortOrder, string? sortItem, int offset = 10, int page = 1);
 
     /// <summary>
     /// Получить проекты, созданные определенным пользователем.

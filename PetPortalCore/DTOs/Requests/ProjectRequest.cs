@@ -9,8 +9,10 @@ public class ProjectRequest
 {
     /// <summary>
     /// Порядок проектов.
+    /// True - по порядку
+    /// False - в обратном порядке
     /// </summary>
-    public string? SortOrder { get; set; }
+    public bool SortOrder { get; set; }
     
     /// <summary>
     /// Элемент, по которому сортируются проекты: «дата», «название», «срок подачи заявки»

@@ -30,8 +30,8 @@ public interface IProjectsService
     /// <param name="sortItem">Элемент сортировки.</param>    
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
-    /// <returns>Список проектов.</returns>
-    public Task<List<Project>> GetPaginatedFiltered(string? SortOrder, string? SortItem, int offset = 10, int page = 1);
+    /// <returns>Список отсортированных проектов.</returns>
+    public Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem, int offset = 10, int page = 1);
         
     /// <summary>
     /// Создать новый проект.

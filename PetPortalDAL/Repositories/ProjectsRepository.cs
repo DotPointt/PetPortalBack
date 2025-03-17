@@ -34,13 +34,11 @@ public class ProjectsRepository : IProjectsRepository
     /// <param name="sortItem">Элемент сортировки.</param>  
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
-    /// <returns>Список проектов.</returns>
-    public async Task<List<Project>> Get( string? sortItem, string? sortOrder,  int offset = 10, int page = 1)
+    /// <returns>Список отсортированных проектов.</returns>
+    public async Task<List<Project>> Get(bool sortOrder, string? sortItem, int offset = 10, int page = 1)
     {
         var projectsQuery = _context.Projects
-            .AsNoTracking()
-            .Skip((page - 1) * offset)
-            .Take(offset);
+            .AsNoTracking();
 
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {
@@ -50,11 +48,14 @@ public class ProjectsRepository : IProjectsRepository
             _ => project => project.Id
         };
 
-        projectsQuery = sortOrder == "desc"
-            ? projectsQuery.OrderByDescending(selectorKey)
-            : projectsQuery.OrderBy(selectorKey);
+        projectsQuery = sortOrder
+            ? projectsQuery.OrderBy(selectorKey)
+            : projectsQuery.OrderByDescending(selectorKey);
 
-        var projectsEntities = await projectsQuery.ToListAsync();
+        var projectsEntities = await projectsQuery
+            .Skip((page - 1) * offset)
+            .Take(offset)
+            .ToListAsync();
         
         var projects = projectsEntities
             .Select(project =>

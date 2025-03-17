@@ -37,12 +37,14 @@ public class ProjectService : IProjectsService
     /// <summary>
     /// Получить проекты с пагинацией.
     /// </summary>
-    /// <param name="offset"></param>
-    /// <param name="page"></param>
-    /// <returns></returns>
-    public async Task<List<Project>> GetPaginatedFiltered( string? SortItem, string? SortOrder,  int offset = 10, int page = 1)
+    /// <param name="sortOrder">Очередь сортировки.</param>
+    /// <param name="sortItem">Элемент сортировки.</param>
+    /// <param name="offset">Количество элементов на одной странице.</param>
+    /// <param name="page">Номер страницы.</param>
+    /// <returns>Отсортированный список проектов.</returns>
+    public async Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem,  int offset = 10, int page = 1)
     {
-        return await _projectsRepository.Get(SortItem, SortOrder, offset, page);
+        return await _projectsRepository.Get(sortOrder, sortItem, offset, page);
     }
 
     /// <summary>

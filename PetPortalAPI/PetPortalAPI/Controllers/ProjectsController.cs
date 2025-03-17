@@ -67,7 +67,7 @@ public class ProjectsController : ControllerBase
 
         try
         {
-            var projects = await _projectsService.GetPaginatedFiltered(request.SortItem, request.SortOrder, request.Offset, request.Page);
+            var projects = await _projectsService.GetPaginatedFiltered(request.SortOrder, request.SortItem, request.Offset, request.Page);
 
             if (projects.Count == 0)
             {
