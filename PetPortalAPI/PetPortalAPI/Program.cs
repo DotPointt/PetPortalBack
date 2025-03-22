@@ -74,6 +74,7 @@ namespace PetPortalAPI
             // Регистрация конфигураций из appsettings.json
             services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions))); // Конфигурация JWT
             services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig")); // Конфигурация MinIO
+            services.Configure<EmailConfig>(configuration.GetSection("SmtpSettings")); // Конфигурация SMTPMailSender
             
             #endregion
             
@@ -101,7 +102,7 @@ namespace PetPortalAPI
             services.AddScoped<IProjectsService, ProjectService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProjectService, UserProjectService>();
-            services.AddScoped<IMinioService, MinioService>();
+            services.AddScoped<IMinioService, MinioService>();            services.AddScoped<IMailSenderService, MailSenderService>();
 
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
