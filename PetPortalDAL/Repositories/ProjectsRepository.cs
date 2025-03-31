@@ -40,7 +40,7 @@ public class ProjectsRepository : IProjectsRepository
     {
         var projectsQuery = _context.Projects
             .AsNoTracking()
-            .Where(projectEntity => searchElement != string.Empty && projectEntity.Name.Contains(searchElement.ToLower()));
+            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.Contains(searchElement.ToLower()));
 
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {
