@@ -31,14 +31,16 @@ public class ProjectsRepository : IProjectsRepository
     /// Получить проекты с пагинацией.
     /// </summary>
     /// <param name="sortOrder">Очередь сортировки.</param>
-    /// <param name="sortItem">Элемент сортировки.</param>  
-    /// <param name="offset">Количество проектов на странице.</param>
+    /// <param name="sortItem">Элемент сортировки.</param>
+    /// <param name="searchElement">Поиск.</param>
+    /// <param name="offset">Количество проектов на странице.</param>`
     /// <param name="page">Номер страницы.</param>
     /// <returns>Список отсортированных проектов.</returns>
-    public async Task<List<Project>> Get(bool sortOrder, string? sortItem, int offset = 10, int page = 1)
+    public async Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1)
     {
         var projectsQuery = _context.Projects
-            .AsNoTracking();
+            .AsNoTracking()
+            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.Contains(searchElement.ToLower()));
 
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {

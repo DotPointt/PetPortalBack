@@ -39,12 +39,13 @@ public class ProjectService : IProjectsService
     /// </summary>
     /// <param name="sortOrder">Очередь сортировки.</param>
     /// <param name="sortItem">Элемент сортировки.</param>
+    /// <param name="searchElement">Поиск.</param>
     /// <param name="offset">Количество элементов на одной странице.</param>
     /// <param name="page">Номер страницы.</param>
     /// <returns>Отсортированный список проектов.</returns>
-    public async Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem,  int offset = 10, int page = 1)
+    public async Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1)
     {
-        return await _projectsRepository.Get(sortOrder, sortItem, offset, page);
+        return await _projectsRepository.Get(sortOrder, sortItem, searchElement, offset, page);
     }
 
     /// <summary>

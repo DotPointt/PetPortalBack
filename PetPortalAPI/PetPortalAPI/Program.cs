@@ -8,6 +8,7 @@ using PetPortalCore.Abstractions.Services;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PetPortalAPI.Controllers;
 using PetPortalApplication.AuthConfiguration;
 using PetPortalCore.Configs;
 using PetPortalDAL;
@@ -74,12 +75,20 @@ namespace PetPortalAPI
             // Регистрация конфигураций из appsettings.json
             services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions))); // Конфигурация JWT
             services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig")); // Конфигурация MinIO
+            services.Configure<EmailConfig>(configuration.GetSection("SmtpSettings")); // Конфигурация SMTPMailSender
+            
+            services.AddStackExchangeRedisCache(options =>
+            {
+                var connection = configuration.GetConnectionString("Redis");
+                options.Configuration = connection;
+            });
             services.Configure<YooKassaConfig>(configuration.GetSection("YooKassaOptions"));
 
             #endregion
 
             // Регистрация контроллеров и Swagger
             services.AddControllers();
+            services.AddSignalR();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
@@ -102,7 +111,7 @@ namespace PetPortalAPI
             services.AddScoped<IProjectsService, ProjectService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProjectService, UserProjectService>();
-            services.AddScoped<IMinioService, MinioService>();
+            services.AddScoped<IMinioService, MinioService>();            services.AddScoped<IMailSenderService, MailSenderService>();
 
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
@@ -158,6 +167,11 @@ namespace PetPortalAPI
             
             // Маппинг контроллеров
             app.MapControllers();
+
+            // Устанавливаем путь для чатов.
+            // TODO
+            // разобраться с путями.
+            app.MapHub<ChatHub>("/chat");
             
             // Включение CORS
             app.UseCors("AllowSpecificOrigin");
