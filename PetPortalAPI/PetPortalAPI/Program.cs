@@ -74,9 +74,10 @@ namespace PetPortalAPI
             // Регистрация конфигураций из appsettings.json
             services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions))); // Конфигурация JWT
             services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig")); // Конфигурация MinIO
-            
+            services.Configure<YooKassaConfig>(configuration.GetSection("YooKassaOptions"));
+
             #endregion
-            
+
             // Регистрация контроллеров и Swagger
             services.AddControllers();
             services.AddEndpointsApiExplorer();
