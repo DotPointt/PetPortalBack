@@ -112,7 +112,8 @@ namespace PetPortalAPI
             services.AddScoped<IMinioService, MinioService>(); 
             services.AddScoped<IMailSenderService, MailSenderService>();
             services.AddScoped<IChatMessageService, ChatMessageService>();
-            
+            services.AddScoped<IPaymentService, YooKassaService>();
+
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
