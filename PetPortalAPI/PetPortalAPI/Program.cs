@@ -1,11 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.IdentityModel.Tokens;
 using PetPortalApplication.Services;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PetPortalAPI.Controllers;
@@ -111,13 +109,16 @@ namespace PetPortalAPI
             services.AddScoped<IProjectsService, ProjectService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProjectService, UserProjectService>();
-            services.AddScoped<IMinioService, MinioService>();            services.AddScoped<IMailSenderService, MailSenderService>();
-
+            services.AddScoped<IMinioService, MinioService>(); 
+            services.AddScoped<IMailSenderService, MailSenderService>();
+            services.AddScoped<IChatMessageService, ChatMessageService>();
+            
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
             services.AddScoped<IUsersRepository, UsersRepository>();
             services.AddScoped<IUserProjectRepository, UserProjectRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
             // Регистрация вспомогательных сервисов
             services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -130,7 +131,7 @@ namespace PetPortalAPI
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173") // Разрешенный источник
+                    builder.WithOrigins("http://localhost:3000") // Разрешенный источник
                         .AllowAnyHeader() // Разрешение любых заголовков
                         .AllowAnyMethod() // Разрешение любых методов
                         .AllowCredentials(); // Разрешение учетных данных

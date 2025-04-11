@@ -50,6 +50,11 @@ public class PetPortalDbContext : DbContext
     /// Связующая таблица между проектами и тегами (фреймворками).
     /// </summary>
     public DbSet<ProjectTag> ProjectTags { get; set; }
+    
+    /// <summary>
+    /// Сообщения в чатах.
+    /// </summary>
+    public DbSet<ChatMessageEntity> ChatMessages { get; set; }
 
     #endregion
 
@@ -66,7 +71,8 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new RoleConfigurations());
         builder.ApplyConfiguration(new TagConfigurations());
         builder.ApplyConfiguration(new ProjectTagConfiguration());
-
+        builder.ApplyConfiguration(new ChatMessageConfigurations());
+        
         #endregion
 
         #region Настройка связей между моделями

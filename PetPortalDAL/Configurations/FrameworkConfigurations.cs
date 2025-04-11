@@ -15,9 +15,9 @@ public class TagConfigurations : IEntityTypeConfiguration<TagEntity>
     /// <param name="builder">Строитель для настройки сущности.</param>
     public void Configure(EntityTypeBuilder<TagEntity> builder)
     {
-        builder.HasKey(Tag => Tag.Id);
+        builder.HasKey(tag => tag.Id);
 
-        builder.Property(Tag => Tag.Name)
+        builder.Property(tag => tag.Name)
             .IsRequired() 
             .HasMaxLength(255); 
 
