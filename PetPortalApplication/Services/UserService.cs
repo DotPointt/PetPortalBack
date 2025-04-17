@@ -84,7 +84,7 @@ public class UserService : IUserService
     public async Task<Guid> Register(UserContract request)
     {
         var hashedPassword = _passwordHasher.HashPassword(request.Password);
-
+        
         var existingUser = await _usersRepository.GetByEmail(request.Email);
         
         if (existingUser != null)

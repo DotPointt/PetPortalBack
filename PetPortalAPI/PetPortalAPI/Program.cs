@@ -132,7 +132,7 @@ namespace PetPortalAPI
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000") // Разрешенный источник
+                    builder.WithOrigins("http://localhost:5173") // Разрешенный источник
                         .AllowAnyHeader() // Разрешение любых заголовков
                         .AllowAnyMethod() // Разрешение любых методов
                         .AllowCredentials(); // Разрешение учетных данных

@@ -42,7 +42,7 @@ public class AuthorizationController : ControllerBase
         {
             var userId = await _userService.Register(request);
             var token = await _userService.Login(request.Email, request.Password);
-
+            
             // Устанавливаем токен в cookies
             HttpContext.Response.Cookies.Append("jwttoken", token);
 
@@ -62,7 +62,7 @@ public class AuthorizationController : ControllerBase
         {
             // 500
             return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { Message = "Произошла внутренняя ошибка сервера." });
+                new { Message = "Произошла внутренняя ошибка сервера:" });
         }
     }
 

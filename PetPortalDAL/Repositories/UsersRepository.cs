@@ -30,7 +30,6 @@ public class UsersRepository : IUsersRepository
     /// Получить пользователя по email.
     /// </summary>
     /// <param name="email">Email пользователя.</param>
-    /// <exception cref="NullReferenceException">Если пользователь не найден.</exception>
     /// <returns>Пользователь если имеется, в ином случае null.</returns>
     public async Task<User> GetByEmail(string email)
     { 
@@ -41,7 +40,7 @@ public class UsersRepository : IUsersRepository
      
         if (user == null)
         {
-            throw new NullReferenceException("Пользователь не найден.");
+            return null;
         }
         
         return User.Create(
@@ -50,7 +49,8 @@ public class UsersRepository : IUsersRepository
             user.Email, 
             user.PasswordHash, 
             user.RoleId, 
-            user.AvatarUrl).user;
+            user.AvatarUrl
+        ).user;
     }
 
     /// <summary>

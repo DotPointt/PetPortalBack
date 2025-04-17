@@ -115,6 +115,55 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
+    /// Получить проект по id.
+    /// </summary>
+    /// <param name="projectId">Идентификатор проекта.</param>
+    /// <returns>
+    /// Проект.
+    /// В случае ошибки возвращает сообщение об ошибке.
+    /// </returns>
+    [HttpGet("{projectId}")]
+    public async Task<ActionResult<ProjectDto>> GetProjectById(Guid projectId)
+    {
+        try
+        {
+            var project = await _projectsService.GetById(projectId);
+            var user = await _usersService.GetUserById(project.OwnerId);
+            var imageBase64 = "";
+
+            if (!user.AvatarUrl.IsNullOrEmpty())
+            {
+                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
+                var arrayImg = stream.ToArray();
+                imageBase64 = Convert.ToBase64String(arrayImg);
+            }
+            
+            var projectDto = new ProjectDto()
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                OwnerId = project.OwnerId,
+                OwnerName = user.Name,
+                Deadline = project.Deadline,
+                ApplyingDeadline = project.ApplyingDeadline,
+                StateOfProject = project.StateOfProject,
+                AvatarImageBase64 = imageBase64,
+                IsBusinessProject = project.IsBusinesProject,
+                Budget = project.Budget,
+                Tags = new List<string>()
+            };
+           
+            return Ok(projectDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.ToString());
+
+        }
+    }
+
+    /// <summary>
     /// Создать новый проект.
     /// </summary>
     /// <param name="projectRequest">Данные для создания проекта.</param>
