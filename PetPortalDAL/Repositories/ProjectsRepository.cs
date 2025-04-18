@@ -64,6 +64,10 @@ public class ProjectsRepository : IProjectsRepository
                 Project.Create(project.Id,
                     project.Name, 
                     project.Description, 
+                    project.Requirements,
+                    project.TeamDescription,
+                    project.Result,
+                    project.Plan,
                     project.OwnerId,
                     project.Deadline,
                     project.ApplyingDeadline,
@@ -91,6 +95,10 @@ public class ProjectsRepository : IProjectsRepository
                 Project.Create(project.Id,
                     project.Name, 
                     project.Description, 
+                    project.Requirements,
+                    project.TeamDescription,
+                    project.Result,
+                    project.Plan,
                     project.OwnerId,
                     project.Deadline,
                     project.ApplyingDeadline,
@@ -116,6 +124,10 @@ public class ProjectsRepository : IProjectsRepository
                 Project.Create(project.Id,
                     project.Name, 
                     project.Description, 
+                    project.Requirements,
+                    project.TeamDescription,
+                    project.Result,
+                    project.Plan,
                     project.OwnerId,
                     project.Deadline,
                     project.ApplyingDeadline,
@@ -142,7 +154,7 @@ public class ProjectsRepository : IProjectsRepository
         if (project == null)
             throw new Exception("Проект не найден.");
         
-        return Project.Create(project.Id, project.Name, project.Description, project.OwnerId, project.Deadline, project.ApplyingDeadline, project.StateOfProject).project;
+        return Project.Create(project.Id, project.Name, project.Description, project.Requirements, project.TeamDescription, project.Plan, project.Result, project.OwnerId, project.Deadline, project.ApplyingDeadline, project.StateOfProject).project;
     }
 
     /// <summary>
@@ -150,17 +162,21 @@ public class ProjectsRepository : IProjectsRepository
     /// </summary>
     /// <param name="projectData">Данные проекта.</param>
     /// <returns>Идентификатор созданного проекта.</returns>
-    public async Task<Guid> Create(Project projectData)
+    public async Task<Guid> Create(Project project)
     {
         var projectEntity = new ProjectEntity()
         {
-            Id = projectData.Id,
-            Name = projectData.Name,
-            Description = projectData.Description,
-            OwnerId = projectData.OwnerId,
-            Deadline = projectData.Deadline,
-            ApplyingDeadline = projectData.ApplyingDeadline,
-            StateOfProject = projectData.StateOfProject
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            Requirements = project.Requirements,
+            TeamDescription = project.TeamDescription,
+            Result = project.Result,
+            Plan = project.Plan,
+            OwnerId = project.OwnerId,
+            Deadline = project.Deadline,
+            ApplyingDeadline = project.ApplyingDeadline,
+            StateOfProject = project.StateOfProject
         };
 
         await _context.AddAsync(projectEntity);
@@ -180,7 +196,7 @@ public class ProjectsRepository : IProjectsRepository
             .Where(project => project.Id == projectData.Id)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(project => project.Name, project => projectData.Name)
-                .SetProperty(project => project.Description, project => projectData.Description)
+                .SetProperty(project => project.Description, project => projectData.Description) //обновляются только 2 поля
             );
 
         return projectData.Id;
