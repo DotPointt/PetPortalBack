@@ -11,15 +11,15 @@ public class ChatMessageDto
     public Guid Id { get; set; }
     
     /// <summary>
-    /// Название чата.
+    /// Идентификатор отправителя.
     /// </summary>
-    public string ChatRoom { get; set; }
+    public Guid SenderId { get; set; }
     
     /// <summary>
-    /// Имя отправителя.
+    /// Идентификатор чата.
     /// </summary>
-    public string Username { get; set; }
-
+    public Guid ChatRoomId { get; set; }
+    
     /// <summary>
     /// Сообщение.
     /// </summary>
@@ -29,4 +29,9 @@ public class ChatMessageDto
     /// Дата отправки.
     /// </summary>
     public DateTime SentAt { get; set; }
+    
+    /// <summary>
+    /// Имя отправителя.
+    /// </summary>
+    public string? SenderName { get; set; }
 }
