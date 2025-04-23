@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs.Requests;
+using PetPortalCore.Models;
 using Exception = System.Exception;
 
 namespace PetPortalAPI.Controllers;
@@ -19,12 +21,18 @@ public class AuthorizationController : ControllerBase
     private readonly IUserService _userService;
     
     /// <summary>
+    /// 
+    /// </summary>
+    UserManager<User> _userManager;
+    
+    /// <summary>
     /// Конструктор контроллера.
     /// </summary>
     /// <param name="userService">Сервис для работы с пользователями.</param>
     public AuthorizationController(IUserService userService)
     {
         _userService = userService;
+        // _userManager = userManager;
     }
 
     /// <summary>
@@ -97,5 +105,52 @@ public class AuthorizationController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, 
                 new { Message = "Произошла внутренняя ошибка сервера." });
         }
+    }
+
+    /// <summary>
+    /// Страничка для сброса пароля ( поле почты на которую нужно отправить ссылку для сброса пароля )
+    /// Возвращает только OK, чтобы злоумышленник не мог определить есть ли почта в бд
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("ForgotPassword")]
+    public async Task<ActionResult> ForgotPassword(string Email)
+    {
+        var user = await _userService.GetUserByEmail(Email);
+        
+        // try
+        // {
+        //     var user = await _userService.GetUserById(new Guid());
+        // }
+        // catch (Exception ex)
+        // {
+        //     throw (ex);
+        // }
+        
+        if (user == null)
+        {
+            return Ok();
+        }
+        
+        ///генерация восстановительнйо ссылки
+        string code = await _userManager.GeneratePasswordResetTokenAsync(user);
+        
+        ///отправка восстановительной ссылки\
+        /// 
+        
+        return Ok();
+    }
+    
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="code">Код из url ссылки на восстановление с почты</param>
+    /// <returns></returns>
+    [HttpPost("ResetPassword")]
+    
+    public async Task<ActionResult> ResetPassword( string code)
+    {
+        ///Сброс пароля  
+        
+        return Ok();
     }
 }

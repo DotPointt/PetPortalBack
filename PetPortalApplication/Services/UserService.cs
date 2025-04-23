@@ -184,4 +184,13 @@ public class UserService : IUserService
     {
         return await _usersRepository.GetById(id);
     }
+    
+    /// <summary>
+    /// Получить пользователя по почте
+    /// </summary>
+    /// <returns>Объект пользователя.</returns>
+    public async Task<User> GetUserByEmail(string email)
+    {
+        return await _usersRepository.GetByEmail(email);
+    }
 }

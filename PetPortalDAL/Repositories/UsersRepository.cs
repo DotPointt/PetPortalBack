@@ -31,14 +31,14 @@ public class UsersRepository : IUsersRepository
     /// </summary>
     /// <param name="email">Email пользователя.</param>
     /// <returns>Пользователь если имеется, в ином случае null.</returns>
-    public async Task<User> GetByEmail(string email)
+    public async Task<User> GetByEmail(string email, bool throwNullException = false)
     { 
         var user = await _context.Users
             .AsNoTracking()
             .Where(user => user.Email == email)
             .FirstOrDefaultAsync();
      
-        if (user == null)
+        if (user == null && throwNullException)
         {
             return null;
         }
@@ -57,15 +57,17 @@ public class UsersRepository : IUsersRepository
     /// Получить пользователя по идентификатору.
     /// </summary>
     /// <param name="userId">Идентификатор пользователя.</param>
-    public async Task<User> GetById(Guid userId)
+    public async Task<User> GetById(Guid userId, bool throwNullException = false)
     {
         var user = await _context.Users
             .AsNoTracking()
             .Where(user => user.Id == userId)
             .FirstOrDefaultAsync();
         
-        if (user == null)
+        if (user == null && throwNullException)
             throw new Exception("User not found");
+        else if (user == null)
+            return null;
         
         return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
     }
