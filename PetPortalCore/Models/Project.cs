@@ -25,11 +25,18 @@ public class Project
         OwnerId = ownerId;
     }
 
-    private Project(Guid id, string name, string description, Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, StateOfProject stateOfProject)
+    private Project(Guid id, string name, string description,string requirements, 
+        string teamDescription, 
+        string plan, 
+        string result,  Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, StateOfProject stateOfProject)
     {
         Id = id;
         Name = name;
         Description = description;
+        Requirements = requirements;
+        TeamDescription = teamDescription;
+        Plan = plan;
+        Result = result;
         OwnerId = ownerId;
         Deadline = deadline;
         ApplyingDeadline = applyingDeadline;
@@ -50,6 +57,26 @@ public class Project
     /// Project description.
     /// </summary>
     public string Description = string.Empty;
+
+    /// <summary>
+    /// Description of requirements needed to be satisfied to complete the projects
+    /// </summary>
+    public string Requirements = string.Empty;
+    
+    /// <summary>
+    /// Description of current and future team members
+    /// </summary>
+    public string TeamDescription = string.Empty;
+
+    /// <summary>
+    /// Plan of project
+    /// </summary>
+    public string Plan = string.Empty;
+        
+    /// <summary>
+    /// Description of awaited result of project
+    /// </summary>
+    public string Result = string.Empty;
 
     /// <summary>
     /// Project owner.
@@ -93,7 +120,10 @@ public class Project
     /// <param name="ownerId">Project owner identifier.</param>
     /// <returns>(project, error if it exist)</returns>
 
-    public static (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed)
+    public static (Project project, string Error) Create(Guid id, string name, string description,   string requirements, 
+        string teamDescription, 
+        string plan, 
+        string result,Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed)
     {
         var error = string.Empty;
 
@@ -102,7 +132,10 @@ public class Project
             error = "Name can not be empty or longer then 250 symbols";
         }
 
-        var project = new Project(id, name, description, ownerId, Deadline, ApplyingDeadline, StateOfProject);
+        var project = new Project(id, name, description, requirements, 
+            teamDescription, 
+            plan, 
+            result, ownerId, Deadline, ApplyingDeadline, StateOfProject);
 
         return (project, error);
     }

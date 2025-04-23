@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PetPortalDAL;
@@ -11,9 +12,11 @@ using PetPortalDAL;
 namespace PetPortalDAL.Migrations
 {
     [DbContext(typeof(PetPortalDbContext))]
-    partial class PetPortalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250418093342_DetailedDescriptionFields")]
+    partial class DetailedDescriptionFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,57 +31,24 @@ namespace PetPortalDAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ChatRoomId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("ChatRoom")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<Guid>("SenderId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("ChatRoomId");
-
-                    b.HasIndex("SenderId");
 
                     b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("PetPortalDAL.Entities.ChatRoomEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ChatRooms");
-                });
-
-            modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ChatRoomUserEntity", b =>
-                {
-                    b.Property<Guid>("ChatRoomId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ChatRoomId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ChatRoomUsers");
                 });
 
             modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ProjectTag", b =>
@@ -232,44 +202,6 @@ namespace PetPortalDAL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("PetPortalDAL.Entities.ChatMessageEntity", b =>
-                {
-                    b.HasOne("PetPortalDAL.Entities.ChatRoomEntity", "ChatRoom")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PetPortalDAL.Entities.UserEntity", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-
-                    b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ChatRoomUserEntity", b =>
-                {
-                    b.HasOne("PetPortalDAL.Entities.ChatRoomEntity", "ChatRoom")
-                        .WithMany("ChatRoomUsers")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PetPortalDAL.Entities.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ProjectTag", b =>
                 {
                     b.HasOne("PetPortalDAL.Entities.ProjectEntity", "Project")
@@ -328,13 +260,6 @@ namespace PetPortalDAL.Migrations
                         .IsRequired();
 
                     b.Navigation("RoleEntity");
-                });
-
-            modelBuilder.Entity("PetPortalDAL.Entities.ChatRoomEntity", b =>
-                {
-                    b.Navigation("ChatRoomUsers");
-
-                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("PetPortalDAL.Entities.ProjectEntity", b =>

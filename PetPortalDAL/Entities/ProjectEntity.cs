@@ -22,6 +22,26 @@ public class ProjectEntity : BaseAuditableEntity
     /// Описание проекта.
     /// </summary>
     public string Description { get; set; }
+    
+    /// <summary>
+    /// Description of requirements needed to be satisfied to complete the projects
+    /// </summary>
+    public string Requirements { get; set; }
+    
+    /// <summary>
+    /// Description of current and future team members
+    /// </summary>
+    public string TeamDescription { get; set; }
+
+    /// <summary>
+    /// Plan of project
+    /// </summary>
+    public string Plan { get; set; }
+        
+    /// <summary>
+    /// Description of awaited result of project
+    /// </summary>
+    public string Result { get; set; }
 
     /// <summary>
     /// Идентификатор владельца проекта.

@@ -16,6 +16,26 @@ public class ProjectContract
     /// Описание проекта.
     /// </summary>
     public string Description { get; set; }
+    
+    /// <summary>
+    /// Description of requirements needed to be satisfied to complete the projects
+    /// </summary>
+    public string Requirements { get; set; } = string.Empty ;
+    
+    /// <summary>
+    /// Description of current and future team members
+    /// </summary>
+    public string TeamDescription { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Plan of project
+    /// </summary>
+    public string Plan { get; set; } = string.Empty; 
+        
+    /// <summary>
+    /// Description of awaited result of project
+    /// </summary>
+    public string Result { get; set; } = string.Empty;
 
     /// <summary>
     /// Идентификатор владельца проекта.
