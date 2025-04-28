@@ -34,22 +34,23 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
         {
             var claims = new List<Claim>
             {
-                new Claim("userId", userId.ToString()), 
-                new Claim(ClaimTypes.Role, roleName), 
-                new Claim(ClaimTypes.Email, email) 
+                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),          // Стандартный claim для subject (user ID)
+                new Claim(JwtRegisteredClaimNames.Email, email),                    // Стандартный claim для email
+                new Claim(ClaimTypes.Role, roleName),                               // Роль (можно использовать JwtRegisteredClaimNames для кастомных)
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())   // Уникальный идентификатор токена
             };
 
             var jwt = new JwtSecurityToken(
-                issuer: AuthOptions.ISSUER, 
-                audience: AuthOptions.AUDIENCE, 
-                claims: claims, 
+                issuer: AuthOptions.ISSUER,
+                audience: AuthOptions.AUDIENCE,
+                claims: claims,
                 expires: DateTime.UtcNow.AddHours(_options.ExpiresHours),
-                signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256) 
+                signingCredentials: new SigningCredentials(
+                    AuthOptions.GetSymmetricSecurityKey(), 
+                    SecurityAlgorithms.HmacSha256)
             );
 
-            var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            return token;
+            return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
         catch (Exception ex)
         {
