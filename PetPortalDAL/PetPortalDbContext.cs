@@ -25,7 +25,9 @@ public class PetPortalDbContext : DbContext
     /// Проекты в базе данных.
     /// </summary>
     public DbSet<ProjectEntity> Projects { get; set; }
-        
+
+    public DbSet<ResetPasswordTokenEntity> ResetPasswordTokens { get; set; }
+
     /// <summary>
     /// Пользователи в базе данных.
     /// </summary>

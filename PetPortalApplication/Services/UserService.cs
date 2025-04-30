@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
+using System.Security.Cryptography;
 
 namespace PetPortalApplication.Services;
 
@@ -192,5 +193,32 @@ public class UserService : IUserService
     public async Task<User> GetUserByEmail(string email)
     {
         return await _usersRepository.GetByEmail(email);
+    }
+
+    /// <summary>
+    /// Генерирует токен(строку) в hex формате, для восстановлеиня пароля
+    /// </summary>
+    /// <param name="byteLength"></param>
+    /// <returns></returns>
+    public string GenerateResetPasswordToken(int byteLength)
+    {
+        byte[] randomBytes = new byte[byteLength];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomBytes); // Заполняем массив случайными байтами
+        }
+        return BitConverter.ToString(randomBytes).Replace("-", "").ToLower();
+    }
+
+
+    public string GeneratePasswordResetLink(string baseUrl, int tokenByteLength)
+    {
+        // Генерация токена
+        string token = GenerateResetPasswordToken(tokenByteLength);
+
+        // Формирование ссылки
+        string resetLink = $"{baseUrl}?token={token}";
+
+        return resetLink;
     }
 }

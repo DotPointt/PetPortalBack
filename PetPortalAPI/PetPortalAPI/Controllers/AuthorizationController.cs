@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs.Requests;
 using PetPortalCore.Models;
+using System.Diagnostics.Eventing.Reader;
 using Exception = System.Exception;
 
 namespace PetPortalAPI.Controllers;
@@ -19,20 +20,21 @@ public class AuthorizationController : ControllerBase
     /// Сервис для работы с пользователями.
     /// </summary>
     private readonly IUserService _userService;
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    UserManager<User> _userManager;
-    
+
+    private readonly IMailSenderService _emailService;
+
+    private readonly IPasswordHasher _passwordHasher;
+
+        
     /// <summary>
     /// Конструктор контроллера.
     /// </summary>
     /// <param name="userService">Сервис для работы с пользователями.</param>
-    public AuthorizationController(IUserService userService)
+    public AuthorizationController(IUserService userService, IMailSenderService emailService, IPasswordHasher passwordHasher)
     {
         _userService = userService;
-        // _userManager = userManager;
+        _emailService = emailService;
+        _passwordHasher = passwordHasher;
     }
 
     /// <summary>
@@ -130,13 +132,23 @@ public class AuthorizationController : ControllerBase
         {
             return Ok();
         }
+
+        var request = HttpContext.Request;
+        var baseUrl = $"{request.Scheme}://{request.Host}/reset-password";
+
+        ///генерация восстановительнйо ссылки и токена в ней
+        string url = _userService.GeneratePasswordResetLink(baseUrl, 32);
+
+        //Хэширование токена и сохранение в БД
         
-        ///генерация восстановительнйо ссылки
-        string code = await _userManager.GeneratePasswordResetTokenAsync(user);
-        
-        ///отправка восстановительной ссылки\
-        /// 
-        
+
+        //Сгенерить адекватное письмо( добавить текста)
+        //отправка восстановительной ссылки
+        await _emailService.SendEmailAsync(user.Email, "Восстановление пароля", url);
+
+
+
+
         return Ok();
     }
     
@@ -147,10 +159,23 @@ public class AuthorizationController : ControllerBase
     /// <returns></returns>
     [HttpPost("ResetPassword")]
     
-    public async Task<ActionResult> ResetPassword( string code)
+    public async Task<ActionResult> ResetPassword( string token, string userid ,string newPassword1, string newPassword2)
     {
-        ///Сброс пароля  
+        ///Сброс пароля 
+        if (token == null)
+            return BadRequest();
         
-        return Ok();
+        if (newPassword1 != newPassword2)
+            return BadRequest(new { error = "Ошибка: Пароли не совпадают!" });
+
+        //сравнить хэш токена пришедшего с хэшем токена из бд
+        //var isValidToken = _passwordHasher.VerifyHashedPassword( _passwordHasher.HashPassword(token));
+
+        //if (isValidToken)
+            //меняем паролль
+            //return Ok();
+        //else return BadRequest();
+
+
     }
 }
