@@ -74,12 +74,6 @@ public interface IUserService
     /// <returns>Объект пользователя.</returns>
     public Task<User> GetUserByEmail(string email);
 
-    /// <summary>
-    /// Генерирует токен(строку) в hex формате, для восстановлеиня пароля
-    /// </summary>
-    /// <param name="byteLength"></param>
-    /// <returns></returns>
-    public string GenerateResetPasswordToken(int byteLength);
 
-    public string GeneratePasswordResetLink(string baseUrl, int tokenByteLength);
+    public Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword);
 }

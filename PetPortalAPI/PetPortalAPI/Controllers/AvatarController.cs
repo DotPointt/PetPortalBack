@@ -1,4 +1,3 @@
-using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using PetPortalApplication.Services;
 using PetPortalCore.Abstractions.Services;

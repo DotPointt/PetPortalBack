@@ -25,16 +25,19 @@ public class AuthorizationController : ControllerBase
 
     private readonly IPasswordHasher _passwordHasher;
 
+    private readonly IResetPasswordService _resetPasswordService;
+
         
     /// <summary>
     /// Конструктор контроллера.
     /// </summary>
     /// <param name="userService">Сервис для работы с пользователями.</param>
-    public AuthorizationController(IUserService userService, IMailSenderService emailService, IPasswordHasher passwordHasher)
+    public AuthorizationController(IUserService userService, IMailSenderService emailService, IPasswordHasher passwordHasher, IResetPasswordService resetPasswordService)
     {
         _userService = userService;
         _emailService = emailService;
         _passwordHasher = passwordHasher;
+        _resetPasswordService = resetPasswordService;
     }
 
     /// <summary>
@@ -134,20 +137,20 @@ public class AuthorizationController : ControllerBase
         }
 
         var request = HttpContext.Request;
-        var baseUrl = $"{request.Scheme}://{request.Host}/reset-password";
+        var baseUrl = $"{request.Scheme}://{request.Host}/api/Authorization/ResetPassword";
 
         ///генерация восстановительнйо ссылки и токена в ней
-        string url = _userService.GeneratePasswordResetLink(baseUrl, 32);
-
-        //Хэширование токена и сохранение в БД
+        string token = _resetPasswordService.GenerateResetPasswordToken(32);
+        string url = _resetPasswordService.GeneratePasswordResetLink(baseUrl, token, user.Id);
         
+        
+        //Хэширование токена и сохранение в БД
+        string hashedToken = _passwordHasher.HashPassword(token);
+        await _resetPasswordService.SaveTokenHash(ResetPasswordTokens.Create(new Guid(), user.Id, hashedToken, DateTime.Now.ToUniversalTime().AddDays(1)));
 
         //Сгенерить адекватное письмо( добавить текста)
         //отправка восстановительной ссылки
         await _emailService.SendEmailAsync(user.Email, "Восстановление пароля", url);
-
-
-
 
         return Ok();
     }
@@ -159,23 +162,25 @@ public class AuthorizationController : ControllerBase
     /// <returns></returns>
     [HttpPost("ResetPassword")]
     
-    public async Task<ActionResult> ResetPassword( string token, string userid ,string newPassword1, string newPassword2)
+    public async Task<ActionResult> ResetPassword( string token, string userId ,string newPassword1, string newPassword2)
     {
         ///Сброс пароля 
         if (token == null)
-            return BadRequest();
+            return BadRequest(new { error = "Ошибка: Срок действия токена истёк, или был получен новый токен." });
         
         if (newPassword1 != newPassword2)
             return BadRequest(new { error = "Ошибка: Пароли не совпадают!" });
 
         //сравнить хэш токена пришедшего с хэшем токена из бд
-        //var isValidToken = _passwordHasher.VerifyHashedPassword( _passwordHasher.HashPassword(token));
+        var dbTokenHash = await _resetPasswordService.GetTokenHashByUserId(new Guid(userId));
+        var isValidToken = _passwordHasher.VerifyHashedPassword(dbTokenHash.TokenHash ,token);
 
-        //if (isValidToken)
-            //меняем паролль
-            //return Ok();
-        //else return BadRequest();
+        if (isValidToken)
+        {
+            await _userService.UpdatePasswordByIdAsync(new Guid(userId), newPassword1);
+            return Ok();
+        }
 
-
+        return BadRequest(new { error = "Ошибка: Срок действия токена истёк!" });
     }
 }

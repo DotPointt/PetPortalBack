@@ -158,7 +158,7 @@ public class UserService : IUserService
             Id = user.Id,            
             Name = user.Name,
             Email = user.Email,
-            Password = user.PasswordHash,
+            PasswordHash = user.PasswordHash,
             AvatarUrl = userData.AvatarUrl,
             RoleId = user.RoleId,
         };
@@ -195,30 +195,21 @@ public class UserService : IUserService
         return await _usersRepository.GetByEmail(email);
     }
 
-    /// <summary>
-    /// Генерирует токен(строку) в hex формате, для восстановлеиня пароля
-    /// </summary>
-    /// <param name="byteLength"></param>
-    /// <returns></returns>
-    public string GenerateResetPasswordToken(int byteLength)
+    
+    public async Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword)
     {
-        byte[] randomBytes = new byte[byteLength];
-        using (var rng = RandomNumberGenerator.Create())
+        var user = await _usersRepository.GetById(userId);
+
+        var userWithNewPassword = new UserDto()
         {
-            rng.GetBytes(randomBytes); // Заполняем массив случайными байтами
-        }
-        return BitConverter.ToString(randomBytes).Replace("-", "").ToLower();
-    }
-
-
-    public string GeneratePasswordResetLink(string baseUrl, int tokenByteLength)
-    {
-        // Генерация токена
-        string token = GenerateResetPasswordToken(tokenByteLength);
-
-        // Формирование ссылки
-        string resetLink = $"{baseUrl}?token={token}";
-
-        return resetLink;
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            PasswordHash = _passwordHasher.HashPassword(newPassword),
+            AvatarUrl = user.AvatarUrl,
+            RoleId = user.RoleId,
+        };
+        
+        return await _usersRepository.Update(userWithNewPassword);
     }
 }

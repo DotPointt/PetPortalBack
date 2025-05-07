@@ -1,9 +1,12 @@
+using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
+using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
-using Mapster;
 
 namespace PetPortalDAL.Repositories;
 
@@ -16,14 +19,19 @@ public class UsersRepository : IUsersRepository
     /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
-        
+
+    private readonly IMapper _mapper;
+    private readonly IPasswordHasher _passwordHasher;
+    
     /// <summary>
     /// Конструктор репозитория.
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>
-    public UsersRepository(PetPortalDbContext context)
+    public UsersRepository(PetPortalDbContext context, IMapper mapper, IPasswordHasher passwordHasher)
     {
         _context = context;
+        _mapper = mapper;
+        _passwordHasher = passwordHasher;
     }
 
     /// <summary>
@@ -38,7 +46,7 @@ public class UsersRepository : IUsersRepository
             .Where(user => user.Email == email)
             .FirstOrDefaultAsync();
      
-        if (user == null && throwNullException)
+        if (user == null && !throwNullException)
         {
             return null;
         }
@@ -121,13 +129,14 @@ public class UsersRepository : IUsersRepository
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
-        await _context.Users
-            .Where(user => user.Id == userData.Id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(u => u.Name, userData.Name)
-                .SetProperty(u => u.AvatarUrl, userData.AvatarUrl)
-            );
+        var existingUserEntity = await _context.Users
+            .FirstOrDefaultAsync(p => p.Id == userData.Id);
+        
+        UserEntity mappedUser = userData.Adapt<UserEntity>();
+        
+        _context.Entry((UserEntity)existingUserEntity).CurrentValues.SetValues(mappedUser);
 
+        await _context.SaveChangesAsync();
         return userData.Id;
     }
 

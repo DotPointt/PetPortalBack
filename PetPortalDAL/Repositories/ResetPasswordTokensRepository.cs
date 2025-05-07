@@ -24,20 +24,26 @@ namespace PetPortalDAL.Repositories
 
         public async Task<Guid> SaveTokenHash(ResetPasswordTokens token)
         {
-            var existingToken = await _context.ResetPasswordTokens
+            var existingToken = await _context.ResetPasswordTokenEntities
                     .FirstOrDefaultAsync(t => t.UserId == token.UserId);
 
             if (existingToken != null)
-            {
+            { 
                 // Если токен существует, обновляем его данные
                 existingToken.TokenHash = token.TokenHash;
                 existingToken.ExpiresAt = token.ExpiresAt;
-                _context.Update(existingToken); // Маркируем запись как изменённую
+                _context.Update(existingToken); // может вместо всей конструкции можно использовать save
             }
             else
             {
                 // Если токена нет, добавляем новый
-                await _context.AddAsync(token);
+                await _context.AddAsync(new ResetPasswordTokenEntity()
+                {
+                    Id = token.Id,
+                    ExpiresAt = token.ExpiresAt,
+                    TokenHash = token.TokenHash,
+                    UserId = token.UserId
+                });
             }
 
             // Сохраняем изменения в базе данных
@@ -48,7 +54,7 @@ namespace PetPortalDAL.Repositories
 
         public async Task<ResetPasswordTokens> GetTokenHashByUserId(Guid userId)
         {
-            var tokenEntity = await _context.ResetPasswordTokens
+            var tokenEntity = await _context.ResetPasswordTokenEntities
                 .AsNoTracking()
                 .FirstOrDefaultAsync(tokenEntity => tokenEntity.UserId == userId);
 
