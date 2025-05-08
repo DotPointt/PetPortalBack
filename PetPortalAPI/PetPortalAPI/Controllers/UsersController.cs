@@ -4,7 +4,6 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using PetPortalApplication.Services;
 using PetPortalCore.DTOs.Requests;
