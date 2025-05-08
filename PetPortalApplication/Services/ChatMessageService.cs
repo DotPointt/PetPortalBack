@@ -26,53 +26,62 @@ public class ChatMessageService : IChatMessageService
     /// <summary>
     /// Записать сообщение в базу данных.
     /// </summary>
-    /// <param name="chatMessage">Сообщение.</param>
+    /// <param name="message">Сообщение.</param>
+    /// <param name="senderId">Идентификатор отправителя.</param>
+    /// <param name="chatId">Идентификатор чата.</param>
     /// <returns>Идентификатор сообщения.</returns>
-    public async Task<Guid> AddAsync(ChatMessageDto chatMessage)
+    public async Task<Guid> AddAsync(string message, Guid senderId, Guid chatId)
     {
-        return await _chatMessageRepository.AddAsync(chatMessage);
+        var messageDto = new ChatMessageDto()
+        {
+            Id = Guid.NewGuid(),
+            SenderId = senderId,
+            ChatRoomId = chatId,
+            Message = message,
+            SentAt = DateTime.UtcNow,
+        };
+        
+        return await _chatMessageRepository.AddAsync(messageDto);
     }
 
     /// <summary>
-    /// Удалить сообщение из базы данных.
+    /// Получить сообщения комнаты.
     /// </summary>
-    /// <param name="chatMessageId">Идентификатор сообщения.</param>
-    /// <returns>Идентификатор удаленного сообщения.</returns>
-    public async Task<Guid> DeleteAsync(Guid chatMessageId)
+    /// <param name="chatId">Идентификатор комнаты.</param>
+    /// <returns>Список сообщений.</returns>
+    public async Task<List<ChatMessageDto>> GetMessagesByRoomIdAsync(Guid chatId)
     {
-        return await _chatMessageRepository.DeleteAsync(chatMessageId);
+        return await _chatMessageRepository.GetMessagesByRoomIdAsync(chatId);
     }
 
     /// <summary>
-    /// Получить сообщения по названию комнаты.
+    /// Получить последние <paramref name="count"/> сообщений комнаты.
     /// </summary>
-    /// <param name="roomName">Название чата.</param>
-    /// <returns>Список сообщений чата.</returns>
-    public async Task<List<ChatMessageDto>> GetMessagesByRoomAsync(string roomName)
-    {
-        return await _chatMessageRepository.GetMessagesByRoomAsync(roomName);
-    }
-
-    /// <summary>
-    /// Получить <paramref name="count"/> сообщений чата <paramref name="chatRoom"/>.
-    /// </summary>
-    /// <param name="chatRoom">Название чата.</param>
+    /// <param name="roomId">Идентификатор комнаты.</param>
     /// <param name="count">Количество сообщений.</param>
-    /// <returns>Список сообщений по параметрам.</returns>
-    public async Task<List<ChatMessageDto>> GetLastMessagesAsync(string chatRoom, int count)
+    /// <returns>Список сообщений.</returns>
+    public async Task<List<ChatMessageDto>> GetLastMessagesAsync(Guid roomId, int count)
     {
-        return await _chatMessageRepository.GetLastMessagesAsync(chatRoom, count);
+        return await _chatMessageRepository.GetLastMessagesAsync(roomId, count);
     }
-    
+
     /// <summary>
-    /// Получить сообщение по идентификатору. 
+    /// Получить сообщение по идентификатору.
     /// </summary>
-    /// <param name="chatMessageId">Идентификатор сообщения.</param>
-    /// <returns>Сообщение (или null пока).</returns>
-    public async Task<ChatMessageDto> GetByIdAsync(Guid chatMessageId)
+    /// <param name="messageId">Идентификатор сообщения.</param>
+    /// <returns>Сообщение.</returns>
+    public async Task<ChatMessageDto?> GetByIdAsync(Guid messageId)
     {
-        return await _chatMessageRepository.GetByIdAsync(chatMessageId);
+        return await _chatMessageRepository.GetByIdAsync(messageId);
     }
-    
-    
+
+    /// <summary>
+    /// Удалить сообщение.
+    /// </summary>
+    /// <param name="messageId">Идентификатор сообщения.</param>
+    /// <returns>Идентификатор удаленного сообщения.</returns>
+    public async Task<Guid> DeleteAsync(Guid messageId)
+    {
+        return await _chatMessageRepository.DeleteAsync(messageId);
+    }
 }

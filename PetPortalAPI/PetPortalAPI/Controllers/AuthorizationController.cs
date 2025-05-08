@@ -1,7 +1,11 @@
-using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
+using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Requests;
 using PetPortalCore.Models;
 using System.Diagnostics.Eventing.Reader;
@@ -182,5 +186,46 @@ public class AuthorizationController : ControllerBase
         }
 
         return BadRequest(new { error = "Ошибка: Срок действия токена истёк!" });
+    }
+   
+    /// <summary>
+    /// Получение информации о текущем пользователе.
+    /// </summary>
+    /// <returns>Информация о текущем пользователе.</returns>
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<ActionResult> GetCurrentUser()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { Message = "Идентификатор пользователя не найден в токене." });
+            }
+
+            if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Unauthorized(new { Message = "Неверный формат идентификатора пользователя." });
+            }
+
+            var user = await _userService.GetUserById(userId);
+
+            var userDto = new UserDto()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Name = user.Name,
+                AvatarUrl = user.AvatarUrl,
+                Password = user.PasswordHash,
+                RoleId = user.RoleId
+            };
+            
+            return Ok(userDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
     }
 }

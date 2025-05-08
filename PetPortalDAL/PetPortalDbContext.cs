@@ -39,24 +39,34 @@ public class PetPortalDbContext : DbContext
     public DbSet<RoleEntity> Roles { get; set; }
     
     /// <summary>
-    /// Связь пользователей и проектов.
-    /// </summary>
-    public DbSet<UserProject> UserProjects { get; set; }
-
-    /// <summary>
     /// Теги в базе данных.
     /// </summary>
     public DbSet<TagEntity> Tags { get; set; }
-
+    
+    /// <summary>
+    /// Сообщения в чатах.
+    /// </summary>
+    public DbSet<ChatMessageEntity> ChatMessages { get; set; }
+    
+    /// <summary>
+    /// Комната чата.
+    /// </summary>
+    public DbSet<ChatRoomEntity> ChatRooms { get; set; }
+    
+    /// <summary>
+    /// Связь пользователей и чатов.
+    /// </summary>
+    public DbSet<ChatRoomUserEntity> ChatRoomUsers { get; set; }
+    
     /// <summary>
     /// Связующая таблица между проектами и тегами (фреймворками).
     /// </summary>
     public DbSet<ProjectTag> ProjectTags { get; set; }
     
     /// <summary>
-    /// Сообщения в чатах.
+    /// Связь пользователей и проектов.
     /// </summary>
-    public DbSet<ChatMessageEntity> ChatMessages { get; set; }
+    public DbSet<UserProject> UserProjects { get; set; }
 
     #endregion
 
@@ -74,6 +84,8 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new TagConfigurations());
         builder.ApplyConfiguration(new ProjectTagConfiguration());
         builder.ApplyConfiguration(new ChatMessageConfigurations());
+        builder.ApplyConfiguration(new ChatRoomConfiguration());
+        builder.ApplyConfiguration(new ChatRoomUserConfiguration());
         builder.ApplyConfiguration(new ResetPasswordTokensConfigurations());
         
         

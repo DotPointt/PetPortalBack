@@ -11,22 +11,32 @@ public class ChatMessageEntity
     public Guid Id { get; set; }
     
     /// <summary>
-    /// Название чата.
+    /// Идентификатор отправителя.
     /// </summary>
-    public string ChatRoom { get; set; }
+    public Guid SenderId { get; set; }
     
     /// <summary>
-    /// Имя отправителя.
+    /// Идентификатор комнаты чата.
     /// </summary>
-    public string Username { get; set; }
+    public Guid ChatRoomId { get; set; }
 
     /// <summary>
     /// Сообщение.
     /// </summary>
-    public string Message { get; set; }
+    public required string Message { get; set; }
     
     /// <summary>
     /// Дата отправки.
     /// </summary>
     public DateTime SentAt { get; set; }
+    
+    /// <summary>
+    /// Отправитель.
+    /// </summary>
+    public UserEntity Sender { get; set; }
+    
+    /// <summary>
+    /// Комната чата.
+    /// </summary>
+    public ChatRoomEntity ChatRoom { get; set; }
 }

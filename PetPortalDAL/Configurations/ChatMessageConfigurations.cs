@@ -15,18 +15,21 @@ public class ChatMessageConfigurations : IEntityTypeConfiguration<ChatMessageEnt
     /// <param name="builder">Строитель для настройки сущности.</param>
     public void Configure(EntityTypeBuilder<ChatMessageEntity> builder)
     {
-        builder.HasKey(message => message.Id);
-        
-        builder.Property(message => message.Username)
+        builder.HasKey(cm => cm.Id);
+
+        builder.Property(cm => cm.Message)
+            .IsRequired()
+            .HasMaxLength(1000);
+
+        builder.Property(cm => cm.SentAt)
             .IsRequired();
-        
-        builder.Property(message => message.ChatRoom)
-            .IsRequired();
-        
-        builder.Property(message => message.Message)
-            .IsRequired();
-        
-        builder.Property(message => message.SentAt)
-            .IsRequired();
+
+        builder.HasOne(cm => cm.ChatRoom)
+            .WithMany(cr => cr.Messages)
+            .HasForeignKey(cm => cm.ChatRoomId);
+
+        builder.HasOne(cm => cm.Sender)
+            .WithMany()
+            .HasForeignKey(cm => cm.SenderId);
     }
 }
