@@ -25,7 +25,9 @@ public class PetPortalDbContext : DbContext
     /// Проекты в базе данных.
     /// </summary>
     public DbSet<ProjectEntity> Projects { get; set; }
-        
+
+    public DbSet<ResetPasswordTokenEntity> ResetPasswordTokenEntities { get; set; }
+
     /// <summary>
     /// Пользователи в базе данных.
     /// </summary>
@@ -84,6 +86,8 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new ChatMessageConfigurations());
         builder.ApplyConfiguration(new ChatRoomConfiguration());
         builder.ApplyConfiguration(new ChatRoomUserConfiguration());
+        builder.ApplyConfiguration(new ResetPasswordTokensConfigurations());
+        
         
         #endregion
 

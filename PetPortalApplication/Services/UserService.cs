@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
+using System.Security.Cryptography;
 
 namespace PetPortalApplication.Services;
 
@@ -157,7 +158,7 @@ public class UserService : IUserService
             Id = user.Id,            
             Name = user.Name,
             Email = user.Email,
-            Password = user.PasswordHash,
+            PasswordHash = user.PasswordHash,
             AvatarUrl = userData.AvatarUrl,
             RoleId = user.RoleId,
         };
@@ -183,5 +184,32 @@ public class UserService : IUserService
     public async Task<User> GetUserById(Guid id)
     {
         return await _usersRepository.GetById(id);
+    }
+    
+    /// <summary>
+    /// Получить пользователя по почте
+    /// </summary>
+    /// <returns>Объект пользователя.</returns>
+    public async Task<User> GetUserByEmail(string email)
+    {
+        return await _usersRepository.GetByEmail(email);
+    }
+
+    
+    public async Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword)
+    {
+        var user = await _usersRepository.GetById(userId);
+
+        var userWithNewPassword = new UserDto()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            PasswordHash = _passwordHasher.HashPassword(newPassword),
+            AvatarUrl = user.AvatarUrl,
+            RoleId = user.RoleId,
+        };
+        
+        return await _usersRepository.Update(userWithNewPassword);
     }
 }

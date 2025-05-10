@@ -1,9 +1,12 @@
+using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
+using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
-using Mapster;
 
 namespace PetPortalDAL.Repositories;
 
@@ -16,14 +19,19 @@ public class UsersRepository : IUsersRepository
     /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
-        
+
+    private readonly IMapper _mapper;
+    private readonly IPasswordHasher _passwordHasher;
+    
     /// <summary>
     /// Конструктор репозитория.
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>
-    public UsersRepository(PetPortalDbContext context)
+    public UsersRepository(PetPortalDbContext context, IMapper mapper, IPasswordHasher passwordHasher)
     {
         _context = context;
+        _mapper = mapper;
+        _passwordHasher = passwordHasher;
     }
 
     /// <summary>
@@ -31,14 +39,14 @@ public class UsersRepository : IUsersRepository
     /// </summary>
     /// <param name="email">Email пользователя.</param>
     /// <returns>Пользователь если имеется, в ином случае null.</returns>
-    public async Task<User> GetByEmail(string email)
+    public async Task<User> GetByEmail(string email, bool throwNullException = false)
     { 
         var user = await _context.Users
             .AsNoTracking()
             .Where(user => user.Email == email)
             .FirstOrDefaultAsync();
      
-        if (user == null)
+        if (user == null && !throwNullException)
         {
             return null;
         }
@@ -57,15 +65,17 @@ public class UsersRepository : IUsersRepository
     /// Получить пользователя по идентификатору.
     /// </summary>
     /// <param name="userId">Идентификатор пользователя.</param>
-    public async Task<User> GetById(Guid userId)
+    public async Task<User> GetById(Guid userId, bool throwNullException = false)
     {
         var user = await _context.Users
             .AsNoTracking()
             .Where(user => user.Id == userId)
             .FirstOrDefaultAsync();
         
-        if (user == null)
+        if (user == null && throwNullException)
             throw new Exception("User not found");
+        else if (user == null)
+            return null;
         
         return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
     }
@@ -119,13 +129,14 @@ public class UsersRepository : IUsersRepository
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
-        await _context.Users
-            .Where(user => user.Id == userData.Id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(u => u.Name, userData.Name)
-                .SetProperty(u => u.AvatarUrl, userData.AvatarUrl)
-            );
+        var existingUserEntity = await _context.Users
+            .FirstOrDefaultAsync(p => p.Id == userData.Id);
+        
+        UserEntity mappedUser = userData.Adapt<UserEntity>();
+        
+        _context.Entry((UserEntity)existingUserEntity).CurrentValues.SetValues(mappedUser);
 
+        await _context.SaveChangesAsync();
         return userData.Id;
     }
 

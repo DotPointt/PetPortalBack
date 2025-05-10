@@ -67,4 +67,13 @@ public interface IUserService
     /// <param name="id">Идентификатор пользователя.</param>
     /// <returns>Объект пользователя.</returns>
     public Task<User> GetUserById(Guid id);
+
+    /// <summary>
+    /// Получить пользователя по почте
+    /// </summary>
+    /// <returns>Объект пользователя.</returns>
+    public Task<User> GetUserByEmail(string email);
+
+
+    public Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword);
 }

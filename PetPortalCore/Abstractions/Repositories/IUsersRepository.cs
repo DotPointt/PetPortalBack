@@ -28,14 +28,14 @@ public interface IUsersRepository
     /// <returns>Пользователь.</returns>
     /// <exception cref="ArgumentException">Выбрасывается, если данные пользователя невалидны.</exception>
     /// <exception cref="InvalidOperationException">Выбрасывается, если пользователь с такой почтой уже существует.</exception>
-    public Task<User> GetByEmail(string email);
+    public Task<User> GetByEmail(string email,  bool throwNullException = false);
     
     /// <summary>
     /// Получить пользователя по идентификатору.
     /// </summary>
     /// <param name="userId">Идентификатор пользователя.</param>
     /// <returns>Пользователь.</returns>
-    public Task<User> GetById(Guid userId);
+    public Task<User> GetById(Guid userId,  bool throwNullException = false);
 
     /// <summary>
     /// Обновить данные пользователя.

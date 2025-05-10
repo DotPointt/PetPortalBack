@@ -25,6 +25,8 @@ public class UserDto
     /// </summary>
     public string Password { get; set; }
     
+    public string PasswordHash { get; set; }
+    
     /// <summary>
     /// Путь к файлу аватара пользователя.
     /// </summary>
