@@ -57,7 +57,7 @@ public class ProjectsController : ControllerBase
     [HttpGet()]
     public async Task<ActionResult<List<ProjectDto>>> GetProjects([FromQuery] ProjectRequest request)
     //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
-    {
+   {
         if (request.Offset < 1 || request.Page < 1)
         {
             Response.StatusCode = 500;
@@ -68,11 +68,6 @@ public class ProjectsController : ControllerBase
         try
         {
             var projects = await _projectsService.GetPaginatedFiltered(request.SortOrder, request.SortItem, request.SearchElement, request.Offset, request.Page);
-
-            if (projects.Count == 0)
-            {
-                return Ok("Пока что проектов нет.");
-            }
 
             var response = new List<ProjectDto>();
             var imageBase64 = "";
