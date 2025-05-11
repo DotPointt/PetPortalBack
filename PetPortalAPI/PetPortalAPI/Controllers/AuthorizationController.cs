@@ -150,7 +150,7 @@ public class AuthorizationController : ControllerBase
         
         //Хэширование токена и сохранение в БД
         string hashedToken = _passwordHasher.HashPassword(token);
-        await _resetPasswordService.SaveTokenHash(ResetPasswordTokens.Create(new Guid(), user.Id, hashedToken, DateTime.Now.ToUniversalTime().AddDays(1)));
+        await _resetPasswordService.SaveTokenHash(ResetPasswordTokens.Create(new Guid(), user.Id, hashedToken, DateTime.UtcNow.ToUniversalTime().AddDays(1)));
 
         //Сгенерить адекватное письмо( добавить текста)
         //отправка восстановительной ссылки

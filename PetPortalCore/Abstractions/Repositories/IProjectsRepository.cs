@@ -66,4 +66,10 @@ public interface IProjectsRepository
     /// <param name="ownerId">Идентификатор пользователя.</param>
     /// <returns>Количество проектов.</returns>
     Task<int> GetProjectCountByOwnerIdAsync(Guid ownerId);
+
+    /// <summary>
+    /// Возвращает общее число проектов удволетворящих фильтрам
+    /// </summary>
+    /// <returns></returns>
+    Task<int> GetTotalProjectCountAsync(string searchElement);
 }

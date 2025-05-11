@@ -227,4 +227,16 @@ public class ProjectsRepository : IProjectsRepository
             .AsNoTracking()
             .CountAsync(p => p.OwnerId == ownerId);
     }
+
+    /// <summary>
+    /// Возвращает общее число проектов удволетворящих фильтрам
+    /// </summary>
+    /// <returns></returns>
+    public async Task<int> GetTotalProjectCountAsync(string searchElement)
+    {
+        return await _context.Projects
+            .AsNoTracking()
+            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.ToLower().Contains(searchElement.ToLower()))
+            .CountAsync();
+    }
 }

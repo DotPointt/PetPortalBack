@@ -55,7 +55,7 @@ public class ProjectsController : ControllerBase
     /// </returns>
     [SwaggerOperation(Summary = "Стандартный метод получения проектов")]
     [HttpGet()]
-    public async Task<ActionResult<List<ProjectDto>>> GetProjects([FromQuery] ProjectRequest request)
+    public async Task<ActionResult<List<GetProjectsDto>>> GetProjects([FromQuery] ProjectRequest request)
     //TODO: пока сделал с Base64, но тогда обьем инфы увеличивается на 33%, сделать лучшее отправление, и чтобы ужимались картинки, они оч маленькие
    {
         if (request.Offset < 1 || request.Page < 1)
@@ -69,7 +69,7 @@ public class ProjectsController : ControllerBase
         {
             var projects = await _projectsService.GetPaginatedFiltered(request.SortOrder, request.SortItem, request.SearchElement, request.Offset, request.Page);
 
-            var response = new List<ProjectDto>();
+            var response = new GetProjectsDto();
             var imageBase64 = "";
 
             foreach (var p in projects)
@@ -102,8 +102,10 @@ public class ProjectsController : ControllerBase
                     Tags = new List<string>()
                 };
 
-                response.Add(projectDto);
+                response.Projects.Add(projectDto);
             }
+
+            response.ProjectsCount = await _projectsService.GetTotalProjectCountAsync(request.SearchElement);
 
             return Ok(response);
         }
