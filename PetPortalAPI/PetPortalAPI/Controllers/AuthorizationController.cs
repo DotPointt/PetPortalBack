@@ -1,14 +1,11 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.DTOs.Requests;
 using PetPortalCore.Models;
-using System.Diagnostics.Eventing.Reader;
 using Exception = System.Exception;
 
 namespace PetPortalAPI.Controllers;
@@ -144,13 +141,14 @@ public class AuthorizationController : ControllerBase
         var baseUrl = $"{request.Scheme}://{request.Host}/api/Authorization/ResetPassword";
 
         ///генерация восстановительнйо ссылки и токена в ней
-        string token = _resetPasswordService.GenerateResetPasswordToken(32);
-        string url = _resetPasswordService.GeneratePasswordResetLink(baseUrl, token, user.Id);
+        var token = _resetPasswordService.GenerateResetPasswordToken(32);
+        var url = _resetPasswordService.GeneratePasswordResetLink(baseUrl, token, user.Id);
         
         
         //Хэширование токена и сохранение в БД
-        string hashedToken = _passwordHasher.HashPassword(token);
-        await _resetPasswordService.SaveTokenHash(ResetPasswordTokens.Create(new Guid(), user.Id, hashedToken, DateTime.UtcNow.ToUniversalTime().AddDays(1)));
+        var hashedToken = _passwordHasher.HashPassword(token);
+        var id = Guid.NewGuid();
+        await _resetPasswordService.SaveTokenHash(ResetPasswordTokens.Create(id, user.Id, hashedToken, DateTime.UtcNow.ToUniversalTime().AddDays(1)));
 
         //Сгенерить адекватное письмо( добавить текста)
         //отправка восстановительной ссылки
@@ -165,7 +163,6 @@ public class AuthorizationController : ControllerBase
     /// <param name="code">Код из url ссылки на восстановление с почты</param>
     /// <returns></returns>
     [HttpPost("ResetPassword")]
-    
     public async Task<ActionResult> ResetPassword( string token, string userId ,string newPassword1, string newPassword2)
     {
         ///Сброс пароля 
@@ -187,6 +184,34 @@ public class AuthorizationController : ControllerBase
 
         return BadRequest(new { error = "Ошибка: Срок действия токена истёк!" });
     }
+
+    /// <summary>
+    /// Получение информации о текущем пользователе.
+    /// </summary>
+    /// <param name="userData">Данные о пользователе.</param>
+    /// <returns>Информация о текущем пользователе.</returns>
+    [HttpPut("ChangeProfileData")]
+    [Authorize]
+    public async Task<ActionResult> ChangeProfileData(UserDto userData)
+    {
+        try
+        {
+            var user = await CurrentUser();
+
+            if (user.Id != userData.Id)
+            {
+                return BadRequest(new { error = "Изменять можно только свой профиль." });
+            }
+
+            var id = await _userService.Update(userData);
+            
+            return Ok(id);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.ToString() });
+        }
+    }
    
     /// <summary>
     /// Получение информации о текущем пользователе.
@@ -198,18 +223,7 @@ public class AuthorizationController : ControllerBase
     {
         try
         {
-            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                return Unauthorized(new { Message = "Идентификатор пользователя не найден в токене." });
-            }
-
-            if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
-            {
-                return Unauthorized(new { Message = "Неверный формат идентификатора пользователя." });
-            }
-
-            var user = await _userService.GetUserById(userId);
+            var user = await CurrentUser();
 
             var userDto = new UserDto()
             {
@@ -227,5 +241,29 @@ public class AuthorizationController : ControllerBase
         {
             return BadRequest(new { Message = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Получение текущего пользователя.
+    /// </summary>
+    /// <returns>Текущего пользователя.</returns>
+    /// <exception cref="UnauthorizedAccessException">
+    /// Идентификатор пользователя не найден в токене, или
+    /// неверный формат идентификатора пользователя.
+    /// </exception>
+    public async Task<User> CurrentUser()
+    {
+        var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
+        }
+
+        if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
+        {
+            throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
+        }
+        
+        return await _userService.GetUserById(userId);
     }
 }
