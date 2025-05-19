@@ -1,12 +1,17 @@
+using System;
 using PetPortalDAL.Entities;
 using PetPortalDAL.Entities.LinkingTables;
+using PetPortalCore.Models;
 
 namespace PetPortalDAL;
 
 public class DbInitializer
 {
+    private static readonly Random Rand = new();
+
     public static void Seed(PetPortalDbContext context)
     {
+        // === Roles ===
         if (!context.Roles.Any())
         {
             var roles = new List<RoleEntity>
@@ -14,146 +19,201 @@ public class DbInitializer
                 new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Admin" },
                 new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "User" }
             };
-
             context.Roles.AddRange(roles);
             context.SaveChanges();
         }
 
-        // Добавление пользователей
+        // === Users ===
         if (!context.Users.Any())
         {
             var adminRoleId = context.Roles.First(r => r.Name == "Admin").Id;
             var userRoleId = context.Roles.First(r => r.Name == "User").Id;
 
-            var users = new List<UserEntity>
+            var users = new List<UserEntity>();
+            for (int i = 1; i <= 10; i++)
             {
-                new UserEntity { Id = Guid.Parse("a1b2c3d4-e5f6-4712-8a9b-c0d123456789"), Name = "Alice", Email = "alice@example.com", PasswordHash = "hashedPassword1", RoleId = adminRoleId },
-                new UserEntity { Id = Guid.Parse("b1c2d3e4-f5a6-4823-9b0c-d1e234567890"), Name = "Bob", Email = "bob@example.com", PasswordHash = "hashedPassword2", RoleId = userRoleId },
-                new UserEntity { Id = Guid.Parse("c1d2e3f4-a5b6-4934-0c1d-e2f345678901"), Name = "Charlie", Email = "charlie@example.com", PasswordHash = "hashedPassword3", RoleId = userRoleId },
-                new UserEntity { Id = Guid.Parse("d1e2f3a4-b5c6-4a45-1d2e-f3a456789012"), Name = "Diana", Email = "diana@example.com", PasswordHash = "hashedPassword4", RoleId = userRoleId },
-                new UserEntity { Id = Guid.Parse("e1f2a3b4-c5d6-4b56-2e3f-a4b567890123"), Name = "Eve", Email = "eve@example.com", PasswordHash = "hashedPassword5", RoleId = userRoleId }
-            };
+                users.Add(new UserEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"User{i}",
+                    Email = $"user{i}@example.com",
+                    PasswordHash = $"hashedPassword{i}",
+                    RoleId = i == 1 ? adminRoleId : userRoleId
+                });
+            }
 
             context.Users.AddRange(users);
             context.SaveChanges();
         }
 
-        // Добавление проектов
+        // === Projects ===
         if (!context.Projects.Any())
         {
             var users = context.Users.ToList();
-
-            var projects = new List<ProjectEntity>
+            var projectNames = new[]
             {
-                new ProjectEntity
-                {
-                    Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
-                    Name = "Project 1",
-                    Description = "Description 1",
-                    OwnerId = users.First(user => user.Name == "Alice").Id
-                },
-                new ProjectEntity
-                {
-                    Id = Guid.Parse("22222222-3333-4444-5555-666666666666"),
-                    Name = "Project 2",
-                    Description = "Description 2",
-                    OwnerId = users.First(user => user.Name == "Alice").Id
-                },
-                new ProjectEntity
-                {
-                    Id = Guid.Parse("33333333-4444-5555-6666-777777777777"),
-                    Name = "Project 3",
-                    Description = "Description 3",
-                    OwnerId = users.First(user => user.Name == "Bob").Id
-                },
-                new ProjectEntity
-                {
-                    Id = Guid.Parse("44444444-5555-6666-7777-888888888888"),
-                    Name = "Project 4",
-                    Description = "Description 4",
-                    OwnerId = users.First(user => user.Name == "Bob").Id
-                },
-                new ProjectEntity
-                {
-                    Id = Guid.Parse("55555555-6666-7777-8888-999999999999"),
-                    Name = "Project 5",
-                    Description = "Description 5",
-                    OwnerId = users.First(user => user.Name == "Charlie").Id
-                }
+                "AI Assistant", "E-commerce Platform", "Mobile App", "Game Engine",
+                "Data Analytics Dashboard", "Blockchain Explorer", "IoT Monitoring System",
+                "Cybersecurity Tool", "Cloud Infrastructure", "Chatbot"
             };
+
+            var projectDescriptions = new[]
+            {
+                "Smart AI assistant for daily tasks.",
+                "Full-stack e-commerce platform with payment gateway.",
+                "Cross-platform mobile app for social networking.",
+                "Custom game engine in C++.",
+                "Interactive dashboard for business analytics.",
+                "Tool for blockchain transaction analysis.",
+                "Real-time IoT device monitoring system.",
+                "Security software to detect vulnerabilities.",
+                "Cloud-based deployment infrastructure.",
+                "Conversational chatbot for customer support."
+            };
+
+            var requirementsList = new[]
+            {
+                "ML engineers and data scientists",
+                "Frontend and backend developers",
+                "Mobile developers (iOS/Android)",
+                "C++ developers with graphics experience",
+                "Data analysts and visualization experts",
+                "Blockchain specialists",
+                "Embedded systems engineers",
+                "Security researchers",
+                "DevOps engineers",
+                "NLP engineers and UX designers"
+            };
+
+            var teamDescriptions = new[]
+            {
+                "Team of ML engineers and product managers.",
+                "Web developers and QA engineers.",
+                "Mobile developers and UI/UX designers.",
+                "Engineers with game physics experience.",
+                "Data scientists and BI analysts.",
+                "Crypto developers and auditors.",
+                "IoT firmware and cloud developers.",
+                "Penetration testers and cryptographers.",
+                "SREs and infrastructure engineers.",
+                "NLP engineers and chat designers."
+            };
+
+            var plans = new[] { "Basic", "Pro", "Premium" };
+            var results = new[]
+            {
+                "Deployed AI assistant with high accuracy.",
+                "Live e-commerce site with 1M+ users.",
+                "Published iOS and Android apps.",
+                "Released open-source game engine.",
+                "Dashboard used by enterprise clients.",
+                "Public blockchain explorer launched.",
+                "Scalable IoT monitoring platform.",
+                "Vulnerability scanner tool released.",
+                "CI/CD pipelines automated.",
+                "Enterprise-grade chatbot deployed."
+            };
+
+            var projects = new List<ProjectEntity>();
+            for (int i = 0; i < 30; i++)
+            {
+                var ownerId = users[Rand.Next(users.Count)].Id;
+                projects.Add(new ProjectEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = (projectNames[i % 10] + " (" + i + ") "),
+                    Description = projectDescriptions[i % 10],
+                    Requirements = requirementsList[i % 10],
+                    TeamDescription = teamDescriptions[i % 10],
+                    Plan = plans[Rand.Next(plans.Length)],
+                    Result = results[i % 10],
+                    OwnerId = ownerId,
+                    Deadline = DateTime.UtcNow.AddDays(Rand.Next(30, 365)),
+                    ApplyingDeadline = DateTime.UtcNow.AddDays(Rand.Next(7, 30)),
+                    StateOfProject = Rand.NextDouble() > 0.5 ? StateOfProject.Open : StateOfProject.Closed,
+                    Budget = (uint)Rand.Next(500_000, 2_000_000)
+                });
+            }
 
             context.Projects.AddRange(projects);
             context.SaveChanges();
         }
 
-        // Добавление связей пользователей и проектов
+        // === UserProjects ===
         if (!context.UserProjects.Any())
         {
             var users = context.Users.ToList();
             var projects = context.Projects.ToList();
 
-            var userProjects = new List<UserProject>
+            var userProjects = new List<UserProject>();
+            foreach (var project in projects)
             {
-                new UserProject { Id = Guid.NewGuid(), UserId = users.First(u => u.Name == "Alice").Id, ProjectId = projects.First(p => p.Name == "Project 1").Id },
-                new UserProject { Id = Guid.NewGuid(), UserId = users.First(u => u.Name == "Alice").Id, ProjectId = projects.First(p => p.Name == "Project 2").Id },
-                new UserProject { Id = Guid.NewGuid(), UserId = users.First(u => u.Name == "Bob").Id, ProjectId = projects.First(p => p.Name == "Project 3").Id },
-                new UserProject { Id = Guid.NewGuid(), UserId = users.First(u => u.Name == "Bob").Id, ProjectId = projects.First(p => p.Name == "Project 4").Id },
-                new UserProject { Id = Guid.NewGuid(), UserId = users.First(u => u.Name == "Charlie").Id, ProjectId = projects.First(p => p.Name == "Project 5").Id }
-            };
+                // Каждый проект может иметь нескольких участников, кроме владельца
+                int participantsCount = Rand.Next(1, 4); // 1–3 участника
+                for (int i = 0; i < participantsCount; i++)
+                {
+                    var randomUser = users[Rand.Next(users.Count)];
+                    if (randomUser.Id == project.OwnerId) continue;
+
+                    userProjects.Add(new UserProject
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = randomUser.Id,
+                        ProjectId = project.Id
+                    });
+                }
+            }
 
             context.UserProjects.AddRange(userProjects);
             context.SaveChanges();
         }
 
-            // Добавление тегов
+        // === Tags ===
         if (!context.Tags.Any())
         {
-            var tags = new List<TagEntity>
+            var tagNames = new[]
             {
-                new TagEntity { Id = Guid.NewGuid(), Name = "ML" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "Ruby" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "C#" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "Algorithms" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "DataScience" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "Python" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "JavaScript" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "DevOps" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "AI" },
-                new TagEntity { Id = Guid.NewGuid(), Name = "Cloud" }
+                "ML", "Ruby", "C#", "Algorithms", "DataScience", "Python", "JavaScript",
+                "DevOps", "AI", "Cloud", "Networking", "Security", "Testing", "UI/UX",
+                "Mobile", "Frontend", "Backend", "GameDev", "Blockchain", "IoT"
             };
 
-                context.Tags.AddRange(tags);
-                context.SaveChanges();
+            var tags = new List<TagEntity>();
+            foreach (var name in tagNames)
+            {
+                tags.Add(new TagEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name
+                });
+            }
+
+            context.Tags.AddRange(tags);
+            context.SaveChanges();
         }
 
-            // Добавление связей проектов и тегов
-            if (!context.ProjectTags.Any())
+        // === ProjectTags ===
+        if (!context.ProjectTags.Any())
         {
             var projects = context.Projects.ToList();
             var tags = context.Tags.ToList();
 
-            var projectTags = new List<ProjectTag>
+            var projectTags = new List<ProjectTag>();
+            foreach (var project in projects)
             {
-                // Связываем Project 1 (по Id) с тегами ML и DataScience
-                new ProjectTag { ProjectId = projects[0].Id, TagId = tags.First(t => t.Name == "ML").Id },
-                new ProjectTag { ProjectId = projects[0].Id, TagId = tags.First(t => t.Name == "DataScience").Id },
+                int tagCount = Rand.Next(2, 4); // 2–3 тега на проект
+                for (int i = 0; i < tagCount; i++)
+                {
+                    var tag = tags[Rand.Next(tags.Count)];
+                    if (projectTags.Exists(pt => pt.ProjectId == project.Id && pt.TagId == tag.Id)) continue;
 
-                // Связываем Project 2 (по Id) с тегами Ruby и DevOps
-                new ProjectTag { ProjectId = projects[1].Id, TagId = tags.First(t => t.Name == "Ruby").Id },
-                new ProjectTag { ProjectId = projects[1].Id, TagId = tags.First(t => t.Name == "DevOps").Id },
-
-                // Связываем Project 3 (по Id) с тегами C# и Algorithms
-                new ProjectTag { ProjectId = projects[2].Id, TagId = tags.First(t => t.Name == "C#").Id },
-                new ProjectTag { ProjectId = projects[2].Id, TagId = tags.First(t => t.Name == "Algorithms").Id },
-
-                // Связываем Project 4 (по Id) с тегами Python и AI
-                new ProjectTag { ProjectId = projects[3].Id, TagId = tags.First(t => t.Name == "Python").Id },
-                new ProjectTag { ProjectId = projects[3].Id, TagId = tags.First(t => t.Name == "AI").Id },
-
-                // Связываем Project 5 (по Id) с тегами JavaScript и Cloud
-                new ProjectTag { ProjectId = projects[4].Id, TagId = tags.First(t => t.Name == "JavaScript").Id },
-                new ProjectTag { ProjectId = projects[4].Id, TagId = tags.First(t => t.Name == "Cloud").Id }
-            };
+                    projectTags.Add(new ProjectTag
+                    {
+                        ProjectId = project.Id,
+                        TagId = tag.Id
+                    });
+                }
+            }
 
             context.ProjectTags.AddRange(projectTags);
             context.SaveChanges();

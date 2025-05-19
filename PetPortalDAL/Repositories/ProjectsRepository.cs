@@ -40,7 +40,7 @@ public class ProjectsRepository : IProjectsRepository
     {
         var projectsQuery = _context.Projects
             .AsNoTracking()
-            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.Contains(searchElement.ToLower()));
+            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.ToLower().Contains(searchElement.ToLower()));
 
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {
@@ -226,5 +226,17 @@ public class ProjectsRepository : IProjectsRepository
         return await _context.Projects
             .AsNoTracking()
             .CountAsync(p => p.OwnerId == ownerId);
+    }
+
+    /// <summary>
+    /// Возвращает общее число проектов удволетворящих фильтрам
+    /// </summary>
+    /// <returns></returns>
+    public async Task<int> GetTotalProjectCountAsync(string searchElement)
+    {
+        return await _context.Projects
+            .AsNoTracking()
+            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.ToLower().Contains(searchElement.ToLower()))
+            .CountAsync();
     }
 }

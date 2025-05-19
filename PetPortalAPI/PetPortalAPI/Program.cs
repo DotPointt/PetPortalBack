@@ -9,6 +9,7 @@ using PetPortalCore.Abstractions.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PetPortalAPI.Controllers;
+using PetPortalAPI.Hubs;
 using PetPortalApplication.AuthConfiguration;
 using PetPortalCore.Configs;
 using PetPortalDAL;
@@ -103,7 +104,7 @@ namespace PetPortalAPI
             // Настройка контекста базы данных
             services.AddDbContext<PetPortalDbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString(nameof(PetPortalDbContext))); // Использование PostgreSQL
+                options.UseNpgsql(configuration.GetConnectionString(nameof(PetPortalDbContext))); 
             });
 
             #region Внедрение зависимостей (DI)
@@ -115,6 +116,7 @@ namespace PetPortalAPI
             services.AddScoped<IMinioService, MinioService>(); 
             services.AddScoped<IMailSenderService, MailSenderService>();
             services.AddScoped<IChatMessageService, ChatMessageService>();
+            services.AddScoped<IChatRoomService, ChatRoomService>();
             services.AddScoped<IPaymentService, YooKassaService>();
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
 
@@ -125,6 +127,7 @@ namespace PetPortalAPI
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
             services.AddScoped<IResetPasswordTokensRepository, ResetPasswordTokensRepository>();
+            services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
 
             // Регистрация вспомогательных сервисов
             services.AddScoped<IPasswordHasher, PasswordHasher>();

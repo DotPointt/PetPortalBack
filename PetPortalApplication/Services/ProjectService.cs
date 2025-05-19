@@ -122,4 +122,14 @@ public class ProjectService : IProjectsService
 
         return cnt <= limit;
     }
+
+
+    /// <summary>
+    /// Возвращает общее число проектов удволетворящих фильтрам
+    /// </summary>
+    /// <returns></returns>
+    public async Task<int> GetTotalProjectCountAsync(string searchElement)
+    {
+        return await _projectsRepository.GetTotalProjectCountAsync( searchElement);
+    }
 }

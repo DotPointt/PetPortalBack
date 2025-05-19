@@ -65,4 +65,10 @@ public interface IProjectsService
     /// False - лимит превышен.
     /// </returns>
     Task<bool> CheckCreatingLimit(Guid ownerId, int limit);
+
+    /// <summary>
+    /// Возвращает общее число проектов удволетворящих фильтрам
+    /// </summary>
+    /// <returns></returns>
+    Task<int> GetTotalProjectCountAsync(string searchElement);
 }

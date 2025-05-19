@@ -50,6 +50,15 @@ Generated\ Files/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# Исключение папки minio-data и её содержимого
+/minio-data/
+
+# Исключение временных файлов MinIO
+.minio.sys/
+
+# Исключение временных файлов MinIO в tmp
+.minio.sys/tmp/*
+
 # NUnit
 *.VisualState.xml
 TestResult.xml
