@@ -10,7 +10,7 @@ namespace PetPortalAPI.Controllers;
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
-public class MembersController : Controller
+public class MembersController : ControllerBase
 {
     /// <summary>
     /// Сервис для работы с участниками проектов.
