@@ -5,7 +5,7 @@
 1. Start containers.
     - In folder _\PetPortalBack\PetPortalAPI\PetPortalAPI_ run
    ```
-       docker-compose -f docker-compose.yml -f docker-compose.minio.yml -f docker-compose.redis.yml up -d
+       docker-compose up -d
    ```
    
 2. Update database with migrations which you have.
