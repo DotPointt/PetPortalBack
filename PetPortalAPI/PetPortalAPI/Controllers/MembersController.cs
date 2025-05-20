@@ -48,7 +48,7 @@ public class MembersController : ControllerBase
                         Id = p.Id,
                         Name = p.Name,
                         Email = p.Email,
-                        Password = p.PasswordHash,
+                        PasswordHash = p.PasswordHash,
                         RoleId = p.RoleId,
                     }
                 );

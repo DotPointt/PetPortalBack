@@ -14,13 +14,17 @@ public class User
     /// <param name="passwordHash">Хэш пароля пользователя.</param>
     /// <param name="roleId">Идентификатор роли пользователя.</param>
     /// <param name="avatarUrl">Путь к аватару пользователя.</param>
-    public User(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl)
+    public User(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl, string country, string city, string phone, string telegram)
     {
         Id = id;
         Name = name;
         Email = email;
         PasswordHash = passwordHash;
         RoleId = roleId;
+        Country = country;
+        City = city;
+        Phone = phone;
+        Telegram = telegram;
         AvatarUrl = avatarUrl ?? string.Empty; 
     }
         
@@ -45,6 +49,26 @@ public class User
     public string PasswordHash = string.Empty;
     
     /// <summary>
+    /// Страна проживания.
+    /// </summary>
+    public string Country = string.Empty;
+    
+    /// <summary>
+    /// Город проживания.
+    /// </summary>
+    public string City = string.Empty;
+    
+    /// <summary>
+    /// Номер телефона.
+    /// </summary>
+    public string Phone = string.Empty;
+    
+    /// <summary>
+    /// Телеграм аккаунт.
+    /// </summary>
+    public string Telegram = string.Empty;
+    
+    /// <summary>
     /// Идентификатор роли пользователя.
     /// </summary>
     public Guid RoleId = Guid.Empty;
@@ -63,11 +87,15 @@ public class User
     /// <param name="passwordHash">Хэш пароля пользователя.</param>
     /// <param name="roleId">Идентификатор роли пользователя.</param>
     /// <param name="avatarUrl">Путь к аватару пользователя.</param>
+    /// <param name="country">Страна проживания.</param>
+    /// <param name="city">Город проживания.</param>
+    /// <param name="phone">Номер телефона.</param>
+    /// <param name="telegram">Телеграм аккаунт.</param>
     /// <returns>Кортеж, содержащий созданного пользователя и сообщение об ошибке (если есть).</returns>
-    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl)
+    public static (User user, string error) Create(Guid id, string name, string email, string passwordHash, Guid roleId, string avatarUrl, string country, string city, string phone, string telegram)
     {
         var error = string.Empty;
-        var user = new User(id, name, email, passwordHash, roleId, avatarUrl);
+        var user = new User(id, name, email, passwordHash, roleId, avatarUrl, country, city, phone, telegram);
 
         return (user, error);
     }

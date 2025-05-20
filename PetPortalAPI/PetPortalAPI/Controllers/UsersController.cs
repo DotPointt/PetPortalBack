@@ -67,8 +67,12 @@ public class UsersController : ControllerBase
                         Id = p.Id,
                         Name = p.Name,
                         Email = p.Email,
-                        Password = p.PasswordHash,
+                        PasswordHash = p.PasswordHash,
                         AvatarUrl = p.AvatarUrl,
+                        City = p.City,
+                        Country = p.Country,
+                        Phone = p.Phone,
+                        Telegram = p.Telegram,
                     }
                 );
 

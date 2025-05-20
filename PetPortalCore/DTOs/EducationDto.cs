@@ -1,9 +1,9 @@
-namespace PetPortalDAL.Entities;
+namespace PetPortalCore.DTOs;
 
 /// <summary>
-/// Образование.
+/// DTO (Data Transfer Object) Образование пользователя.
 /// </summary>
-public class EducationEntity
+public class EducationDto
 {
     /// <summary>
     /// Идентификатор.
@@ -26,12 +26,7 @@ public class EducationEntity
     public int ReleaseYear { get; set; }
     
     /// <summary>
-    /// Внешний ключ.
+    /// Идентификатор пользователя.
     /// </summary>
     public Guid UserId { get; set; }
-    
-    /// <summary>
-    /// Навигационное свойство.
-    /// </summary>
-    public UserEntity User { get; set; }
 }

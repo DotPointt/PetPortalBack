@@ -19,6 +19,21 @@ public class UserService : IUserService
     private readonly IUsersRepository _usersRepository;
     
     /// <summary>
+    /// Репозиторий стэка пользователя.
+    /// </summary>
+    private readonly IStackRepository _stackRepository;
+    
+    /// <summary>
+    /// Репозиторий опыта работы пользователя.
+    /// </summary>
+    private readonly IExperienceRepository _experienceRepository;
+    
+    /// <summary>
+    /// Репозиторий образования пользователя.
+    /// </summary>
+    private readonly IEducationRepository _educationRepository;
+    
+    /// <summary>
     /// Репозиторий для работы с ролями.
     /// </summary>
     private readonly IRoleRepository _roleRepository;
@@ -46,14 +61,21 @@ public class UserService : IUserService
     /// <param name="jwtProvider">Провайдер JWT-токенов.</param>
     /// <param name="passwordHasher">Сервис хеширования паролей.</param>
     /// <param name="roleRepository">Репозиторий ролей.</param>
+    /// <param name="stackRepository">Репозиторий стэка пользователя.</param>
+    /// <param name="experienceRepository">Репозиторий опыта работы пользователя.</param>
+    /// <param name="educationRepository">Репозиторий образования пользователя.</param>
     public UserService(IUsersRepository usersRepository, IProjectsRepository projectsRepository, 
-        IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository)
+        IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository, 
+        IStackRepository stackRepository, IExperienceRepository experienceRepository, IEducationRepository educationRepository)
     {
         _projectsRepository = projectsRepository;
         _usersRepository = usersRepository;
         _jwtProvider = jwtProvider;
         _passwordHasher = passwordHasher;
         _roleRepository = roleRepository;
+        _stackRepository = stackRepository;
+        _experienceRepository = experienceRepository;
+        _educationRepository = educationRepository;
     }
     
     /// <summary>
@@ -99,7 +121,12 @@ public class UserService : IUserService
             request.Email,
             hashedPassword,
             DefaultValues.RoleId,
-            string.Empty); //TODO Указать путь к дефолтной аватарке.
+            string.Empty, //TODO Указать путь к дефолтной аватарке.
+            request.Country,
+            request.City,
+            request.Phone,
+            request.Telegram
+        ); 
             
         if (!string.IsNullOrEmpty(error))
         {
@@ -161,6 +188,10 @@ public class UserService : IUserService
             PasswordHash = user.PasswordHash,
             AvatarUrl = userData.AvatarUrl,
             RoleId = user.RoleId,
+            Country = user.Country,
+            City = user.City,
+            Phone = user.Phone,
+            Telegram = user.Telegram,
         };
         
         return await _usersRepository.Update(fullUserData);
@@ -208,6 +239,10 @@ public class UserService : IUserService
             PasswordHash = _passwordHasher.HashPassword(newPassword),
             AvatarUrl = user.AvatarUrl,
             RoleId = user.RoleId,
+            Country = user.Country,
+            City = user.City,
+            Phone = user.Phone,
+            Telegram = user.Telegram,
         };
         
         return await _usersRepository.Update(userWithNewPassword);

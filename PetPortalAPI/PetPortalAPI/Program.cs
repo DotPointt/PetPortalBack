@@ -128,6 +128,9 @@ namespace PetPortalAPI
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
             services.AddScoped<IResetPasswordTokensRepository, ResetPasswordTokensRepository>();
             services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
+            services.AddScoped<IStackRepository, StackRepository>();
+            services.AddScoped<IExperienceRepository, ExperienceRepository>();
+            services.AddScoped<IEducationRepository, EducationRepository>();
 
             // Регистрация вспомогательных сервисов
             services.AddScoped<IPasswordHasher, PasswordHasher>();
