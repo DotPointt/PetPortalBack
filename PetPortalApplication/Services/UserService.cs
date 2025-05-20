@@ -82,9 +82,35 @@ public class UserService : IUserService
     /// Получить всех пользователей.
     /// </summary>
     /// <returns>Список пользователей.</returns>
-    public async Task<List<User>> GetAll()
+    public async Task<List<UserDto>> GetAll()
     {
-        return await _usersRepository.GetAll();
+        var users = await _usersRepository.GetAll();
+
+        var usersDtos = new List<UserDto>();
+        
+        foreach (var user in users)
+        {
+            var education = await _educationRepository.GetByUserId(user.Id);
+            var experience = await _experienceRepository.GetByUserId(user.Id);
+            var stack = await _stackRepository.GetByUserId(user.Id);
+            
+            usersDtos.Add(new UserDto()
+            {
+                Id = user.Id,
+                Name = user.Name,
+                City = user.City,
+                Country = user.Country,
+                Telegram = user.Telegram,
+                Phone = user.Phone,
+                Email = user.Email,
+                AvatarUrl = user.AvatarUrl,
+                Educations = education,
+                Experiences = experience,
+                Stacks = stack,
+            });
+        }
+        
+        return usersDtos;
     }
 
     /// <summary>
@@ -168,6 +194,30 @@ public class UserService : IUserService
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
+        if (userData.Educations.Count != 0)
+        {
+            foreach (var education in userData.Educations)
+            {
+                await _educationRepository.UpdateEducation(education);   
+            }
+        }
+
+        if (userData.Experiences.Count != 0)
+        {
+            foreach (var experience in userData.Experiences)
+            { 
+                await _experienceRepository.UpdateExperience(experience);
+            }
+        }
+
+        if (userData.Stacks.Count != 0)
+        {
+            foreach (var stack in userData.Stacks)
+            {
+                await _stackRepository.UpdateStack(stack);
+            }
+        }
+        
         return await _usersRepository.Update(userData);
     }
 
@@ -212,20 +262,55 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>
     /// <returns>Объект пользователя.</returns>
-    public async Task<User> GetUserById(Guid id)
+    public async Task<UserDto> GetUserById(Guid id)
     {
-        return await _usersRepository.GetById(id);
+        var user = await _usersRepository.GetById(id);
+        var experience = await _experienceRepository.GetByUserId(user.Id);
+        var education = await _educationRepository.GetByUserId(user.Id);
+        var stack = await _stackRepository.GetByUserId(user.Id);
+
+        return new UserDto()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            City = user.City,
+            Country = user.Country,
+            Telegram = user.Telegram,
+            Phone = user.Phone,
+            Email = user.Email,
+            AvatarUrl = user.AvatarUrl,
+            Educations = education,
+            Experiences = experience,
+            Stacks = stack,
+        }; 
     }
     
     /// <summary>
     /// Получить пользователя по почте
     /// </summary>
     /// <returns>Объект пользователя.</returns>
-    public async Task<User> GetUserByEmail(string email)
+    public async Task<UserDto> GetUserByEmail(string email)
     {
-        return await _usersRepository.GetByEmail(email);
+        var user = await _usersRepository.GetByEmail(email);
+        var experience = await _experienceRepository.GetByUserId(user.Id);
+        var education = await _educationRepository.GetByUserId(user.Id);
+        var stack = await _stackRepository.GetByUserId(user.Id);
+        
+        return new UserDto()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            City = user.City,
+            Country = user.Country,
+            Telegram = user.Telegram,
+            Phone = user.Phone,
+            Email = user.Email,
+            AvatarUrl = user.AvatarUrl,
+            Educations = education,
+            Experiences = experience,
+            Stacks = stack,
+        }; 
     }
-
     
     public async Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword)
     {

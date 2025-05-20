@@ -56,4 +56,19 @@ public class UserDto
     /// Идентификатор роли пользователя.
     /// </summary>
     public Guid RoleId { get; set; }
+    
+    /// <summary>
+    /// Образования.
+    /// </summary>
+    public List<EducationDto> Educations { get; set; }
+    
+    /// <summary>
+    /// Опыт работы.
+    /// </summary>
+    public List<ExperienceDto> Experiences { get; set; }
+    
+    /// <summary>
+    /// Стэки.
+    /// </summary>
+    public List<StackDto> Stacks { get; set; }
 }

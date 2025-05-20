@@ -13,7 +13,7 @@ public interface IUserService
     /// Получить всех пользователей.
     /// </summary>
     /// <returns>Список пользователей.</returns>
-    Task<List<User>> GetAll();
+    Task<List<UserDto>> GetAll();
 
     /// <summary>
     /// Получить проекты, созданные пользователем.
@@ -66,13 +66,13 @@ public interface IUserService
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>
     /// <returns>Объект пользователя.</returns>
-    public Task<User> GetUserById(Guid id);
+    public Task<UserDto> GetUserById(Guid id);
 
     /// <summary>
     /// Получить пользователя по почте
     /// </summary>
     /// <returns>Объект пользователя.</returns>
-    public Task<User> GetUserByEmail(string email);
+    public Task<UserDto> GetUserByEmail(string email);
 
 
     public Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword);

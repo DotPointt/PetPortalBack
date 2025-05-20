@@ -246,18 +246,8 @@ public class AuthorizationController : ControllerBase
             }
             
             var user = await _userService.GetUserById(userId);
-
-            var userDto = new UserDto()
-            {
-                Id = user.Id,
-                Email = user.Email,
-                Name = user.Name,
-                AvatarUrl = user.AvatarUrl,
-                PasswordHash = user.PasswordHash,
-                RoleId = user.RoleId
-            };
             
-            return Ok(userDto);
+            return Ok(user);
         }
         catch (Exception ex)
         {
