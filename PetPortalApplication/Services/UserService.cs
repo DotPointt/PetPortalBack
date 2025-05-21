@@ -19,6 +19,21 @@ public class UserService : IUserService
     private readonly IUsersRepository _usersRepository;
     
     /// <summary>
+    /// Репозиторий стэка пользователя.
+    /// </summary>
+    private readonly IStackRepository _stackRepository;
+    
+    /// <summary>
+    /// Репозиторий опыта работы пользователя.
+    /// </summary>
+    private readonly IExperienceRepository _experienceRepository;
+    
+    /// <summary>
+    /// Репозиторий образования пользователя.
+    /// </summary>
+    private readonly IEducationRepository _educationRepository;
+    
+    /// <summary>
     /// Репозиторий для работы с ролями.
     /// </summary>
     private readonly IRoleRepository _roleRepository;
@@ -46,23 +61,56 @@ public class UserService : IUserService
     /// <param name="jwtProvider">Провайдер JWT-токенов.</param>
     /// <param name="passwordHasher">Сервис хеширования паролей.</param>
     /// <param name="roleRepository">Репозиторий ролей.</param>
+    /// <param name="stackRepository">Репозиторий стэка пользователя.</param>
+    /// <param name="experienceRepository">Репозиторий опыта работы пользователя.</param>
+    /// <param name="educationRepository">Репозиторий образования пользователя.</param>
     public UserService(IUsersRepository usersRepository, IProjectsRepository projectsRepository, 
-        IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository)
+        IJwtProvider jwtProvider, IPasswordHasher passwordHasher, IRoleRepository roleRepository, 
+        IStackRepository stackRepository, IExperienceRepository experienceRepository, IEducationRepository educationRepository)
     {
         _projectsRepository = projectsRepository;
         _usersRepository = usersRepository;
         _jwtProvider = jwtProvider;
         _passwordHasher = passwordHasher;
         _roleRepository = roleRepository;
+        _stackRepository = stackRepository;
+        _experienceRepository = experienceRepository;
+        _educationRepository = educationRepository;
     }
     
     /// <summary>
     /// Получить всех пользователей.
     /// </summary>
     /// <returns>Список пользователей.</returns>
-    public async Task<List<User>> GetAll()
+    public async Task<List<UserDto>> GetAll()
     {
-        return await _usersRepository.GetAll();
+        var users = await _usersRepository.GetAll();
+
+        var usersDtos = new List<UserDto>();
+        
+        foreach (var user in users)
+        {
+            var education = await _educationRepository.GetByUserId(user.Id);
+            var experience = await _experienceRepository.GetByUserId(user.Id);
+            var stack = await _stackRepository.GetByUserId(user.Id);
+            
+            usersDtos.Add(new UserDto()
+            {
+                Id = user.Id,
+                Name = user.Name,
+                City = user.City,
+                Country = user.Country,
+                Telegram = user.Telegram,
+                Phone = user.Phone,
+                Email = user.Email,
+                AvatarUrl = user.AvatarUrl,
+                Educations = education,
+                Experiences = experience,
+                Stacks = stack,
+            });
+        }
+        
+        return usersDtos;
     }
 
     /// <summary>
@@ -93,13 +141,14 @@ public class UserService : IUserService
             throw new InvalidOperationException("Пользователь с такой почтой уже существует.");
         }
         
-        var (user, error) = PetPortalCore.Models.User.Create(
+        var (user, error) = PetPortalCore.Models.User.Register(
             Guid.NewGuid(),
             request.Name,
             request.Email,
             hashedPassword,
             DefaultValues.RoleId,
-            string.Empty); //TODO Указать путь к дефолтной аватарке.
+            string.Empty //TODO Указать путь к дефолтной аватарке.
+        ); 
             
         if (!string.IsNullOrEmpty(error))
         {
@@ -141,6 +190,76 @@ public class UserService : IUserService
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
+        if (userData.Educations.Count != 0)
+        {
+            foreach (var education in userData.Educations)
+            {
+                if (education.IsActive)
+                {
+                    if (education.Id == Guid.Empty)
+                    {
+                        education.Id = Guid.NewGuid();
+                        await _educationRepository.CreateEducation(education);
+                    }
+                    else
+                    {
+                        await _educationRepository.UpdateEducation(education); 
+                    }
+                }
+                else
+                {
+                    await _educationRepository.DeleteEducation(education.Id);
+                }
+            }
+        }
+
+        if (userData.Experiences.Count != 0)
+        {
+            foreach (var experience in userData.Experiences)
+            {
+                if (experience.IsActive)
+                {
+                    if (experience.Id == Guid.Empty)
+                    {
+                        experience.Id = Guid.NewGuid();
+                        await _experienceRepository.CreateExperience(experience);
+                    }
+                    else
+                    {
+                        await _experienceRepository.UpdateExperience(experience);
+                    }
+                }
+                else
+                {
+                    await _experienceRepository.CreateExperience(experience);
+                }
+                
+            }
+        }
+
+        if (userData.Stacks.Count != 0)
+        {
+            foreach (var stack in userData.Stacks)
+            {
+                if (stack.IsActive)
+                {
+                   if (stack.Id == Guid.Empty)
+                   {
+                       stack.Id = Guid.NewGuid();
+                       await _stackRepository.CreateStack(stack);
+                   }
+                   else
+                   {
+                       await _stackRepository.UpdateStack(stack);
+                   } 
+                }
+                else
+                {
+                    await _stackRepository.CreateStack(stack);
+                }
+            }
+        }
+        
         return await _usersRepository.Update(userData);
     }
 
@@ -158,9 +277,12 @@ public class UserService : IUserService
             Id = user.Id,            
             Name = user.Name,
             Email = user.Email,
-            PasswordHash = user.PasswordHash,
             AvatarUrl = userData.AvatarUrl,
             RoleId = user.RoleId,
+            Country = user.Country,
+            City = user.City,
+            Phone = user.Phone,
+            Telegram = user.Telegram,
         };
         
         return await _usersRepository.Update(fullUserData);
@@ -181,20 +303,55 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>
     /// <returns>Объект пользователя.</returns>
-    public async Task<User> GetUserById(Guid id)
+    public async Task<UserDto> GetUserById(Guid id)
     {
-        return await _usersRepository.GetById(id);
+        var user = await _usersRepository.GetById(id);
+        var experience = await _experienceRepository.GetByUserId(user.Id);
+        var education = await _educationRepository.GetByUserId(user.Id);
+        var stack = await _stackRepository.GetByUserId(user.Id);
+
+        return new UserDto()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            City = user.City,
+            Country = user.Country,
+            Telegram = user.Telegram,
+            Phone = user.Phone,
+            Email = user.Email,
+            AvatarUrl = user.AvatarUrl,
+            Educations = education,
+            Experiences = experience,
+            Stacks = stack,
+        }; 
     }
     
     /// <summary>
     /// Получить пользователя по почте
     /// </summary>
     /// <returns>Объект пользователя.</returns>
-    public async Task<User> GetUserByEmail(string email)
+    public async Task<UserDto> GetUserByEmail(string email)
     {
-        return await _usersRepository.GetByEmail(email);
+        var user = await _usersRepository.GetByEmail(email);
+        var experience = await _experienceRepository.GetByUserId(user.Id);
+        var education = await _educationRepository.GetByUserId(user.Id);
+        var stack = await _stackRepository.GetByUserId(user.Id);
+        
+        return new UserDto()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            City = user.City,
+            Country = user.Country,
+            Telegram = user.Telegram,
+            Phone = user.Phone,
+            Email = user.Email,
+            AvatarUrl = user.AvatarUrl,
+            Educations = education,
+            Experiences = experience,
+            Stacks = stack,
+        }; 
     }
-
     
     public async Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword)
     {
@@ -208,6 +365,10 @@ public class UserService : IUserService
             PasswordHash = _passwordHasher.HashPassword(newPassword),
             AvatarUrl = user.AvatarUrl,
             RoleId = user.RoleId,
+            Country = user.Country,
+            City = user.City,
+            Phone = user.Phone,
+            Telegram = user.Telegram,
         };
         
         return await _usersRepository.Update(userWithNewPassword);

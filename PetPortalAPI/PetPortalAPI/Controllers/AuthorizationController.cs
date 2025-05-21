@@ -196,7 +196,18 @@ public class AuthorizationController : ControllerBase
     {
         try
         {
-            var user = await CurrentUser();
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
+            }
+
+            if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
+            }
+            
+            var user = await _userService.GetUserById(userId);
 
             if (user.Id != userData.Id)
             {
@@ -209,7 +220,7 @@ public class AuthorizationController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { error = ex.ToString() });
+            return BadRequest(ex.ToString());
         }
     }
    
@@ -223,19 +234,20 @@ public class AuthorizationController : ControllerBase
     {
         try
         {
-            var user = await CurrentUser();
-
-            var userDto = new UserDto()
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
             {
-                Id = user.Id,
-                Email = user.Email,
-                Name = user.Name,
-                AvatarUrl = user.AvatarUrl,
-                Password = user.PasswordHash,
-                RoleId = user.RoleId
-            };
+                throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
+            }
+
+            if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
+            }
             
-            return Ok(userDto);
+            var user = await _userService.GetUserById(userId);
+            
+            return Ok(user);
         }
         catch (Exception ex)
         {
@@ -243,6 +255,7 @@ public class AuthorizationController : ControllerBase
         }
     }
 
+    /*
     /// <summary>
     /// Получение текущего пользователя.
     /// </summary>
@@ -266,4 +279,5 @@ public class AuthorizationController : ControllerBase
         
         return await _userService.GetUserById(userId);
     }
+    */
 }

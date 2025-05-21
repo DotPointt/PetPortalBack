@@ -59,20 +59,8 @@ public class UsersController : ControllerBase
         try
         {
             var users = await _userService.GetAll();
-            
-            var response = users
-                .Select(p => 
-                    new UserDto()
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Email = p.Email,
-                        Password = p.PasswordHash,
-                        AvatarUrl = p.AvatarUrl,
-                    }
-                );
 
-            return Ok(response);
+            return Ok(users);
         }
         catch (Exception ex)
         {

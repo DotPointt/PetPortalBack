@@ -9,7 +9,7 @@ namespace PetPortalAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class PaymentController : Controller
+public class PaymentController : ControllerBase
 {
     private readonly IPaymentService _paymentService;
     

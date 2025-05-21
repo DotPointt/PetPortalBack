@@ -57,7 +57,11 @@ public class UsersRepository : IUsersRepository
             user.Email, 
             user.PasswordHash, 
             user.RoleId, 
-            user.AvatarUrl
+            user.AvatarUrl,
+            user.Country,
+            user.City,
+            user.Phone,
+            user.Telegram
         ).user;
     }
 
@@ -71,13 +75,15 @@ public class UsersRepository : IUsersRepository
             .AsNoTracking()
             .Where(user => user.Id == userId)
             .FirstOrDefaultAsync();
-        
-        if (user == null && throwNullException)
-            throw new Exception("User not found");
-        else if (user == null)
-            return null;
-        
-        return User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user;
+
+        return user switch
+        {
+            null when throwNullException => throw new Exception("User not found"),
+            null => null,
+            _ => User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl,
+                    user.Country, user.City, user.Phone, user.Telegram)
+                .user
+        };
     }
     
     
@@ -93,7 +99,7 @@ public class UsersRepository : IUsersRepository
 
         var users = userEntities
             .Select(user =>
-                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl).user)
+                User.Create(user.Id, user.Name, user.Email, user.PasswordHash, user.RoleId, user.AvatarUrl, user.Country, user.City, user.Phone, user.Telegram).user)
             .ToList();
 
         return users;
@@ -112,6 +118,10 @@ public class UsersRepository : IUsersRepository
             Name = user.Name,
             Email = user.Email,
             PasswordHash = user.PasswordHash,
+            Country = user.Country,
+            City = user.City,
+            Phone = user.Phone,
+            Telegram = user.Telegram,
             RoleId = user.RoleId,
             AvatarUrl = user.AvatarUrl,
         };
@@ -132,7 +142,7 @@ public class UsersRepository : IUsersRepository
         var existingUserEntity = await _context.Users
             .FirstOrDefaultAsync(p => p.Id == userData.Id);
         
-        UserEntity mappedUser = userData.Adapt<UserEntity>();
+        var mappedUser = userData.Adapt<UserEntity>();
         
         _context.Entry((UserEntity)existingUserEntity).CurrentValues.SetValues(mappedUser);
 

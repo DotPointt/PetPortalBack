@@ -14,6 +14,26 @@ public class UserDto
     /// Имя пользователя.
     /// </summary>
     public string Name { get; set; }
+    
+    /// <summary>
+    /// Страна проживания.
+    /// </summary>
+    public string Country { get; set; }
+    
+    /// <summary>
+    /// Город проживания.
+    /// </summary>
+    public string City { get; set; }
+    
+    /// <summary>
+    /// Номер телефона.
+    /// </summary>
+    public string Phone { get; set; }
+    
+    /// <summary>
+    /// Телеграм аккаунт.
+    /// </summary>
+    public string Telegram { get; set; }
         
     /// <summary>
     /// Электронная почта пользователя.
@@ -36,4 +56,19 @@ public class UserDto
     /// Идентификатор роли пользователя.
     /// </summary>
     public Guid RoleId { get; set; }
+    
+    /// <summary>
+    /// Образования.
+    /// </summary>
+    public List<EducationDto> Educations { get; set; }
+    
+    /// <summary>
+    /// Опыт работы.
+    /// </summary>
+    public List<ExperienceDto> Experiences { get; set; }
+    
+    /// <summary>
+    /// Стэки.
+    /// </summary>
+    public List<StackDto> Stacks { get; set; }
 }
