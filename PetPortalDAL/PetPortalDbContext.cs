@@ -44,6 +44,21 @@ public class PetPortalDbContext : DbContext
     public DbSet<TagEntity> Tags { get; set; }
     
     /// <summary>
+    /// Образования пользователей.
+    /// </summary>
+    public DbSet<EducationEntity> Educations { get; set; }
+    
+    /// <summary>
+    /// Опыт работы пользователей.
+    /// </summary>
+    public DbSet<ExperienceEntity> Experiences { get; set; }
+    
+    /// <summary>
+    /// Стэки пользователей.
+    /// </summary>
+    public DbSet<StackEntity> Stacks { get; set; }
+    
+    /// <summary>
     /// Сообщения в чатах.
     /// </summary>
     public DbSet<ChatMessageEntity> ChatMessages { get; set; }
@@ -87,7 +102,9 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new ChatRoomConfiguration());
         builder.ApplyConfiguration(new ChatRoomUserConfiguration());
         builder.ApplyConfiguration(new ResetPasswordTokensConfigurations());
-        
+        builder.ApplyConfiguration(new EducationConfiguration());
+        builder.ApplyConfiguration(new ExperienceConfiguration());
+        builder.ApplyConfiguration(new StackConfiguration());
         
         #endregion
 
@@ -103,6 +120,27 @@ public class PetPortalDbContext : DbContext
             .HasOne(user => user.RoleEntity)
             .WithMany(role => role.Users)
             .HasForeignKey(user => user.RoleId);
+        
+        // Связь User -> Education (1 ко многим)
+        builder.Entity<EducationEntity>()
+            .HasOne(e => e.User)
+            .WithMany(u => u.Educations)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Связь User -> Experience (1 ко многим)
+        builder.Entity<ExperienceEntity>()
+            .HasOne(e => e.User)
+            .WithMany(u => u.Experiences)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Связь User -> Stack (1 ко многим)
+        builder.Entity<StackEntity>()
+            .HasOne(s => s.User)
+            .WithMany(u => u.Stacks)
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         #endregion
 
