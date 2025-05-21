@@ -14,9 +14,8 @@ public interface IEducationRepository
     /// <summary>
     /// Создать новые образования.
     /// </summary>
-    /// <param name="educations">Образования.</param>
-    /// <param name="userId">Идентифкатор пользователя.</param>
-    Task CreateEducations(List<EducationDto> educations, Guid userId);
+    /// <param name="education">Образования.</param>
+    Task CreateEducation(EducationDto education);
 
     /// <summary>
     /// Обновление образования пользователя.

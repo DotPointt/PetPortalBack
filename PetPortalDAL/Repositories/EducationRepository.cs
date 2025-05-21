@@ -53,22 +53,19 @@ public class EducationRepository : IEducationRepository
     /// <summary>
     /// Создать новые образования.
     /// </summary>
-    /// <param name="educations">Образования.</param>
-    /// <param name="userId">Идентифкатор пользователя.</param>
-    public async Task CreateEducations(List<EducationDto> educations, Guid userId)
+    /// <param name="education">Образования.</param>
+    public async Task CreateEducation(EducationDto education)
     {
-        var educationEntities = educations
-            .Select(education => new EducationEntity()
-            {
-                Id = education.Id,
-                ReleaseYear = education.ReleaseYear,
-                Speciality = education.Speciality,
-                University = education.University,
-                UserId = userId,
-            })
-            .ToList();
-        
-        await _context.Educations.AddRangeAsync(educationEntities);
+        var educationEntity = new EducationEntity()
+        {
+            Id = education.Id,
+            ReleaseYear = education.ReleaseYear,
+            Speciality = education.Speciality,
+            University = education.University,
+            UserId = education.UserId,
+        };
+            
+        await _context.Educations.AddAsync(educationEntity);
         await _context.SaveChangesAsync();
     }
 
@@ -82,6 +79,11 @@ public class EducationRepository : IEducationRepository
         var existingEducationEntity = await _context.Educations
             .FirstOrDefaultAsync(e => e.Id == education.Id);
 
+        if (existingEducationEntity == null)
+        {
+            throw new KeyNotFoundException("Education not found");
+        }
+        
         var educationEntity = new EducationEntity()
         {
             Id = education.Id,

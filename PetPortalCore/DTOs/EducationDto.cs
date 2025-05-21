@@ -8,7 +8,7 @@ public class EducationDto
     /// <summary>
     /// Идентификатор.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.Empty;
     
     /// <summary>
     /// Университет.
@@ -29,4 +29,9 @@ public class EducationDto
     /// Идентификатор пользователя.
     /// </summary>
     public Guid UserId { get; set; }
+    
+    /// <summary>
+    /// Флаг для удаления не использующихся образований.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }

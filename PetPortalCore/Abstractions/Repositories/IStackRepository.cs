@@ -14,9 +14,8 @@ public interface IStackRepository
     /// <summary>
     /// Добавить стэк.
     /// </summary>
-    /// <param name="stackDtos">Список стэков пользователя.</param>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    Task CreateStacks(List<StackDto> stackDtos, Guid userId);
+    /// <param name="stackDto">Список стэков пользователя.</param>
+    Task CreateStack(StackDto stackDto);
 
     /// <summary>
     /// Обновление стэка пользователя.

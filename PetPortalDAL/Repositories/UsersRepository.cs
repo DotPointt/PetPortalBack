@@ -142,7 +142,7 @@ public class UsersRepository : IUsersRepository
         var existingUserEntity = await _context.Users
             .FirstOrDefaultAsync(p => p.Id == userData.Id);
         
-        UserEntity mappedUser = userData.Adapt<UserEntity>();
+        var mappedUser = userData.Adapt<UserEntity>();
         
         _context.Entry((UserEntity)existingUserEntity).CurrentValues.SetValues(mappedUser);
 

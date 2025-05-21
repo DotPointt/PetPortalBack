@@ -8,7 +8,7 @@ public class StackDto
     /// <summary>
     /// Идентификатор.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; set; }  = Guid.Empty;
     
     /// <summary>
     /// Язык программирования.
@@ -29,4 +29,9 @@ public class StackDto
     /// Идентификатор пользователя.
     /// </summary>
     public Guid UserId { get; set; }
+    
+    /// <summary>
+    /// Флаг для удаления не использующихся стэков.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }

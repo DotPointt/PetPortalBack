@@ -2,6 +2,9 @@ using PetPortalCore.DTOs;
 
 namespace PetPortalCore.Abstractions.Repositories;
 
+/// <summary>
+/// Репозиторий опыта работы пользователя.
+/// </summary>
 public interface IExperienceRepository
 {
     /// <summary>
@@ -14,9 +17,8 @@ public interface IExperienceRepository
     /// <summary>
     /// Добавить опыт работы.
     /// </summary>
-    /// <param name="experienceDtos">Список опыта работы.</param>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    Task CreateExperiences(List<ExperienceDto> experienceDtos, Guid userId);
+    /// <param name="experienceDto">Список опыта работы.</param>
+    Task CreateExperience(ExperienceDto experienceDto);
 
     /// <summary>
     /// Обновление опыта работы пользователя.

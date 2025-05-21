@@ -220,7 +220,7 @@ public class AuthorizationController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { error = ex.ToString() });
+            return BadRequest(ex.ToString());
         }
     }
    

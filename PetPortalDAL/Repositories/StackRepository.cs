@@ -53,22 +53,19 @@ public class StackRepository : IStackRepository
     /// <summary>
     /// Добавить стэк.
     /// </summary>
-    /// <param name="stackDtos">Список стэков пользователя.</param>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    public async Task CreateStacks(List<StackDto> stackDtos, Guid userId)
+    /// <param name="stackDto">Стэк пользователя.</param>
+    public async Task CreateStack(StackDto stackDto)
     {
-        var stackEntities = stackDtos
-            .Select(stack => new StackEntity()
-            {
-                Id = stack.Id,
-                ProgrammingLanguage = stack.ProgrammingLanguage,
-                ProgrammingLevel = stack.ProgrammingLevel,
-                ProgrammingYears = stack.ProgrammingYears,
-                UserId = userId,
-            })
-            .ToList();
+        var stackEntity= new StackEntity()
+        {
+            Id = stackDto.Id,
+            ProgrammingLanguage = stackDto.ProgrammingLanguage,
+            ProgrammingLevel = stackDto.ProgrammingLevel,
+            ProgrammingYears = stackDto.ProgrammingYears,
+            UserId = stackDto.UserId,
+        };
         
-        await _context.Stacks.AddRangeAsync(stackEntities);
+        await _context.Stacks.AddRangeAsync(stackEntity);
         await _context.SaveChangesAsync();
     }
     
@@ -82,6 +79,11 @@ public class StackRepository : IStackRepository
         var existingStackEntity = await _context.Stacks
             .FirstOrDefaultAsync(s => s.Id == stackDto.Id);
 
+        if (existingStackEntity == null)
+        {
+            throw new NullReferenceException("Stack not found");
+        }
+        
         var stackEntity = new StackEntity()
         {
             Id = stackDto.Id,

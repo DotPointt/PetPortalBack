@@ -53,22 +53,19 @@ public class ExperienceRepository : IExperienceRepository
     /// <summary>
     /// Добавить опыт работы.
     /// </summary>
-    /// <param name="experienceDtos">Список опыта работы.</param>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    public async Task CreateExperiences(List<ExperienceDto> experienceDtos, Guid userId)
+    /// <param name="experienceDto">Список опыта работы.</param>
+    public async Task CreateExperience(ExperienceDto experienceDto)
     {
-        var experienceEntities = experienceDtos
-            .Select(experience => new ExperienceEntity()
-            {
-                Id = experience.Id,
-                WorkPlace = experience.WorkPlace,
-                WorkPosition = experience.WorkPosition,
-                WorkYears = experience.WorkYears,
-                UserId = userId,
-            })
-            .ToList();
+        var experienceEntity = new ExperienceEntity()
+        {
+            Id = experienceDto.Id,
+            WorkPlace = experienceDto.WorkPlace,
+            WorkPosition = experienceDto.WorkPosition,
+            WorkYears = experienceDto.WorkYears,
+            UserId = experienceDto.UserId,
+        };
         
-        await _context.Experiences.AddRangeAsync(experienceEntities);
+        await _context.Experiences.AddAsync(experienceEntity);
         await _context.SaveChangesAsync();
     }
 
@@ -82,6 +79,11 @@ public class ExperienceRepository : IExperienceRepository
         var existingExperienceEntity = await _context.Experiences
             .FirstOrDefaultAsync(e => e.Id == experience.Id);
 
+        if (existingExperienceEntity == null)
+        {
+            throw new KeyNotFoundException("Experience not found");
+        }
+        
         var experienceEntity = new ExperienceEntity()
         {
             Id = experience.Id,

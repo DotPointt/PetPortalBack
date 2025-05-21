@@ -48,8 +48,12 @@ public class MembersController : ControllerBase
                         Id = p.Id,
                         Name = p.Name,
                         Email = p.Email,
-                        PasswordHash = p.PasswordHash,
                         RoleId = p.RoleId,
+                        AvatarUrl = p.AvatarUrl,
+                        Country = p.Country,
+                        City = p.City,
+                        Phone = p.Phone,
+                        Telegram = p.Telegram,
                     }
                 );
 

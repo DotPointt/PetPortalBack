@@ -141,17 +141,13 @@ public class UserService : IUserService
             throw new InvalidOperationException("Пользователь с такой почтой уже существует.");
         }
         
-        var (user, error) = PetPortalCore.Models.User.Create(
+        var (user, error) = PetPortalCore.Models.User.Register(
             Guid.NewGuid(),
             request.Name,
             request.Email,
             hashedPassword,
             DefaultValues.RoleId,
-            string.Empty, //TODO Указать путь к дефолтной аватарке.
-            request.Country,
-            request.City,
-            request.Phone,
-            request.Telegram
+            string.Empty //TODO Указать путь к дефолтной аватарке.
         ); 
             
         if (!string.IsNullOrEmpty(error))
@@ -198,15 +194,46 @@ public class UserService : IUserService
         {
             foreach (var education in userData.Educations)
             {
-                await _educationRepository.UpdateEducation(education);   
+                if (education.IsActive)
+                {
+                    if (education.Id == Guid.Empty)
+                    {
+                        education.Id = Guid.NewGuid();
+                        await _educationRepository.CreateEducation(education);
+                    }
+                    else
+                    {
+                        await _educationRepository.UpdateEducation(education); 
+                    }
+                }
+                else
+                {
+                    await _educationRepository.DeleteEducation(education.Id);
+                }
             }
         }
 
         if (userData.Experiences.Count != 0)
         {
             foreach (var experience in userData.Experiences)
-            { 
-                await _experienceRepository.UpdateExperience(experience);
+            {
+                if (experience.IsActive)
+                {
+                    if (experience.Id == Guid.Empty)
+                    {
+                        experience.Id = Guid.NewGuid();
+                        await _experienceRepository.CreateExperience(experience);
+                    }
+                    else
+                    {
+                        await _experienceRepository.UpdateExperience(experience);
+                    }
+                }
+                else
+                {
+                    await _experienceRepository.CreateExperience(experience);
+                }
+                
             }
         }
 
@@ -214,7 +241,22 @@ public class UserService : IUserService
         {
             foreach (var stack in userData.Stacks)
             {
-                await _stackRepository.UpdateStack(stack);
+                if (stack.IsActive)
+                {
+                   if (stack.Id == Guid.Empty)
+                   {
+                       stack.Id = Guid.NewGuid();
+                       await _stackRepository.CreateStack(stack);
+                   }
+                   else
+                   {
+                       await _stackRepository.UpdateStack(stack);
+                   } 
+                }
+                else
+                {
+                    await _stackRepository.CreateStack(stack);
+                }
             }
         }
         
@@ -235,7 +277,6 @@ public class UserService : IUserService
             Id = user.Id,            
             Name = user.Name,
             Email = user.Email,
-            PasswordHash = user.PasswordHash,
             AvatarUrl = userData.AvatarUrl,
             RoleId = user.RoleId,
             Country = user.Country,

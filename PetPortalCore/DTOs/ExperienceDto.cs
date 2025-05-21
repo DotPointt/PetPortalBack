@@ -8,7 +8,7 @@ public class ExperienceDto
     /// <summary>
     /// Идентификатор.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; set; }  = Guid.Empty;
     
     /// <summary>
     /// Место работы.
@@ -29,4 +29,9 @@ public class ExperienceDto
     /// Идентификатор пользователя.
     /// </summary>
     public Guid UserId { get; set; }
+    
+    /// <summary>
+    /// Флаг для удаления не использующегося опыта работы.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }
