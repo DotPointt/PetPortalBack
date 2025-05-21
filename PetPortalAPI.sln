@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetPortalCore", "PetPortalC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetPortalDAL", "PetPortalDAL\PetPortalDAL.csproj", "{9E57A99B-4DB5-4127-8098-0A3B21618EA5}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{A66BC3FF-B44D-4FA2-AC1D-61DDE8B3FE5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{9E57A99B-4DB5-4127-8098-0A3B21618EA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E57A99B-4DB5-4127-8098-0A3B21618EA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E57A99B-4DB5-4127-8098-0A3B21618EA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A66BC3FF-B44D-4FA2-AC1D-61DDE8B3FE5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A66BC3FF-B44D-4FA2-AC1D-61DDE8B3FE5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A66BC3FF-B44D-4FA2-AC1D-61DDE8B3FE5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A66BC3FF-B44D-4FA2-AC1D-61DDE8B3FE5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

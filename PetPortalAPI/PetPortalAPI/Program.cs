@@ -26,6 +26,24 @@ namespace PetPortalAPI
             ConfigureServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();
+
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<PetPortalDbContext>();
+                    context.Database.Migrate(); // Применяет миграции
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while migrating the database.");
+                }
+            }
+
+
             ConfigureApp(app);
         }
 
