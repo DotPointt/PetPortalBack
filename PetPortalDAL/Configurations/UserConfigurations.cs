@@ -25,5 +25,17 @@ public class UserConfigurations : IEntityTypeConfiguration<UserEntity>
 
         builder.Property(user => user.PasswordHash)
             .IsRequired();
+        
+        builder.Property(user => user.Phone)
+            .IsRequired(false);
+
+        builder.Property(user => user.City)
+            .IsRequired(false);
+
+        builder.Property(user => user.Country)
+            .IsRequired(false);
+
+        builder.Property(user => user.Telegram)
+            .IsRequired(false);
     }
 }
