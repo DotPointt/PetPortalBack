@@ -42,6 +42,7 @@ public class MinioService : IMinioService
                 ServiceURL = config.ServiceUrl, 
                 ForcePathStyle = true 
             });
+        Console.WriteLine($"===============================ServiceUrl=========================\n: {config.ServiceUrl}");
 
         _bucketName = config.BucketName; 
         _defaultKey = config.DefaultKey; 

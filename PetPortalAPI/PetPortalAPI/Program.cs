@@ -26,7 +26,33 @@ namespace PetPortalAPI
             ConfigureServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<PetPortalDbContext>();
+                    context.Database.Migrate(); // Применяет миграции
+                    Console.WriteLine("DB MIGRATED =========================\n");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occurred while migrating the database.");
+                }
+            }
+
             ConfigureApp(app);
+
+
+            var minioConfig = builder.Configuration.GetSection("MinioConfig").Get<MinIOConfig>();
+            Console.WriteLine($"MinioConfig loaded: {minioConfig != null}");
+            if (minioConfig == null)
+            {
+                Console.WriteLine("Ошибка: MinioConfig не найден в appsettings.json");
+                throw new InvalidOperationException("MinioConfig не загружен");
+            }
+
         }
 
         /// <summary>
@@ -76,7 +102,7 @@ namespace PetPortalAPI
             
             // Регистрация конфигураций из appsettings.json
             services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions))); // Конфигурация JWT
-            services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig")); // Конфигурация MinIO
+
             services.Configure<EmailConfig>(configuration.GetSection("SmtpSettings")); // Конфигурация SMTPMailSender
             
             services.AddStackExchangeRedisCache(options =>
@@ -96,9 +122,9 @@ namespace PetPortalAPI
             {
                 c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\PetPortalAPI.xml");
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PetPortalAPI.xml"));
                 
-                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\PetPortalCore.xml");
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PetPortalCore.xml"));
             });
 
             // Настройка контекста базы данных
@@ -107,8 +133,10 @@ namespace PetPortalAPI
                 options.UseNpgsql(configuration.GetConnectionString(nameof(PetPortalDbContext))); 
             });
 
+            services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig")); // Конфигурация MinIO
+
             #region Внедрение зависимостей (DI)
-            
+
             // Регистрация сервисов
             services.AddScoped<IProjectsService, ProjectService>();
             services.AddScoped<IUserService, UserService>();
@@ -156,8 +184,8 @@ namespace PetPortalAPI
         private static void ConfigureApp(WebApplication app)
         {
             // Включение Swagger в режиме разработки
-            if (app.Environment.IsDevelopment())
-            {
+            //if (app.Environment.IsDevelopment())
+            //{
                 app.UseSwagger();
                 app.UseSwaggerUI();
                 
@@ -167,7 +195,7 @@ namespace PetPortalAPI
                     var context = scope.ServiceProvider.GetRequiredService<PetPortalDbContext>();
                     DbInitializer.Seed(context);  
                 }
-            }
+            //}
 
             // Перенаправление на HTTPS
             app.UseHttpsRedirection();

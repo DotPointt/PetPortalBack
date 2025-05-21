@@ -29,4 +29,6 @@ public class MinIOConfig
     /// Имя файла по умолчанию для аватара.
     /// </summary>
     public string DefaultKey { get; set; } = string.Empty;
+
+    public string Region { get; set; } = string.Empty;
 }
