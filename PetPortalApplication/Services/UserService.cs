@@ -266,26 +266,12 @@ public class UserService : IUserService
     /// <summary>
     /// Обновление аватара пользователя.
     /// </summary>
-    /// <param name="userData">Данные пользователя с новым аватаром.</param>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="avatarUrl">Путь к аватару.</param>
     /// <returns>Идентификатор обновленного пользователя.</returns>
-    public async Task<Guid> UpdateAvatar(UserDto userData)
+    public async Task<Guid> UpdateAvatar(Guid userId, string avatarUrl)
     {
-        var user = await _usersRepository.GetById(userData.Id);
-        
-        var fullUserData = new UserDto()
-        {
-            Id = user.Id,            
-            Name = user.Name,
-            Email = user.Email,
-            AvatarUrl = userData.AvatarUrl,
-            RoleId = user.RoleId,
-            Country = user.Country,
-            City = user.City,
-            Phone = user.Phone,
-            Telegram = user.Telegram,
-        };
-        
-        return await _usersRepository.Update(fullUserData);
+        return await _usersRepository.UpdateAvatar(userId, avatarUrl);
     }
 
     /// <summary>

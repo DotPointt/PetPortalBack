@@ -151,6 +151,23 @@ public class UsersRepository : IUsersRepository
     }
 
     /// <summary>
+    /// Обновить только аватар.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="avatarUrl">путь к файлу аватара.</param>
+    /// <returns>Идентификатор пользователя.</returns>
+    public async Task<Guid> UpdateAvatar(Guid userId, string avatarUrl)
+    {
+        await _context.Users
+            .Where(user => user.Id == userId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(user => user.AvatarUrl, avatarUrl)
+            );
+
+        return userId;
+    }
+
+    /// <summary>
     /// Удалить пользователя из базы данных.
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>

@@ -43,6 +43,14 @@ public interface IUsersRepository
     /// <param name="userData">Обновленные данные пользователя.</param>
     /// <returns>Идентификатор обновленного пользователя.</returns>
     Task<Guid> Update(UserDto userData);
+
+    /// <summary>
+    /// Обновить только аватар.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="avatarUrl">путь к файлу аватара.</param>
+    /// <returns>Идентификатор пользователя.</returns>
+    Task<Guid> UpdateAvatar(Guid userId, string avatarUrl);
         
     /// <summary>
     /// Удалить пользователя.
