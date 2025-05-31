@@ -190,7 +190,7 @@ public class UserService : IUserService
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
-        if (userData.Educations.Count != 0)
+        if (userData.Educations is not null)
         {
             foreach (var education in userData.Educations)
             {
@@ -213,7 +213,7 @@ public class UserService : IUserService
             }
         }
 
-        if (userData.Experiences.Count != 0)
+        if (userData.Experiences is not null)
         {
             foreach (var experience in userData.Experiences)
             {
@@ -237,7 +237,7 @@ public class UserService : IUserService
             }
         }
 
-        if (userData.Stacks.Count != 0)
+        if (userData.Stacks is not null)
         {
             foreach (var stack in userData.Stacks)
             {
