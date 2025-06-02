@@ -45,8 +45,9 @@ public class ProjectsRepository : IProjectsRepository
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {
             "date" => project => project.CreatedDate,
-            "name" => project => project.Name,
+            "budget" => project => project.Budget,
             "applyingdeadline" => project => project.ApplyingDeadline,
+            "deadline" => project => project.Deadline,
             _ => project => project.Id
         };
 
