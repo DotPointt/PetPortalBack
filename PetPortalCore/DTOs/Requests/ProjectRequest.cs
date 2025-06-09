@@ -36,4 +36,9 @@ public class ProjectRequest
     /// </summary>
     [DefaultValue(1)]
     public int Page { get; set; } = 1;
+    
+    /// <summary>
+    /// Фильтры
+    /// </summary>
+    public ProjectFilterDTO? Filters { get; set; }
 }

@@ -180,6 +180,9 @@ namespace PetPortalDAL.Migrations
                     b.Property<DateTime?>("ApplyingDeadline")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<long>("Budget")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -189,6 +192,9 @@ namespace PetPortalDAL.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsBusinesProject")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -209,6 +215,9 @@ namespace PetPortalDAL.Migrations
                     b.Property<string>("Result")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("StateOfProject")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TeamDescription")
                         .IsRequired()

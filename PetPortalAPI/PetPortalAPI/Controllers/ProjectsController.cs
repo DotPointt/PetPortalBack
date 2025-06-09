@@ -67,7 +67,7 @@ public class ProjectsController : ControllerBase
 
         try
         {
-            var projects = await _projectsService.GetPaginatedFiltered(request.SortOrder, request.SortItem, request.SearchElement, request.Offset, request.Page);
+            var projects = await _projectsService.GetPaginatedFiltered(request.SortOrder, request.SortItem, request.SearchElement, request.Offset, request.Page, request.Filters);
 
             var response = new GetProjectsDto();
             var imageBase64 = "";
@@ -86,7 +86,7 @@ public class ProjectsController : ControllerBase
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    Description = p.Description,
+                    Description = p.Description,    
                     Requirements = p.Requirements,
                     TeamDescription = p.TeamDescription,
                     Plan = p.Plan,
