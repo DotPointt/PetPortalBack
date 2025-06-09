@@ -36,7 +36,7 @@ public class ProjectsRepository : IProjectsRepository
     /// <param name="offset">Количество проектов на странице.</param>`
     /// <param name="page">Номер страницы.</param>
     /// <returns>Список отсортированных проектов.</returns>
-    public async Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1)
+    public async Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1, ProjectFilterDTO filters = null)
     {
         var projectsQuery = _context.Projects
             .AsNoTracking()
@@ -45,34 +45,57 @@ public class ProjectsRepository : IProjectsRepository
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {
             "date" => project => project.CreatedDate,
-            "name" => project => project.Name,
+            "budget" => project => project.Budget,
             "applyingdeadline" => project => project.ApplyingDeadline,
+            "deadline" => project => project.Deadline,
             _ => project => project.Id
         };
 
-        projectsQuery = sortOrder
+        projectsQuery = sortOrder   
             ? projectsQuery.OrderBy(selectorKey)
             : projectsQuery.OrderByDescending(selectorKey);
 
+        // 🔍 Фильтр: Role
+        // if (!string.IsNullOrEmpty(filters?.Role))
+        // {
+        //     projectsQuery = projectsQuery.Where(p => p. == filters.Role);
+        // }
+        
+        if (!string.IsNullOrEmpty(filters?.Deadline))
+        {
+            if (DateTime.TryParse(filters.Deadline, out var deadlineDate))
+            {
+                projectsQuery = projectsQuery.Where(p => p.Deadline >= deadlineDate);
+            }
+        }
+        
+        if ( filters != null && filters.IsCommercial.HasValue)
+        {
+            projectsQuery = projectsQuery.Where(p => p.IsBusinesProject == filters.IsCommercial.Value);
+        }
+        
         var projectsEntities = await projectsQuery
             .Skip((page - 1) * offset)
             .Take(offset)
             .ToListAsync();
         
         var projects = projectsEntities
-            .Select(project =>
-                Project.Create(project.Id,
-                    project.Name, 
-                    project.Description, 
-                    project.Requirements,
-                    project.TeamDescription,
-                    project.Result,
-                    project.Plan,
-                    project.OwnerId,
-                    project.Deadline,
-                    project.ApplyingDeadline,
-                    project.StateOfProject
-                    ).project)
+            .Select(project => new Project
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                Requirements = project.Requirements,
+                TeamDescription = project.TeamDescription,
+                Plan = project.Plan,
+                Result = project.Result,
+                OwnerId = project.OwnerId,
+                Deadline = project.Deadline,
+                ApplyingDeadline = project.ApplyingDeadline,
+                StateOfProject = project.StateOfProject,
+                IsBusinesProject = project.IsBusinesProject,
+                Budget = project.Budget
+            })
             .ToList();
 
         return projects;
@@ -91,19 +114,22 @@ public class ProjectsRepository : IProjectsRepository
             .ToListAsync();
         
         var projects = projectsEntities
-            .Select(project =>
-                Project.Create(project.Id,
-                    project.Name, 
-                    project.Description, 
-                    project.Requirements,
-                    project.TeamDescription,
-                    project.Result,
-                    project.Plan,
-                    project.OwnerId,
-                    project.Deadline,
-                    project.ApplyingDeadline,
-                    project.StateOfProject
-                ).project)
+            .Select(project => new Project
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                Requirements = project.Requirements,
+                TeamDescription = project.TeamDescription,
+                Plan = project.Plan,
+                Result = project.Result,
+                OwnerId = project.OwnerId,
+                Deadline = project.Deadline,
+                ApplyingDeadline = project.ApplyingDeadline,
+                StateOfProject = project.StateOfProject,
+                IsBusinesProject = project.IsBusinesProject,
+                Budget = project.Budget
+            })
             .ToList();
 
         return projects;
@@ -120,19 +146,22 @@ public class ProjectsRepository : IProjectsRepository
             .ToListAsync();
 
         var projects = projectsEntities
-            .Select(project =>
-                Project.Create(project.Id,
-                    project.Name, 
-                    project.Description, 
-                    project.Requirements,
-                    project.TeamDescription,
-                    project.Result,
-                    project.Plan,
-                    project.OwnerId,
-                    project.Deadline,
-                    project.ApplyingDeadline,
-                    project.StateOfProject
-                ).project)
+            .Select(project => new Project
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                Requirements = project.Requirements,
+                TeamDescription = project.TeamDescription,
+                Plan = project.Plan,
+                Result = project.Result,
+                OwnerId = project.OwnerId,
+                Deadline = project.Deadline,
+                ApplyingDeadline = project.ApplyingDeadline,
+                StateOfProject = project.StateOfProject,
+                IsBusinesProject = project.IsBusinesProject,
+                Budget = project.Budget
+            })
             .ToList();
 
         return projects;
@@ -153,8 +182,23 @@ public class ProjectsRepository : IProjectsRepository
         
         if (project == null)
             throw new Exception("Проект не найден.");
-        
-        return Project.Create(project.Id, project.Name, project.Description, project.Requirements, project.TeamDescription, project.Plan, project.Result, project.OwnerId, project.Deadline, project.ApplyingDeadline, project.StateOfProject).project;
+
+        return new Project
+        {
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            Requirements = project.Requirements,
+            TeamDescription = project.TeamDescription,
+            Plan = project.Plan,
+            Result = project.Result,
+            OwnerId = project.OwnerId,
+            Deadline = project.Deadline,
+            ApplyingDeadline = project.ApplyingDeadline,
+            StateOfProject = project.StateOfProject,
+            IsBusinesProject = project.IsBusinesProject,
+            Budget = project.Budget
+        };
     }
 
     /// <summary>

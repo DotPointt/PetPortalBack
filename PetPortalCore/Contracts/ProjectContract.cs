@@ -75,7 +75,12 @@ public class ProjectContract
     /// <summary>
     /// Список тегов, связанных с проектом.
     /// </summary>
-    public List<string> Tags { get; set; }
+    public List<Tag> Tags { get; set; }
+    
+    /// <summary>
+    /// If project is to be done for money
+    /// </summary>
+    public bool IsBusinesProject { get; set; } = false;
 
     /// <summary>
     /// Аватарка в кодировке base64.

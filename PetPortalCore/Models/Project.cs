@@ -10,6 +10,10 @@ public class Project
     /// </summary>
     private const int MAX_NAME_LENGHT = 250;
 
+    public Project()
+    {
+    }
+    
     /// <summary>
     /// Project constructor.
     /// </summary>
@@ -42,74 +46,78 @@ public class Project
         ApplyingDeadline = applyingDeadline;
         StateOfProject = stateOfProject;
     }
+    
 
     /// <summary>
     /// Project identifier.
     /// </summary>
-    public Guid Id;
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Project name.
     /// </summary>
-    public string Name = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Project description.
     /// </summary>
-    public string Description = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
     /// <summary>
     /// Description of requirements needed to be satisfied to complete the projects
     /// </summary>
-    public string Requirements = string.Empty;
+    public string Requirements { get; set; } = string.Empty;
     
     /// <summary>
     /// Description of current and future team members
     /// </summary>
-    public string TeamDescription = string.Empty;
+    public string TeamDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Plan of project
     /// </summary>
-    public string Plan = string.Empty;
+    public string Plan { get; set; } = string.Empty;
         
     /// <summary>
     /// Description of awaited result of project
     /// </summary>
-    public string Result = string.Empty;
+    public string Result { get; set; } = string.Empty;
 
     /// <summary>
     /// Project owner.
     /// </summary>
-    public Guid OwnerId = Guid.Empty;
+    public Guid OwnerId { get; set; } = Guid.Empty;
 
     /// <summary>
     /// Time when owner thinks project should be completed. Infinite when null
     /// </summary>
-    public DateTime? Deadline = null;
+    public DateTime? Deadline { get; set; }  = null;
 
     /// <summary>
     /// Interval of time left for joining project. Infinite when null( now interval will be calculated at frontend, but we can send TimeSpan or string)?
     /// </summary>
-    public DateTime? ApplyingDeadline = null;
+    public DateTime? ApplyingDeadline { get; set; } = null;
 
     /// <summary>
     /// If people can join the project at the moment
     /// </summary>
-    public StateOfProject StateOfProject = StateOfProject.Closed;
+    public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
 
     /// <summary>
     /// If project is to be done for money
     /// </summary>
-    public bool IsBusinesProject = false;
+    public bool IsBusinesProject { get; set; } = false;
     
     /// <summary>
     /// Price of the project in rubles
     /// </summary>
-    public uint Budget;
+    public uint Budget { get; set; }
     
     /// связка с фреймворками
-
+    /// <summary>
+    /// Список тегов, связанных с проектом.
+    /// </summary>
+    public List<Tag> Tags { get; set; }
 
     /// <summary> 
     /// Creation new project.
@@ -123,7 +131,8 @@ public class Project
     public static (Project project, string Error) Create(Guid id, string name, string description,   string requirements, 
         string teamDescription, 
         string plan, 
-        string result,Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed)
+        string result,Guid ownerId,bool IsBusinesProject, uint Budget,  DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed
+        )
     {
         var error = string.Empty;
 
