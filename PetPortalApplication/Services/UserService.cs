@@ -231,7 +231,7 @@ public class UserService : IUserService
                 }
                 else
                 {
-                    await _experienceRepository.CreateExperience(experience);
+                    await _experienceRepository.DeleteExperience(experience.Id);
                 }
                 
             }
@@ -255,7 +255,7 @@ public class UserService : IUserService
                 }
                 else
                 {
-                    await _stackRepository.CreateStack(stack);
+                    await _stackRepository.DeleteExperience(stack.Id);
                 }
             }
         }
