@@ -66,12 +66,17 @@ public class ProjectEntity : BaseAuditableEntity
     /// <summary>
     /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
-    public StateOfProject StateOfProject = StateOfProject.Closed;
+    public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
+    
+    /// <summary>
+    /// If project is to be done for money
+    /// </summary>
+    public bool IsBusinesProject { get; set; } = false;
 
     /// <summary>
     /// Бюджет проекта в рублях.
     /// </summary>
-    public uint Budget;
+    public uint Budget { get; set; }
 
     /// <summary>
     /// Список тегов, связанных с проектом.

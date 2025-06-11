@@ -139,15 +139,34 @@ public class UsersRepository : IUsersRepository
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
-        var existingUserEntity = await _context.Users
-            .FirstOrDefaultAsync(p => p.Id == userData.Id);
+        await _context.Users
+            .Where(user => user.Id == userData.Id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(user => user.Name, userData.Name)
+                .SetProperty(user => user.Telegram, userData.Telegram)
+                .SetProperty(user => user.Phone, userData.Phone)
+                .SetProperty(user => user.Country, userData.Country)
+                .SetProperty(user => user.City, userData.City)
+            );
         
-        var mappedUser = userData.Adapt<UserEntity>();
-        
-        _context.Entry((UserEntity)existingUserEntity).CurrentValues.SetValues(mappedUser);
-
-        await _context.SaveChangesAsync();
         return userData.Id;
+    }
+
+    /// <summary>
+    /// Обновить только аватар.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="avatarUrl">путь к файлу аватара.</param>
+    /// <returns>Идентификатор пользователя.</returns>
+    public async Task<Guid> UpdateAvatar(Guid userId, string avatarUrl)
+    {
+        await _context.Users
+            .Where(user => user.Id == userId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(user => user.AvatarUrl, avatarUrl)
+            );
+
+        return userId;
     }
 
     /// <summary>

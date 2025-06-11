@@ -190,7 +190,7 @@ public class UserService : IUserService
     /// <returns>Идентификатор обновленного пользователя.</returns>
     public async Task<Guid> Update(UserDto userData)
     {
-        if (userData.Educations.Count != 0)
+        if (userData.Educations is not null)
         {
             foreach (var education in userData.Educations)
             {
@@ -213,7 +213,7 @@ public class UserService : IUserService
             }
         }
 
-        if (userData.Experiences.Count != 0)
+        if (userData.Experiences is not null)
         {
             foreach (var experience in userData.Experiences)
             {
@@ -237,7 +237,7 @@ public class UserService : IUserService
             }
         }
 
-        if (userData.Stacks.Count != 0)
+        if (userData.Stacks is not null)
         {
             foreach (var stack in userData.Stacks)
             {
@@ -266,26 +266,12 @@ public class UserService : IUserService
     /// <summary>
     /// Обновление аватара пользователя.
     /// </summary>
-    /// <param name="userData">Данные пользователя с новым аватаром.</param>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="avatarUrl">Путь к аватару.</param>
     /// <returns>Идентификатор обновленного пользователя.</returns>
-    public async Task<Guid> UpdateAvatar(UserDto userData)
+    public async Task<Guid> UpdateAvatar(Guid userId, string avatarUrl)
     {
-        var user = await _usersRepository.GetById(userData.Id);
-        
-        var fullUserData = new UserDto()
-        {
-            Id = user.Id,            
-            Name = user.Name,
-            Email = user.Email,
-            AvatarUrl = userData.AvatarUrl,
-            RoleId = user.RoleId,
-            Country = user.Country,
-            City = user.City,
-            Phone = user.Phone,
-            Telegram = user.Telegram,
-        };
-        
-        return await _usersRepository.Update(fullUserData);
+        return await _usersRepository.UpdateAvatar(userId, avatarUrl);
     }
 
     /// <summary>

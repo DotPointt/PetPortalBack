@@ -13,62 +13,65 @@ public class UserDto
     /// <summary>
     /// Имя пользователя.
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     
     /// <summary>
     /// Страна проживания.
     /// </summary>
-    public string Country { get; set; }
+    public string? Country { get; set; }
     
     /// <summary>
     /// Город проживания.
     /// </summary>
-    public string City { get; set; }
+    public string? City { get; set; }
     
     /// <summary>
     /// Номер телефона.
     /// </summary>
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
     
     /// <summary>
     /// Телеграм аккаунт.
     /// </summary>
-    public string Telegram { get; set; }
+    public string? Telegram { get; set; }
         
     /// <summary>
     /// Электронная почта пользователя.
     /// </summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
         
     /// <summary>
     /// Пароль пользователя.
     /// </summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
     
-    public string PasswordHash { get; set; }
+    /// <summary>
+    /// Захэшированный пароль.
+    /// </summary>
+    public string? PasswordHash { get; set; }
     
     /// <summary>
     /// Путь к файлу аватара пользователя.
     /// </summary>
-    public string AvatarUrl { get; set; }
+    public string? AvatarUrl { get; set; }
     
     /// <summary>
     /// Идентификатор роли пользователя.
     /// </summary>
-    public Guid RoleId { get; set; }
+    public Guid? RoleId { get; set; }
     
     /// <summary>
     /// Образования.
     /// </summary>
-    public List<EducationDto> Educations { get; set; }
+    public List<EducationDto>? Educations { get; set; }
     
     /// <summary>
     /// Опыт работы.
     /// </summary>
-    public List<ExperienceDto> Experiences { get; set; }
+    public List<ExperienceDto>? Experiences { get; set; }
     
     /// <summary>
     /// Стэки.
     /// </summary>
-    public List<StackDto> Stacks { get; set; }
+    public List<StackDto>? Stacks { get; set; }
 }

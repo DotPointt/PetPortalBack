@@ -52,11 +52,7 @@ public class AvatarController : ControllerBase
         var fileUrl = await _minioService.UploadFileAsync(fileName, avatar.OpenReadStream(), avatar.ContentType);
 
         // Обновление аватара пользователя
-        await _userService.UpdateAvatar(new UserDto()
-        {
-            Id = userId,
-            AvatarUrl = fileUrl,
-        });
+        await _userService.UpdateAvatar(userId, fileUrl);
 
         return Ok(fileUrl);
     }

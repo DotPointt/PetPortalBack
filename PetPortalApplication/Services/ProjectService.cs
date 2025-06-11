@@ -43,9 +43,9 @@ public class ProjectService : IProjectsService
     /// <param name="offset">Количество элементов на одной странице.</param>
     /// <param name="page">Номер страницы.</param>
     /// <returns>Отсортированный список проектов.</returns>
-    public async Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1)
+    public async Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1, ProjectFilterDTO filters = null)
     {
-        return await _projectsRepository.Get(sortOrder, sortItem, searchElement, offset, page);
+        return await _projectsRepository.Get(sortOrder, sortItem, searchElement, offset, page, filters);
     }
 
     /// <summary>
@@ -67,17 +67,19 @@ public class ProjectService : IProjectsService
     public async Task<Guid> Create(ProjectContract request)
     {
         var (project, error) = Project.Create(
-            Guid.NewGuid(),
-            request.Name,
-            request.Description,
-            request.Requirements,
-            request.TeamDescription,
-            request.Result,
-            request.Plan,
-            request.OwnerId,
-            request.Deadline,
-            request.ApplyingDeadline,
-            request.StateOfProject);
+            id: Guid.NewGuid(),
+            name: request.Name,
+            description: request.Description,
+            requirements: request.Requirements,
+            teamDescription: request.TeamDescription,
+            result: request.Result,
+            plan: request.Plan,
+            ownerId: request.OwnerId,
+            ApplyingDeadline: request.ApplyingDeadline,
+            StateOfProject: request.StateOfProject,
+            Deadline: request.Deadline,
+             IsBusinesProject: request.IsBusinesProject,   // <-- добавлено
+            Budget: request.Budget );
         
         if (!string.IsNullOrEmpty(error))
         {

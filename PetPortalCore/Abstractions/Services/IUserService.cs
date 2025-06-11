@@ -50,9 +50,10 @@ public interface IUserService
     /// <summary>
     /// Обновление аватара пользователя.
     /// </summary>
-    /// <param name="userData">Обновленные данные пользователя.</param>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="avatarUrl">Путь к аватару.</param>
     /// <returns>Идентификатор обновленного пользователя.</returns>
-    Task<Guid> UpdateAvatar(UserDto userData);
+    Task<Guid> UpdateAvatar(Guid userId, string avatarUrl);
 
     /// <summary>
     /// Удаление пользователя.

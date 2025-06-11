@@ -32,7 +32,7 @@ public interface IProjectsService
     /// <param name="offset">Количество проектов на странице.</param>
     /// <param name="page">Номер страницы.</param>
     /// <returns>Список отсортированных проектов.</returns>
-    public Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1);
+    public Task<List<Project>> GetPaginatedFiltered(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1, ProjectFilterDTO filters = null);
         
     /// <summary>
     /// Создать новый проект.
