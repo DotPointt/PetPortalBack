@@ -90,6 +90,8 @@ public class ProjectsRepository : IProjectsRepository
         
         
         var projectsEntities = await projectsQuery
+            .Include(p => p.ProjectTags)
+                .ThenInclude(pt => pt.Tag)
             .Skip((page - 1) * offset)
             .Take(offset)
             .ToListAsync();
@@ -119,7 +121,8 @@ public class ProjectsRepository : IProjectsRepository
                     .ToList()
             })
             .ToList();
-
+        
+        
         return projects;
     }
     

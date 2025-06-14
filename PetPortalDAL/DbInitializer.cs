@@ -199,24 +199,29 @@ public class DbInitializer
             var projects = context.Projects.ToList();
             var tags = context.Tags.ToList();
 
-            var projectTags = new List<ProjectTag>();
             foreach (var project in projects)
             {
                 int tagCount = Rand.Next(2, 4); // 2–3 тега на проект
+                HashSet<Guid> addedTagIds = new(); // Чтобы избежать дубликатов тегов для одного проекта
+
                 for (int i = 0; i < tagCount; i++)
                 {
                     var tag = tags[Rand.Next(tags.Count)];
-                    if (projectTags.Exists(pt => pt.ProjectId == project.Id && pt.TagId == tag.Id)) continue;
 
-                    projectTags.Add(new ProjectTag
+                    // Проверяем, не добавили ли мы уже этот тег
+                    if (project.ProjectTags.Any(pt => pt.TagId == tag.Id) || addedTagIds.Contains(tag.Id))
+                        continue;
+
+                    project.ProjectTags.Add(new ProjectTag
                     {
                         ProjectId = project.Id,
                         TagId = tag.Id
                     });
+
+                    addedTagIds.Add(tag.Id);
                 }
             }
 
-            context.ProjectTags.AddRange(projectTags);
             context.SaveChanges();
         }
     }
