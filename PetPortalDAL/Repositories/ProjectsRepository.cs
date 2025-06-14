@@ -4,6 +4,7 @@ using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
+using PetPortalDAL.Entities.LinkingTables;
 
 
 namespace PetPortalDAL.Repositories;
@@ -55,6 +56,8 @@ public class ProjectsRepository : IProjectsRepository
             ? projectsQuery.OrderBy(selectorKey)
             : projectsQuery.OrderByDescending(selectorKey);
 
+        // filters
+        
         // 🔍 Фильтр: Role
         // if (!string.IsNullOrEmpty(filters?.Role))
         // {
@@ -73,6 +76,18 @@ public class ProjectsRepository : IProjectsRepository
         {
             projectsQuery = projectsQuery.Where(p => p.IsBusinesProject == filters.IsCommercial.Value);
         }
+
+
+
+        // if (filters?.Tags != null && filters.Tags.Count > 0)
+        // {
+        //     foreach (var tag in filters.Tags)
+        //     {
+        //         var currentTagId = tag.Id;
+        //         projectsQuery = projectsQuery.Where(p => p.ProjectTags.Any(pt => pt.TagId == currentTagId));
+        //     }
+        // }
+        
         
         var projectsEntities = await projectsQuery
             .Skip((page - 1) * offset)
@@ -94,7 +109,14 @@ public class ProjectsRepository : IProjectsRepository
                 ApplyingDeadline = project.ApplyingDeadline,
                 StateOfProject = project.StateOfProject,
                 IsBusinesProject = project.IsBusinesProject,
-                Budget = project.Budget
+                Budget = project.Budget,
+                Tags = project.ProjectTags
+                    .Select(pt => new Tag
+                    {
+                        Id = pt.Tag.Id,
+                        Name = pt.Tag.Name
+                    })
+                    .ToList()
             })
             .ToList();
 

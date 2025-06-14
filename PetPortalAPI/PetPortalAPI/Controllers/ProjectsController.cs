@@ -99,7 +99,7 @@ public class ProjectsController : ControllerBase
                     AvatarImageBase64 = imageBase64,
                     IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget,
-                    Tags = new List<string>()
+                    Tags = p.Tags
                 };
 
                 response.Projects.Add(projectDto);
@@ -156,7 +156,7 @@ public class ProjectsController : ControllerBase
                 AvatarImageBase64 = imageBase64,
                 IsBusinessProject = project.IsBusinesProject,
                 Budget = project.Budget,
-                Tags = new List<string>()
+                Tags = project.Tags
             };
            
             return Ok(projectDto);
