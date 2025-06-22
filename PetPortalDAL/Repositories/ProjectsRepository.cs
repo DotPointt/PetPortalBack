@@ -64,29 +64,33 @@ public class ProjectsRepository : IProjectsRepository
         //     projectsQuery = projectsQuery.Where(p => p. == filters.Role);
         // }
         
-        if (!string.IsNullOrEmpty(filters?.Deadline))
+        // if (!string.IsNullOrEmpty(filters?.Deadline))
+        // {
+        //     if (DateTime.TryParse(filters.Deadline, out var deadlineDate))
+        //     {
+        //         projectsQuery = projectsQuery.Where(p => p.Deadline >= deadlineDate);
+        //     }
+        // }
+
+        if (filters?.StateOfProject != null)
         {
-            if (DateTime.TryParse(filters.Deadline, out var deadlineDate))
-            {
-                projectsQuery = projectsQuery.Where(p => p.Deadline >= deadlineDate);
-            }
+            projectsQuery = projectsQuery.Where(project => project.StateOfProject == filters.StateOfProject);
         }
         
         if ( filters != null && filters.IsCommercial.HasValue)
         {
             projectsQuery = projectsQuery.Where(p => p.IsBusinesProject == filters.IsCommercial.Value);
         }
-
-
-
-        // if (filters?.Tags != null && filters.Tags.Count > 0)
-        // {
-        //     foreach (var tag in filters.Tags)
-        //     {
-        //         var currentTagId = tag.Id;
-        //         projectsQuery = projectsQuery.Where(p => p.ProjectTags.Any(pt => pt.TagId == currentTagId));
-        //     }
-        // }
+        
+        if (filters?.Tags != null && filters.Tags.Count > 0)
+        {
+            foreach (var tag in filters.Tags)
+            {
+                // var currentTagId = tag.Id;
+                projectsQuery = projectsQuery.Where(p => p.ProjectTags.Any(pt => pt.TagId == tag));
+            }
+        }
+        
         
         
         var projectsEntities = await projectsQuery
