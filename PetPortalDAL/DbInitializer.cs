@@ -130,7 +130,7 @@ public class DbInitializer
                     OwnerId = ownerId,
                     Deadline = DateTime.UtcNow.AddDays(Rand.Next(30, 365)),
                     ApplyingDeadline = DateTime.UtcNow.AddDays(Rand.Next(7, 30)),
-                    StateOfProject = (StateOfProject)Rand.Next(0, 3),
+                    StateOfProject = (StateOfProject)Rand.Next(1, 4),
                     IsBusinesProject = Rand.NextDouble() > 0.5,
                     Budget = (uint)Rand.Next(500_000, 2_000_000)
                 });

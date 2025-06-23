@@ -72,7 +72,7 @@ public class ProjectsRepository : IProjectsRepository
         //     }
         // }
 
-        if (filters?.StateOfProject != null)
+        if (filters?.StateOfProject != null && filters.StateOfProject != StateOfProject.NotSelected)
         {
             projectsQuery = projectsQuery.Where(project => project.StateOfProject == filters.StateOfProject);
         }
