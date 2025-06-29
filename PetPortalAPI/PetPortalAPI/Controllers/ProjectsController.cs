@@ -99,13 +99,13 @@ public class ProjectsController : ControllerBase
                     AvatarImageBase64 = imageBase64,
                     IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget,
-                    Tags = new List<string>()
+                    Tags = p.Tags
                 };
 
                 response.Projects.Add(projectDto);
             }
 
-            response.ProjectsCount = await _projectsService.GetTotalProjectCountAsync(request.SearchElement);
+            response.ProjectsCount = await _projectsService.GetTotalProjectCountAsync(request.SearchElement); //добавить фильтрацию на этот метод
 
             return Ok(response);
         }
@@ -156,7 +156,7 @@ public class ProjectsController : ControllerBase
                 AvatarImageBase64 = imageBase64,
                 IsBusinessProject = project.IsBusinesProject,
                 Budget = project.Budget,
-                Tags = new List<string>()
+                Tags = project.Tags
             };
            
             return Ok(projectDto);

@@ -85,5 +85,5 @@ public class ProjectDto
     /// <summary>
     /// Tags related to Project. List of strings.
     /// </summary>
-    public List<string> Tags { get; set; }
+    public List<Tag> Tags { get; set; }
 }

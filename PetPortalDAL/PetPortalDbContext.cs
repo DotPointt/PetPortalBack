@@ -156,6 +156,8 @@ public class PetPortalDbContext : DbContext
                 .WithMany(user => user.UserProjects)
                 .HasForeignKey(e => e.UserId);
         });
+        
+        
 
         #endregion
     }

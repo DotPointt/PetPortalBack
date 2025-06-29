@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PetPortalCore.Models;
 
@@ -10,6 +11,7 @@ public class Tag
     /// <summary>
     /// Идентификатор тега.
     /// </summary>
+    [FromQuery(Name = "id")]
     public Guid Id { get; set; }
 
     /// <summary>
