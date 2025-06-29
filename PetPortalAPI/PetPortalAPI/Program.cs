@@ -189,6 +189,7 @@ namespace PetPortalAPI
             // Включение Swagger в режиме разработки
             //if (app.Environment.IsDevelopment())
             //{
+                app.UsePathBase("/api");
                 app.UseSwagger();
                 app.UseSwaggerUI();
                 
