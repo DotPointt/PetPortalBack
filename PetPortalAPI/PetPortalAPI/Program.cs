@@ -228,7 +228,7 @@ namespace PetPortalAPI
             app.MapHub<ChatHub>("/chat");
             
             // Включение CORS
-            app.UseCors("AllowAnyOrigin");
+            app.UseCors("AllowSpecificOrigin");
 
             // Запуск приложения
             app.Run();
