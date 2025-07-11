@@ -167,28 +167,27 @@ namespace PetPortalAPI
             
             #endregion
             
-            // Настройка CORS (Cross-Origin Resource Sharing)
-            // services.AddCors(options =>
-            // {
-            //     options.AddPolicy("AllowSpecificOrigin", builder =>
-            //     {
-            //         builder.WithOrigins("http://localhost:5173", "http://localhost:4173") // Разрешенный источник
-            //             .AllowAnyHeader() // Разрешение любых заголовков
-            //             .AllowAnyMethod() // Разрешение любых методов
-            //             .AllowCredentials(); // Разрешение учетных данных
-            //     });
-            // });
-            
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAnyOrigin", builder =>
+                options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.AllowAnyOrigin()  // Разрешает запросы с любого источника
-                        .AllowAnyHeader()  // Разрешает любые заголовки
-                        .AllowAnyMethod()  // Разрешает любые HTTP-методы
-                        .AllowCredentials();  // Разрешает передачу учетных данных
+                    builder.WithOrigins("http://localhost:5173", "http://localhost:4173") // Разрешенный источник
+                        .AllowAnyHeader() // Разрешение любых заголовков
+                        .AllowAnyMethod() // Разрешение любых методов
+                        .AllowCredentials(); // Разрешение учетных данных
                 });
             });
+            
+            // services.AddCors(options =>
+            // {
+            //     options.AddPolicy("AllowAnyOrigin", builder =>
+            //     {
+            //         builder.AllowAnyOrigin()  // Разрешает запросы с любого источника
+            //             .AllowAnyHeader()  // Разрешает любые заголовки
+            //             .AllowAnyMethod()  // Разрешает любые HTTP-методы
+            //             .AllowCredentials();  // Разрешает передачу учетных данных
+            //     });
+            // });
             
         }
 
