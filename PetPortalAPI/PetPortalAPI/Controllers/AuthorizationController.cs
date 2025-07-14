@@ -57,8 +57,16 @@ public class AuthorizationController : ControllerBase
             var userId = await _userService.Register(request);
             var token = await _userService.Login(request.Email, request.Password);
             
-            // Устанавливаем токен в cookies
-            HttpContext.Response.Cookies.Append("jwttoken", token);
+            var cookieOptions = new CookieOptions
+            {
+                // HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            HttpContext.Response.Cookies.Append("jwttoken", token, cookieOptions);
 
             return Ok(new { UserId = userId, Token = token });
         }
@@ -95,8 +103,16 @@ public class AuthorizationController : ControllerBase
         {
             var token = await _userService.Login(request.Email, request.Password);
 
-            // Устанавливаем токен в cookies
-            HttpContext.Response.Cookies.Append("jwttoken", token);
+            var cookieOptions = new CookieOptions
+            {
+                // HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            HttpContext.Response.Cookies.Append("jwttoken", token, cookieOptions);
 
             return Ok(new { Token = token });
         }
