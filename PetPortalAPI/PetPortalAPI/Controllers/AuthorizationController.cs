@@ -64,7 +64,7 @@ public class AuthorizationController : ControllerBase
                 SameSite = SameSiteMode.None,
                 Path = "/",
                 Expires = DateTime.UtcNow.AddDays(7),
-                Domain = "http://localhost:5173"
+                Domain = "localhost"
             };
 
             HttpContext.Response.Cookies.Append("jwttoken", token, cookieOptions);
@@ -111,7 +111,7 @@ public class AuthorizationController : ControllerBase
                 SameSite = SameSiteMode.None,
                 Path = "/",
                 Expires = DateTime.UtcNow.AddDays(7),
-                Domain = "http://localhost:5173"
+                Domain = "localhost"
             };
 
             HttpContext.Response.Cookies.Append("jwttoken", token, cookieOptions);
