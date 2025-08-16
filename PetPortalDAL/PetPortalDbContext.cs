@@ -25,6 +25,11 @@ public class PetPortalDbContext : DbContext
     /// Проекты в базе данных.
     /// </summary>
     public DbSet<ProjectEntity> Projects { get; set; }
+    
+    /// <summary>
+    /// Отклики.
+    /// </summary>
+    public DbSet<RespondEntity> Responds { get; set; }
 
     public DbSet<ResetPasswordTokenEntity> ResetPasswordTokenEntities { get; set; }
 
@@ -82,7 +87,7 @@ public class PetPortalDbContext : DbContext
     /// Связь пользователей и проектов.
     /// </summary>
     public DbSet<UserProject> UserProjects { get; set; }
-
+    
     #endregion
 
     /// <summary>    
@@ -105,6 +110,7 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new EducationConfiguration());
         builder.ApplyConfiguration(new ExperienceConfiguration());
         builder.ApplyConfiguration(new StackConfiguration());
+        builder.ApplyConfiguration(new RespondConfiguration());
         
         #endregion
 
@@ -141,6 +147,20 @@ public class PetPortalDbContext : DbContext
             .WithMany(u => u.Stacks)
             .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        // Связь Respond -> User
+        builder.Entity<RespondEntity>()
+            .HasOne(r => r.Responder) 
+            .WithMany()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Связь Respond -> Project
+        builder.Entity<RespondEntity>()
+            .HasOne(r => r.Project)
+            .WithMany()
+            .HasForeignKey(r => r.ProjectId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         #endregion
 

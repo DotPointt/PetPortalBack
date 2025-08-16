@@ -60,7 +60,7 @@ public class AuthorizationController : ControllerBase
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = false,
-                Secure = true,
+                Secure = false,
                 SameSite = SameSiteMode.None,
                 Path = "/",
                 Expires = DateTime.UtcNow.AddDays(7),
@@ -74,12 +74,14 @@ public class AuthorizationController : ControllerBase
         catch (InvalidOperationException ex)
         {
             // 409
-            return Conflict(new { Message = ex.Message });
+            return StatusCode(StatusCodes.Status409Conflict, 
+                new { Message = "Пользователь с такой почтой уже существует."});
         }
         catch (ArgumentException ex)
         {
             // 400 
-            return BadRequest(new { Message = ex.Message });
+            return StatusCode(StatusCodes.Status400BadRequest, 
+                new { Message = ex.Message });
         }
         catch (Exception ex)
         {

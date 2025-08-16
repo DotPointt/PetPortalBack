@@ -27,6 +27,7 @@ namespace PetPortalAPI
 
             var app = builder.Build();
 
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -38,9 +39,11 @@ namespace PetPortalAPI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("An error occurred while migrating the database.");
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while migrating the database.");
                 }
             }
+
 
             ConfigureApp(app);
 
@@ -133,10 +136,8 @@ namespace PetPortalAPI
                 options.UseNpgsql(configuration.GetConnectionString(nameof(PetPortalDbContext))); 
             });
 
-            services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig")); // Конфигурация MinIO
-
             #region Внедрение зависимостей (DI)
-
+            
             // Регистрация сервисов
             services.AddScoped<IProjectsService, ProjectService>();
             services.AddScoped<IUserService, UserService>();

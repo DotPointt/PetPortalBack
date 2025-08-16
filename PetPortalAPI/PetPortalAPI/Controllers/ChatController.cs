@@ -74,8 +74,23 @@ public class ChatController : ControllerBase
     [HttpPost("room")]
     public async Task<ActionResult<ChatRoomDto>> CreateRoom([FromBody] CreateChatRoomRequest request)
     {
-        var chat = await _chatRoomService.CreateNamedChatAsync(request.Name, request.UserIds);
-        return CreatedAtAction(nameof(GetRoom), new { roomId = chat.Id }, chat);
+        try
+        {
+            var chat = await _chatRoomService.CreateNamedChatAsync(request.Name, request.UserIds);
+            return CreatedAtAction(nameof(GetRoom), new { roomId = chat.Id }, chat);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = "An internal error occurred. Please try again later." });
+        }
     }
 
     /// <summary>

@@ -55,11 +55,22 @@ public class ChatRoomRepository : IChatRoomRepository
 
     public async Task<ChatRoomDto> CreateNamedChatAsync(string name, List<Guid> userIds)
     {
+        if (!userIds.Any())
+            throw new ArgumentException("Пользователи обязательны", nameof(userIds));
+
+        var existingChat = await _context.ChatRooms
+            .Where(r => r.Name == name)
+            .Select(r => new { r.Id })
+            .FirstOrDefaultAsync();
+
+        if (existingChat != null)
+            throw new InvalidOperationException($"Такой чат уже существует.");
+
         var chat = new ChatRoomEntity
         {
             Id = Guid.NewGuid(),
             Name = name,
-            ChatRoomUsers = userIds.Select(id => new ChatRoomUserEntity { UserId = id }).ToList()
+            ChatRoomUsers = userIds.Distinct().Select(id => new ChatRoomUserEntity { UserId = id }).ToList()
         };
 
         _context.ChatRooms.Add(chat);
@@ -69,7 +80,7 @@ public class ChatRoomRepository : IChatRoomRepository
         {
             Id = chat.Id,
             Name = chat.Name,
-            UserIds = userIds
+            UserIds = userIds.Distinct().ToList()
         };
     }
 }
