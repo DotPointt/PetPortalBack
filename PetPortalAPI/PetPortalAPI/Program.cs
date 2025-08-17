@@ -136,6 +136,8 @@ namespace PetPortalAPI
                 options.UseNpgsql(configuration.GetConnectionString(nameof(PetPortalDbContext))); 
             });
 
+            services.Configure<MinIOConfig>(configuration.GetSection("MinioConfig"));
+            
             #region Внедрение зависимостей (DI)
             
             // Регистрация сервисов

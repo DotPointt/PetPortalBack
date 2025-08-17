@@ -60,7 +60,7 @@ public class AuthorizationController : ControllerBase
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = false,
-                Secure = false,
+                Secure = true,
                 SameSite = SameSiteMode.None,
                 Path = "/",
                 Expires = DateTime.UtcNow.AddDays(7),
