@@ -55,7 +55,7 @@ services:
       MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9001"
     volumes:
-      - ./minio-data:/data
+      - minio_data:/data
     networks:
       - dev
         
@@ -72,3 +72,4 @@ services:
 volumes: 
   postgres-data:
   redis_data:
+  minio_data:

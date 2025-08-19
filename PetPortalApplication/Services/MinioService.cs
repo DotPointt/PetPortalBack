@@ -46,7 +46,42 @@ public class MinioService : IMinioService
 
         _bucketName = config.BucketName; 
         _defaultKey = config.DefaultKey; 
+        
+        _ = EnsureBucketExistsAsync();
     }
+    
+    
+    /// <summary>
+    /// Проверяет существование bucket и создает его, если он отсутствует
+    /// </summary>
+    private async Task EnsureBucketExistsAsync()
+    {
+        try
+        {
+            var listResponse = await _s3Client.ListBucketsAsync();
+
+            var bucketExists = listResponse?.Buckets?
+                .Any(b => b.BucketName == _bucketName) == true;
+            
+            if (!bucketExists)
+            {
+                var putBucketRequest = new PutBucketRequest
+                {
+                    BucketName = _bucketName,
+                    UseClientRegion = true
+                };
+            
+                await _s3Client.PutBucketAsync(putBucketRequest);
+                Console.WriteLine($"Bucket {_bucketName} успешно создан");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при проверке/создании bucket: {ex.Message}");
+            throw;
+        }
+    }
+    
     
     /// <summary>
     /// Загрузка файла в объектное хранилище.

@@ -144,7 +144,7 @@ namespace PetPortalAPI
             services.AddScoped<IProjectsService, ProjectService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserProjectService, UserProjectService>();
-            services.AddScoped<IMinioService, MinioService>(); 
+            services.AddSingleton<IMinioService, MinioService>(); 
             services.AddScoped<IMailSenderService, MailSenderService>();
             services.AddScoped<IChatMessageService, ChatMessageService>();
             services.AddScoped<IChatRoomService, ChatRoomService>();
