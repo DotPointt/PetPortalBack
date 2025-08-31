@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
@@ -77,4 +78,6 @@ public interface IUserService
 
 
     public Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword);
+
+    public Task<Guid?> GetUserIdFromJWTAsync(ClaimsPrincipal user);
 }

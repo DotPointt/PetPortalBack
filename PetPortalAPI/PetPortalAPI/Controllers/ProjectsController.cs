@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PetPortalCore.Abstractions.Services;
@@ -156,7 +157,8 @@ public class ProjectsController : ControllerBase
                 AvatarImageBase64 = imageBase64,
                 IsBusinessProject = project.IsBusinesProject,
                 Budget = project.Budget,
-                Tags = project.Tags
+                Tags = project.Tags,
+                RequiredRoles = project.RequiredRoles
             };
            
             return Ok(projectDto);
@@ -177,17 +179,21 @@ public class ProjectsController : ControllerBase
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest) //сделать отдельный класс? в общем не должно быть неразберихи
     {
-        var valid = await _projectsService.CheckCreatingLimit(projectRequest.OwnerId, limit: 100);
-        if (!valid)
-            return BadRequest("Вы превысили лимит проектов.");
-
         try
         {
+            var userid = await _usersService.GetUserIdFromJWTAsync(User);
+        
+            var valid = await _projectsService.CheckCreatingLimit(userid!.Value, limit: 100);
+            if (!valid)
+                return BadRequest("Вы превысили лимит проектов.");
+
+
             projectRequest.StateOfProject = StateOfProject.Open;
 
-            var projectGuid = await _projectsService.Create(projectRequest);
+            var projectGuid = await _projectsService.Create(projectRequest, userid.Value);
 
             return Ok(projectGuid);
         }

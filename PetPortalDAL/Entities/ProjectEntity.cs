@@ -82,4 +82,9 @@ public class ProjectEntity : BaseAuditableEntity
     /// Список тегов, связанных с проектом.
     /// </summary>
     public ICollection<ProjectTag> ProjectTags { get; set; } = new List<ProjectTag>();
+    
+    /// <summary>
+    /// Необходимые в проекте специалисты (роли)
+    /// </summary>
+    public ICollection<ProjectRole> ProjectRoles { get; set; } = new List<ProjectRole>();
 }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
@@ -359,4 +360,27 @@ public class UserService : IUserService
         
         return await _usersRepository.Update(userWithNewPassword);
     }
+    
+    
+    // Метод для извлечения userId из ClaimsPrincipal
+    public async Task<Guid?> GetUserIdFromJWTAsync(ClaimsPrincipal user)
+    {
+        Claim? userIdClaim = user.FindFirst("sub") 
+                          ?? user.FindFirst(ClaimTypes.NameIdentifier);
+
+        var userid = Guid.TryParse(userIdClaim.Value, out Guid userId);
+        
+        if (userIdClaim == null)
+        {
+            throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
+        }
+
+        if (!userid)
+        {
+            throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
+        }
+
+        return userid ? userId : null;
+    }
+    
 }

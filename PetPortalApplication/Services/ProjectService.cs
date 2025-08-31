@@ -64,7 +64,7 @@ public class ProjectService : IProjectsService
     /// <param name="request">Данные для создания проекта.</param>
     /// <returns>Идентификатор созданного проекта.</returns>
     /// <exception cref="ArgumentException">Выбрасывается, если данные проекта невалидны.</exception>
-    public async Task<Guid> Create(ProjectContract request)
+    public async Task<Guid> Create(ProjectContract request, Guid userId)
     {
         var (project, error) = Project.Create(
             id: Guid.NewGuid(),
@@ -74,12 +74,14 @@ public class ProjectService : IProjectsService
             teamDescription: request.TeamDescription,
             result: request.Result,
             plan: request.Plan,
-            ownerId: request.OwnerId,
+            ownerId: userId,
             ApplyingDeadline: request.ApplyingDeadline,
             StateOfProject: request.StateOfProject,
             Deadline: request.Deadline,
-             IsBusinesProject: request.IsBusinesProject,   // <-- добавлено
-            Budget: request.Budget );
+            IsBusinesProject: request.IsBusinesProject,
+            Budget: request.Budget,
+            Tags: request.Tags,
+            RequiredRoles: request.RequiredRoles);
         
         if (!string.IsNullOrEmpty(error))
         {

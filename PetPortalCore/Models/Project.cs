@@ -33,7 +33,7 @@ public class Project
     private Project(Guid id, string name, string description,string requirements, 
         string teamDescription, 
         string plan, 
-        string result,  Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, StateOfProject stateOfProject)
+        string result,  Guid ownerId, DateTime? deadline, DateTime? applyingDeadline, StateOfProject stateOfProject, List<Tag> tags, List<RequiredRole> requiredRoles)
     {
         Id = id;
         Name = name;
@@ -46,6 +46,8 @@ public class Project
         Deadline = deadline;
         ApplyingDeadline = applyingDeadline;
         StateOfProject = stateOfProject;
+        Tags = tags;
+        RequiredRoles = requiredRoles;
     }
     
 
@@ -119,6 +121,11 @@ public class Project
     /// Список тегов, связанных с проектом.
     /// </summary>
     public List<Tag> Tags { get; set; }
+    
+    /// <summary>
+    /// Список специалистов, требуемых в проекте.
+    /// </summary>
+    public List<RequiredRole> RequiredRoles { get; set; }
 
     /// <summary> 
     /// Creation new project.
@@ -132,7 +139,8 @@ public class Project
     public static (Project project, string Error) Create(Guid id, string name, string description,   string requirements, 
         string teamDescription, 
         string plan, 
-        string result,Guid ownerId,bool IsBusinesProject, uint Budget,  DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed
+        string result,Guid ownerId,bool IsBusinesProject, uint Budget,  DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed, List<Tag> Tags = null,
+        List<RequiredRole> RequiredRoles = null
         )
     {
         var error = string.Empty;
@@ -145,7 +153,7 @@ public class Project
         var project = new Project(id, name, description, requirements, 
             teamDescription, 
             plan, 
-            result, ownerId, Deadline, ApplyingDeadline, StateOfProject);
+            result, ownerId, Deadline, ApplyingDeadline, StateOfProject, Tags, RequiredRoles);
 
         return (project, error);
     }

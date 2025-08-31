@@ -84,6 +84,11 @@ public class PetPortalDbContext : DbContext
     public DbSet<ProjectTag> ProjectTags { get; set; }
     
     /// <summary>
+    /// Связующая таблица между проектами и ролями (необходимые в проекте специалисты)
+    /// </summary>
+    public DbSet<ProjectRole> ProjectRoles { get; set; }
+    
+    /// <summary>
     /// Связь пользователей и проектов.
     /// </summary>
     public DbSet<UserProject> UserProjects { get; set; }
@@ -111,6 +116,7 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new ExperienceConfiguration());
         builder.ApplyConfiguration(new StackConfiguration());
         builder.ApplyConfiguration(new RespondConfiguration());
+        builder.ApplyConfiguration(new ProjectRoleConfiguration());
         
         #endregion
 

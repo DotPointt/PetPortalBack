@@ -205,6 +205,8 @@ public class ProjectsRepository : IProjectsRepository
     public async Task<Project> GetById(Guid projectId)
     {
         var project = await _context.Projects
+            .Include(p => p.ProjectRoles)
+                .ThenInclude(pt => pt.Role)
             .AsNoTracking()
             .Where(p => p.Id == projectId)
             .FirstOrDefaultAsync();
@@ -226,7 +228,11 @@ public class ProjectsRepository : IProjectsRepository
             ApplyingDeadline = project.ApplyingDeadline,
             StateOfProject = project.StateOfProject,
             IsBusinesProject = project.IsBusinesProject,
-            Budget = project.Budget
+            Budget = project.Budget,
+            RequiredRoles = project.ProjectRoles.Select(pr => new RequiredRole(
+                roleId: pr.RoleId,
+                customRoleName: pr.CustomRoleName
+            )).ToList()
         };
     }
 
@@ -249,9 +255,25 @@ public class ProjectsRepository : IProjectsRepository
             OwnerId = project.OwnerId,
             Deadline = project.Deadline,
             ApplyingDeadline = project.ApplyingDeadline,
-            StateOfProject = project.StateOfProject
+            StateOfProject = project.StateOfProject,
+            IsBusinesProject = project.IsBusinesProject,
+            Budget = project.Budget,
+            ProjectRoles = new List<ProjectRole>()
+            
         };
 
+        foreach (var requiredRole in project.RequiredRoles)
+        {
+            var projectRole = new ProjectRole
+            {
+                ProjectId = project.Id,
+                RoleId = requiredRole.RoleId,
+                CustomRoleName = requiredRole.CustomRoleName // может быть null
+            };
+
+            projectEntity.ProjectRoles.Add(projectRole);
+        }
+        
         await _context.AddAsync(projectEntity);
         await _context.SaveChangesAsync();
 

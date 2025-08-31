@@ -37,15 +37,15 @@ public class ProjectContract
     /// </summary>
     public string Result { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Идентификатор владельца проекта.
-    /// </summary>
-    public Guid OwnerId { get; set; }
+    // /// <summary>
+    // /// Идентификатор владельца проекта.
+    // /// </summary>
+    // public Guid OwnerId { get; set; }
 
-    /// <summary>
-    /// Имя владельца проекта.
-    /// </summary>
-    public string OwnerName { get; set; }
+    // /// <summary>
+    // /// Имя владельца проекта.
+    // /// </summary>
+    // public string OwnerName { get; set; }
     
     /// <summary>
     /// Срок завершения проекта. Если null, проект считается бессрочным.
@@ -78,12 +78,17 @@ public class ProjectContract
     public List<Tag> Tags { get; set; }
     
     /// <summary>
+    /// Список требуемых ролей для проекта.
+    /// </summary>
+    public List<RequiredRole> RequiredRoles { get; set; } = new();
+    
+    /// <summary>
     /// If project is to be done for money
     /// </summary>
     public bool IsBusinesProject { get; set; } = false;
 
-    /// <summary>
-    /// Аватарка в кодировке base64.
-    /// </summary>
-    public string AvatarImageBase64 { get; set; }
+    // /// <summary>
+    // /// Аватарка в кодировке base64.
+    // /// </summary>
+    // public string AvatarImageBase64 { get; set; }
 }

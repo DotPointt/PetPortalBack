@@ -236,18 +236,12 @@ public class AuthorizationController : ControllerBase
     {
         try
         {
-            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
-            }
-
-            if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
-            {
-                throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
-            }
+            var userId = await _userService.GetUserIdFromJWTAsync(User);
             
-            var user = await _userService.GetUserById(userId);
+            if (userId == null)
+                return Unauthorized();
+            
+            var user = await _userService.GetUserById(userId.Value);
             
             return Ok(user);
         }

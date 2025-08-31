@@ -135,6 +135,27 @@ namespace PetPortalDAL.Migrations
                     b.ToTable("ChatRoomUsers");
                 });
 
+            modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ProjectRole", b =>
+                {
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CustomRoleName")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ProjectId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("ProjectRoles");
+                });
+
             modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ProjectTag", b =>
                 {
                     b.Property<Guid>("ProjectId")
@@ -291,6 +312,9 @@ namespace PetPortalDAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -446,6 +470,25 @@ namespace PetPortalDAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ProjectRole", b =>
+                {
+                    b.HasOne("PetPortalDAL.Entities.ProjectEntity", "Project")
+                        .WithMany("ProjectRoles")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PetPortalDAL.Entities.RoleEntity", "Role")
+                        .WithMany("ProjectRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("PetPortalDAL.Entities.LinkingTables.ProjectTag", b =>
                 {
                     b.HasOne("PetPortalDAL.Entities.ProjectEntity", "Project")
@@ -556,11 +599,15 @@ namespace PetPortalDAL.Migrations
 
             modelBuilder.Entity("PetPortalDAL.Entities.ProjectEntity", b =>
                 {
+                    b.Navigation("ProjectRoles");
+
                     b.Navigation("ProjectTags");
                 });
 
             modelBuilder.Entity("PetPortalDAL.Entities.RoleEntity", b =>
                 {
+                    b.Navigation("ProjectRoles");
+
                     b.Navigation("Users");
                 });
 

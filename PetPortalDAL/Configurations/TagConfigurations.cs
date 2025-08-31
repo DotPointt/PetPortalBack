@@ -19,8 +19,9 @@ public class TagConfigurations : IEntityTypeConfiguration<TagEntity>
 
         builder.Property(tag => tag.Name)
             .IsRequired() 
-            .HasMaxLength(255); 
-
+            .HasMaxLength(255);
+        
+        
         builder.HasMany(f => f.ProjectTags)
             .WithOne(pf => pf.Tag)
             .HasForeignKey(pf => pf.TagId)
