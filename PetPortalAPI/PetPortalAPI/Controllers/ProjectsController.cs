@@ -100,7 +100,8 @@ public class ProjectsController : ControllerBase
                     AvatarImageBase64 = imageBase64,
                     IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget,
-                    Tags = p.Tags
+                    Tags = p.Tags,
+                    RequiredRoles = p.RequiredRoles,
                 };
 
                 response.Projects.Add(projectDto);

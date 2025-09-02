@@ -8,5 +8,5 @@ public static class DefaultValues
     /// <summary>
     /// Идентификатор роли по умолчанию для нового пользователя.
     /// </summary>
-    public static Guid RoleId { get; private set; } = Guid.Parse("00000000-0000-0000-0000-000000000002");
+    public static Guid RoleId { get; private set; } = Guid.Parse("A0000000-0000-0000-0000-000000000000");
 }

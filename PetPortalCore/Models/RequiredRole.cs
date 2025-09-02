@@ -2,11 +2,14 @@ namespace PetPortalCore.Models;
 
 public class RequiredRole
 {
-    public Guid RoleId { get; }
-    public string? CustomRoleName { get; }
+    public Guid RoleId { get; set; }
+    
+    public string? SystemRoleName { get; set; }
+    public string? CustomRoleName { get; set; }
+    
     
 
-    private RequiredRole() { } // Для маппинга / сериализации
+    public RequiredRole() { } // Для маппинга / сериализации
 
     public RequiredRole(Guid roleId, string? customRoleName)
     {

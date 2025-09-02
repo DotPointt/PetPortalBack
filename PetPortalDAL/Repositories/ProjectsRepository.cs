@@ -96,6 +96,8 @@ public class ProjectsRepository : IProjectsRepository
         var projectsEntities = await projectsQuery
             .Include(p => p.ProjectTags)
                 .ThenInclude(pt => pt.Tag)
+            .Include(p => p.ProjectRoles)
+            .ThenInclude(Pr => Pr.Role)
             .Skip((page - 1) * offset)
             .Take(offset)
             .ToListAsync();
@@ -121,6 +123,14 @@ public class ProjectsRepository : IProjectsRepository
                     {
                         Id = pt.Tag.Id,
                         Name = pt.Tag.Name
+                    })
+                    .ToList(),
+                RequiredRoles = project.ProjectRoles
+                    .Select(pr => new RequiredRole
+                    {
+                        RoleId = pr.Role.Id,
+                        CustomRoleName = pr.CustomRoleName,
+                        SystemRoleName = pr.Role.Name
                     })
                     .ToList()
             })
@@ -258,8 +268,8 @@ public class ProjectsRepository : IProjectsRepository
             StateOfProject = project.StateOfProject,
             IsBusinesProject = project.IsBusinesProject,
             Budget = project.Budget,
-            ProjectRoles = new List<ProjectRole>()
-            
+            ProjectRoles = new List<ProjectRole>(),
+            ProjectTags = new List<ProjectTag>()
         };
 
         foreach (var requiredRole in project.RequiredRoles)
@@ -272,6 +282,17 @@ public class ProjectsRepository : IProjectsRepository
             };
 
             projectEntity.ProjectRoles.Add(projectRole);
+        }
+
+        foreach (var tag in project.Tags)
+        {
+            var projectTag = new ProjectTag
+            {
+                ProjectId = project.Id,
+                TagId = tag.Id
+            };
+            
+            projectEntity.ProjectTags.Add(projectTag);
         }
         
         await _context.AddAsync(projectEntity);
