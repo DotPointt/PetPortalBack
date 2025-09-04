@@ -178,7 +178,7 @@ public class UserService : IUserService
         if (!verify)
             throw new UnauthorizedAccessException("Не удалось войти: неверный пароль.");
 
-        var roleName = await _roleRepository.GetRoleByUserId(user.Id);
+        var roleName = await _roleRepository.GetRoleNameByUserId(user.Id);
         var token = _jwtProvider.GenerateToken(user.Id, user.Email, roleName);
         
         return token;

@@ -132,8 +132,8 @@ public class ProjectService : IProjectsService
     /// Возвращает общее число проектов удволетворящих фильтрам
     /// </summary>
     /// <returns></returns>
-    public async Task<int> GetTotalProjectCountAsync(string searchElement)
+    public async Task<int> GetTotalProjectCountAsync(string searchElement, ProjectFilterDTO filters = null)
     {
-        return await _projectsRepository.GetTotalProjectCountAsync( searchElement);
+        return await _projectsRepository.GetTotalProjectCountAsync( searchElement, filters);
     }
 }

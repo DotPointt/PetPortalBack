@@ -40,8 +40,12 @@ public class ProjectsRepository : IProjectsRepository
     public async Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1, ProjectFilterDTO filters = null)
     {
         var projectsQuery = _context.Projects
-            .AsNoTracking()
-            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.ToLower().Contains(searchElement.ToLower()));
+            .AsNoTracking();
+        
+        projectsQuery = ApplySearchFilter(projectsQuery, searchElement);
+        projectsQuery = ApplyFilters(projectsQuery, filters);
+        
+        
 
         Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
         {
@@ -55,42 +59,6 @@ public class ProjectsRepository : IProjectsRepository
         projectsQuery = sortOrder   
             ? projectsQuery.OrderBy(selectorKey)
             : projectsQuery.OrderByDescending(selectorKey);
-
-        // filters
-        
-        // 🔍 Фильтр: Role
-        // if (!string.IsNullOrEmpty(filters?.Role))
-        // {
-        //     projectsQuery = projectsQuery.Where(p => p. == filters.Role);
-        // }
-        
-        // if (!string.IsNullOrEmpty(filters?.Deadline))
-        // {
-        //     if (DateTime.TryParse(filters.Deadline, out var deadlineDate))
-        //     {
-        //         projectsQuery = projectsQuery.Where(p => p.Deadline >= deadlineDate);
-        //     }
-        // }
-
-        if (filters?.StateOfProject != null && filters.StateOfProject != StateOfProject.NotSelected)
-        {
-            projectsQuery = projectsQuery.Where(project => project.StateOfProject == filters.StateOfProject);
-        }
-        
-        if ( filters != null && filters.IsCommercial.HasValue)
-        {
-            projectsQuery = projectsQuery.Where(p => p.IsBusinesProject == filters.IsCommercial.Value);
-        }
-        
-        if (filters?.Tags != null && filters.Tags.Count > 0)
-        {
-            foreach (var tag in filters.Tags)
-            {
-                // var currentTagId = tag.Id;
-                projectsQuery = projectsQuery.Where(p => p.ProjectTags.Any(pt => pt.TagId == tag));
-            }
-        }
-        
         
         
         var projectsEntities = await projectsQuery
@@ -241,7 +209,8 @@ public class ProjectsRepository : IProjectsRepository
             Budget = project.Budget,
             RequiredRoles = project.ProjectRoles.Select(pr => new RequiredRole(
                 roleId: pr.RoleId,
-                customRoleName: pr.CustomRoleName
+                customRoleName: pr.CustomRoleName,
+                systemRoleName: pr.Role.Name
             )).ToList()
         };
     }
@@ -348,11 +317,57 @@ public class ProjectsRepository : IProjectsRepository
     /// Возвращает общее число проектов удволетворящих фильтрам
     /// </summary>
     /// <returns></returns>
-    public async Task<int> GetTotalProjectCountAsync(string searchElement)
+    public async Task<int> GetTotalProjectCountAsync(string searchElement, ProjectFilterDTO filters = null)
     {
-        return await _context.Projects
-            .AsNoTracking()
-            .Where(projectEntity => searchElement == string.Empty || projectEntity.Name.ToLower().Contains(searchElement.ToLower()))
-            .CountAsync();
+        var query =  _context.Projects.AsNoTracking();
+            
+        query = ApplySearchFilter(query, searchElement);
+        query = ApplyFilters(query, filters);
+        
+        return await query.CountAsync();
     }
+
+    private  IQueryable<ProjectEntity> ApplySearchFilter(IQueryable<ProjectEntity> query, string searchElement)
+    {
+        return _context.Projects
+            .Where(projectEntity => searchElement == string.Empty ||
+                                    projectEntity.Name.ToLower().Contains(searchElement.ToLower()) ||
+                                    projectEntity.ProjectRoles.Any(pr =>
+                                        pr.Role.Name.ToLower().Contains(searchElement.ToLower())) ||
+                                    projectEntity.ProjectRoles.Any(pr =>
+                                        pr.CustomRoleName != null &&
+                                        pr.CustomRoleName.ToLower().Contains(searchElement.ToLower())));
+    }
+    
+    private IQueryable<ProjectEntity> ApplyFilters(IQueryable<ProjectEntity> query, ProjectFilterDTO filters)
+    {
+        if (filters == null) 
+            return query;
+
+        if (filters.RoleId != null)
+        {
+            query = query.Where(p => p.ProjectRoles.Any(pr => pr.RoleId == filters.RoleId));
+        }
+
+        if (filters.StateOfProject != null && filters.StateOfProject != StateOfProject.NotSelected)
+        {
+            query = query.Where(p => p.StateOfProject == filters.StateOfProject);
+        }
+
+        if (filters.IsCommercial.HasValue)
+        {
+            query = query.Where(p => p.IsBusinesProject == filters.IsCommercial.Value);
+        }
+
+        if (filters.Tags != null && filters.Tags.Count > 0)
+        {
+            foreach (var tagId in filters.Tags)
+            {
+                query = query.Where(p => p.ProjectTags.Any(pt => pt.TagId == tagId));
+            }
+        }
+
+        return query;
+    }
+    
 }

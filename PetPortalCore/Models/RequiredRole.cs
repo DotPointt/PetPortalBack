@@ -11,11 +11,11 @@ public class RequiredRole
 
     public RequiredRole() { } // Для маппинга / сериализации
 
-    public RequiredRole(Guid roleId, string? customRoleName)
+    public RequiredRole(Guid roleId, string? customRoleName, string? systemRoleName)
     {
         RoleId = roleId;
         CustomRoleName = customRoleName;
-
+        SystemRoleName = systemRoleName;
     }
 
 

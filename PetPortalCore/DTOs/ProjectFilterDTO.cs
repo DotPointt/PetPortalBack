@@ -4,7 +4,7 @@ namespace PetPortalCore.DTOs;
 
 public class ProjectFilterDTO
 {
-    public string? Role { get; set; }
+    public Guid? RoleId { get; set; }
     public string? Deadline { get; set;  }
     public bool? IsCommercial { get; set; }
 

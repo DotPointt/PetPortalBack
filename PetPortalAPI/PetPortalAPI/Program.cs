@@ -138,6 +138,7 @@ namespace PetPortalAPI
             services.AddScoped<IPaymentService, YooKassaService>();
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
             services.AddScoped<IRespondService, RespondService>();
+            services.AddScoped<IRolesService, RoleService>();
 
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
@@ -151,6 +152,7 @@ namespace PetPortalAPI
             services.AddScoped<IExperienceRepository, ExperienceRepository>();
             services.AddScoped<IEducationRepository, EducationRepository>();
             services.AddScoped<IRespondRepository, RespondRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
 
             // Регистрация вспомогательных сервисов
             services.AddScoped<IPasswordHasher, PasswordHasher>();

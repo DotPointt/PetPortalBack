@@ -107,7 +107,7 @@ public class ProjectsController : ControllerBase
                 response.Projects.Add(projectDto);
             }
 
-            response.ProjectsCount = await _projectsService.GetTotalProjectCountAsync(request.SearchElement); //добавить фильтрацию на этот метод
+            response.ProjectsCount = await _projectsService.GetTotalProjectCountAsync(request.SearchElement, request.Filters); //добавить фильтрацию на этот метод
 
             return Ok(response);
         }
