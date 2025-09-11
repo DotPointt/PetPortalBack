@@ -226,22 +226,18 @@ namespace PetPortalDAL.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Plan")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Requirements")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Result")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("StateOfProject")
                         .HasColumnType("integer");
 
                     b.Property<string>("TeamDescription")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedDate")

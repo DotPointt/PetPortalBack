@@ -20,22 +20,22 @@ public class ProjectContract
     /// <summary>
     /// Description of requirements needed to be satisfied to complete the projects
     /// </summary>
-    public string Requirements { get; set; } = string.Empty ;
+    public string? Requirements { get; set; } = string.Empty ;
     
     /// <summary>
     /// Description of current and future team members
     /// </summary>
-    public string TeamDescription { get; set; } = string.Empty;
+    public string? TeamDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Plan of project
     /// </summary>
-    public string Plan { get; set; } = string.Empty; 
+    public string? Plan { get; set; } = string.Empty; 
         
     /// <summary>
     /// Description of awaited result of project
     /// </summary>
-    public string Result { get; set; } = string.Empty;
+    public string? Result { get; set; } = string.Empty;
 
     // /// <summary>
     // /// Идентификатор владельца проекта.
@@ -71,11 +71,11 @@ public class ProjectContract
     /// Указывает, является ли проект коммерческим.
     /// </summary>
     public bool IsBusinessProject = false;
-    
+
     /// <summary>
     /// Список тегов, связанных с проектом.
     /// </summary>
-    public List<Tag> Tags { get; set; }
+    public List<Tag> Tags { get; set; } = new();
     
     /// <summary>
     /// Список требуемых ролей для проекта.

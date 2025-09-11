@@ -26,22 +26,22 @@ public class ProjectEntity : BaseAuditableEntity
     /// <summary>
     /// Description of requirements needed to be satisfied to complete the projects
     /// </summary>
-    public string Requirements { get; set; }
+    public string? Requirements { get; set; } = string.Empty;
     
     /// <summary>
     /// Description of current and future team members
     /// </summary>
-    public string TeamDescription { get; set; }
+    public string? TeamDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Plan of project
     /// </summary>
-    public string Plan { get; set; }
+    public string? Plan { get; set; } = string.Empty;
         
     /// <summary>
     /// Description of awaited result of project
     /// </summary>
-    public string Result { get; set; }
+    public string? Result { get; set; } = string.Empty;
 
     /// <summary>
     /// Идентификатор владельца проекта.

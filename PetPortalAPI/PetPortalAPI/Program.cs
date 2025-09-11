@@ -197,6 +197,8 @@ namespace PetPortalAPI
             // Перенаправление на HTTPS
             app.UseHttpsRedirection();
             
+            app.UseCors("AllowSpecificOrigin");
+            
             // Включение аутентификации и авторизации
             app.UseAuthentication();
             app.UseAuthorization();
@@ -210,7 +212,7 @@ namespace PetPortalAPI
             app.MapHub<ChatHub>("/chat");
             
             // Включение CORS
-            app.UseCors("AllowSpecificOrigin");
+
 
             // Запуск приложения
             app.Run();
