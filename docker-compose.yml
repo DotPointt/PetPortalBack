@@ -10,13 +10,25 @@ services:
         - "host:94.141.101.136"
     ports:
       - "80:80"
+      - "443:443"
     volumes:
      - './PetPortalBack/nginx.conf:/etc/nginx/nginx.conf'
      - './dist:/usr/share/nginx/html'
+     - etc-letsencrypt:/etc/letsencrypt
     depends_on:
       - petportalapi
     networks:
       - dev
+
+  certbot:
+     image: certbot/certbot
+     depends_on:
+       - nginx
+     container_name: certbot
+     volumes:
+        - etc-letsencrypt:/etc/letsencrypt
+        - './dist:/data/www'
+     command: renew
 
   petportalapi:
     image: ${DOCKER_REGISTRY-}petportalapi
@@ -55,7 +67,7 @@ services:
       MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9001"
     volumes:
-      - minio_data:/data
+      - ./minio-data:/data
     networks:
       - dev
         
@@ -72,4 +84,4 @@ services:
 volumes: 
   postgres-data:
   redis_data:
-  minio_data:
+  etc-letsencrypt:
