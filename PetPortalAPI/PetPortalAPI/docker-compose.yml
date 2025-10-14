@@ -37,3 +37,4 @@ volumes:
   postgres-data:
   redis_data:
   minio-data:
+  
