@@ -1,3 +1,5 @@
+using PetPortalDAL.Entities.LinkingTables;
+
 namespace PetPortalDAL.Entities;
 
 /// <summary>
@@ -16,7 +18,14 @@ public class RoleEntity
     public string Name { get; set; }
     
     /// <summary>
+    ///  Флаг: системная роль нельзя удалять, например "Другое"
+    /// </summary>
+    public bool IsSystem { get; set; }
+    
+    /// <summary>
     /// Список пользователей, связанных с этой ролью.
     /// </summary>
     public ICollection<UserEntity> Users { get; set; }
+
+    public ICollection<ProjectRole> ProjectRoles { get; set; }
 }

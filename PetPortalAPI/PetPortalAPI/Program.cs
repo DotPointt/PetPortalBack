@@ -150,6 +150,8 @@ namespace PetPortalAPI
             services.AddScoped<IChatRoomService, ChatRoomService>();
             services.AddScoped<IPaymentService, YooKassaService>();
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
+            services.AddScoped<IRespondService, RespondService>();
+            services.AddScoped<IRolesService, RoleService>();
 
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
@@ -162,6 +164,8 @@ namespace PetPortalAPI
             services.AddScoped<IStackRepository, StackRepository>();
             services.AddScoped<IExperienceRepository, ExperienceRepository>();
             services.AddScoped<IEducationRepository, EducationRepository>();
+            services.AddScoped<IRespondRepository, RespondRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
 
             // Регистрация вспомогательных сервисов
             services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -219,6 +223,8 @@ namespace PetPortalAPI
             // Перенаправление на HTTPS
             app.UseHttpsRedirection();
             
+            app.UseCors("AllowSpecificOrigin");
+            
             // Включение аутентификации и авторизации
             app.UseAuthentication();
             app.UseAuthorization();
@@ -230,6 +236,8 @@ namespace PetPortalAPI
             // TODO
             // разобраться с путями.
             app.MapHub<ChatHub>("/chat");
+            
+            // Включение CORS
 
 
             // Запуск приложения

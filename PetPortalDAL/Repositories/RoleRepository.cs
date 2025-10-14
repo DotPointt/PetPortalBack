@@ -1,3 +1,4 @@
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Models;
@@ -18,16 +19,19 @@ public class RoleRepository : IRoleRepository
     /// Репозиторий для работы с пользователями.
     /// </summary>
     private readonly IUsersRepository _usersRepository;
+    
+    private readonly IMapper _mapper;
 
     /// <summary>
     /// Конструктор репозитория.
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>
     /// <param name="usersRepository">Репозиторий для работы с пользователями.</param>
-    public RoleRepository(PetPortalDbContext context, IUsersRepository usersRepository)
+    public RoleRepository(PetPortalDbContext context, IUsersRepository usersRepository, IMapper mapper)
     {
         _context = context;
         _usersRepository = usersRepository;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -36,7 +40,7 @@ public class RoleRepository : IRoleRepository
     /// <param name="userId">Идентификатор пользователя.</param>
     /// <returns>Название роли.</returns>
     /// <exception cref="KeyNotFoundException">Выбрасывается, если роль не найдена.</exception>
-    public async Task<string> GetRoleByUserId(Guid userId)
+    public async Task<string> GetRoleNameByUserId(Guid userId)
     {
         var user = await _usersRepository.GetById(userId);
         
@@ -49,5 +53,14 @@ public class RoleRepository : IRoleRepository
             throw new KeyNotFoundException("Роль не найдена.");
         
         return roleName;
+    }
+
+    public async Task<ICollection<Role>> GetAll()
+    {
+        var roleEntities =  await _context.Roles.ToListAsync();
+        
+        List<Role> roles = roleEntities.Select(role => _mapper.Map<Role>(role)).ToList();
+
+        return roles;
     }
 }

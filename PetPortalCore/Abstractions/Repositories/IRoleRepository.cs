@@ -1,3 +1,5 @@
+using PetPortalCore.Models;
+
 namespace PetPortalCore.Abstractions.Repositories;
 
 /// <summary>
@@ -10,5 +12,7 @@ public interface IRoleRepository
     /// </summary>
     /// <param name="userId">Идентификатор пользователя.</param>
     /// <returns>Название роли.</returns>
-    Task<string> GetRoleByUserId(Guid userId);
+    Task<string> GetRoleNameByUserId(Guid userId);
+    
+    Task<ICollection<Role>> GetAll();
 }

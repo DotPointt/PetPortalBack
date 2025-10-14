@@ -75,19 +75,11 @@ public class UsersController : ControllerBase
     /// Список проектов.
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
-    [HttpGet("MyProjects")]
-    public async Task<ActionResult<List<Project>>> GetUserProjects()
+    [HttpGet("Projects/{userId}")]
+    public async Task<ActionResult<List<Project>>> GetUserProjects(Guid userId)
     {
         try
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (userIdClaim == null)
-            {
-                return Unauthorized("Идентификатор пользователя не найден в токене.");
-            }
-        
-            var userId = Guid.Parse(userIdClaim);
             var projects = await _userService.GetOwnProjects(userId);
         
             return Ok(projects);

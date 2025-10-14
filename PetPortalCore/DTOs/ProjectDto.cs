@@ -86,4 +86,9 @@ public class ProjectDto
     /// Tags related to Project. List of strings.
     /// </summary>
     public List<Tag> Tags { get; set; }
+    
+        /// <summary>
+        /// Список специалистов, требуемых в проекте.
+        /// </summary>
+        public List<RequiredRole> RequiredRoles { get; set; }
 }

@@ -71,5 +71,5 @@ public interface IProjectsRepository
     /// Возвращает общее число проектов удволетворящих фильтрам
     /// </summary>
     /// <returns></returns>
-    Task<int> GetTotalProjectCountAsync(string searchElement);
+    Task<int> GetTotalProjectCountAsync(string searchElement, ProjectFilterDTO filters = null);
 }

@@ -39,7 +39,7 @@ public interface IProjectsService
     /// </summary>
     /// <param name="project">Данные проекта.</param>
     /// <returns>Идентификатор созданного проекта.</returns>
-    Task<Guid> Create(ProjectContract project);
+    Task<Guid> Create(ProjectContract project, Guid userId);
 
     /// <summary>
     /// Обновить проект.
@@ -70,5 +70,5 @@ public interface IProjectsService
     /// Возвращает общее число проектов удволетворящих фильтрам
     /// </summary>
     /// <returns></returns>
-    Task<int> GetTotalProjectCountAsync(string searchElement);
+    Task<int> GetTotalProjectCountAsync(string searchElement, ProjectFilterDTO filters = null);
 }

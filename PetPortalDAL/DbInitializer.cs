@@ -8,17 +8,64 @@ namespace PetPortalDAL;
 public class DbInitializer
 {
     private static readonly Random Rand = new();
+    private static readonly Guid otherRoleId = new Guid("A0000000-0000-0000-0000-000000000000");
 
     public static void Seed(PetPortalDbContext context)
     {
         // === Roles ===
         if (!context.Roles.Any())
         {
-            var roles = new List<RoleEntity>
+            var roleNames = new[]
             {
-                new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Admin" },
-                new RoleEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "User" }
+                "Backend Developer",
+                "Frontend Developer",
+                "Fullstack Developer",
+                "DevOps Engineer",
+                "UI/UX Designer",
+                "Product Manager",
+                "Project Manager",
+                "QA Engineer",
+                "Security Specialist",
+                "Data Scientist",
+                "Data Analyst",
+                "ML Engineer",
+                "AI Researcher",
+                "Mobile Developer (iOS)",
+                "Mobile Developer (Android)",
+                "Game Developer",
+                "Embedded Systems Engineer",
+                "Blockchain Developer",
+                "Cloud Architect",
+                "SRE (Site Reliability Engineer)",
+                "Technical Writer",
+                "Scrum Master",
+                "Business Analyst",
+                "System Architect",
+                "Database Administrator",
+                "Network Engineer",
+                "Penetration Tester",
+                "NLP Engineer",
+                "Computer Vision Engineer",
+                "AR/VR Developer"
             };
+
+            var roles = new List<RoleEntity>();
+            foreach (var roleName in roleNames)
+            {
+                roles.Add(new RoleEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = roleName
+                });
+            }
+
+            // Роль "Другое" с легко узнаваемым GUID
+            roles.Add(new RoleEntity
+            {
+                Id = otherRoleId,
+                Name = "Другое"
+            });
+
             context.Roles.AddRange(roles);
             context.SaveChanges();
         }
@@ -26,10 +73,13 @@ public class DbInitializer
         // === Users ===
         if (!context.Users.Any())
         {
-            var adminRoleId = context.Roles.First(r => r.Name == "Admin").Id;
-            var userRoleId = context.Roles.First(r => r.Name == "User").Id;
+            // var adminRoleId = context.Roles.First(r => r.Name == "Admin").Id;
+            // var userRoleId = context.Roles.First(r => r.Name == "User").Id;
+            var roleIds = context.Roles.Select(r => r.Id).ToList();
 
             var users = new List<UserEntity>();
+            
+            
             for (int i = 1; i <= 10; i++)
             {
                 users.Add(new UserEntity
@@ -38,7 +88,7 @@ public class DbInitializer
                     Name = $"User{i}",
                     Email = $"user{i}@example.com",
                     PasswordHash = $"hashedPassword{i}",
-                    RoleId = i == 1 ? adminRoleId : userRoleId
+                    RoleId = roleIds[Rand.Next(roleIds.Count)]
                 });
             }
 
@@ -50,6 +100,8 @@ public class DbInitializer
         if (!context.Projects.Any())
         {
             var users = context.Users.ToList();
+            var allRoleIds = context.Roles.Select(r => r.Id).ToList();
+            
             var projectNames = new[]
             {
                 "AI Assistant", "E-commerce Platform", "Mobile App", "Game Engine",
@@ -113,14 +165,26 @@ public class DbInitializer
                 "CI/CD pipelines automated.",
                 "Enterprise-grade chatbot deployed."
             };
+            
+            var customRoleNames = new[]
+            {
+                "3D Artist", "Sound Designer", "Legal Advisor", "Project Coordinator",
+                "Community Manager", "Tech Support", "Copywriter", "Business Analyst",
+                "Hardware Engineer", "AI Trainer", "Localization Specialist", "DevRel"
+            };
+
 
             var projects = new List<ProjectEntity>();
+            var projectRoles = new List<ProjectRole>();
+            
             for (int i = 0; i < 30; i++)
             {
                 var ownerId = users[Rand.Next(users.Count)].Id;
+                var projectId = Guid.NewGuid();
+                
                 projects.Add(new ProjectEntity
                 {
-                    Id = Guid.NewGuid(),
+                    Id = projectId,
                     Name = (projectNames[i % 10] + " (" + i + ") "),
                     Description = projectDescriptions[i % 10],
                     Requirements = requirementsList[i % 10],
@@ -134,9 +198,37 @@ public class DbInitializer
                     IsBusinesProject = Rand.NextDouble() > 0.5,
                     Budget = (uint)Rand.Next(500_000, 2_000_000)
                 });
+                
+                var roleCount = Rand.Next(2, 6);
+                var selectedRoleIds = allRoleIds
+                    .OrderBy(_ => Rand.Next())
+                    .Take(roleCount)
+                    .ToList();
+                
+                foreach (var roleId in selectedRoleIds)
+                {
+                    var projectRole = new ProjectRole
+                    {
+                        Id = Guid.NewGuid(),
+                        ProjectId = projectId,
+                        RoleId = roleId
+                    };
+
+                    // Если это роль "Другое" — обязательно задаём CustomRoleName
+                    if (roleId == otherRoleId)
+                    {
+                        projectRole.CustomRoleName = customRoleNames[Rand.Next(customRoleNames.Length)];
+                    }
+
+                    projectRoles.Add(projectRole);
+                }
+                
             }
 
             context.Projects.AddRange(projects);
+            context.SaveChanges();
+            
+            context.ProjectRoles.AddRange(projectRoles);
             context.SaveChanges();
         }
 

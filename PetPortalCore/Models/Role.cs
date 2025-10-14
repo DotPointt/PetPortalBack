@@ -8,12 +8,16 @@ public class Role
     /// <summary>
     /// Идентификатор роли.
     /// </summary>
-    public Guid Id;
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Название роли.
     /// </summary>
-    public string name;
+    public string Name { get; set; }
     
-    // TODO: Добавить логику для ролей.
+    /// <summary>
+    ///  Флаг: системная роль нельзя удалять, например "Другое"
+    /// </summary>
+    public bool IsSystem { get; set; }
+    
 }
