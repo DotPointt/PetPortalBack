@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
@@ -46,6 +47,64 @@ public class MinioService : IMinioService
         _bucketName = config.BucketName; 
         _defaultKey = config.DefaultKey; 
     }
+    
+    
+    public async Task EnsureBucketExistsAsync()
+    {
+        try
+        {
+            await _s3Client.GetBucketLocationAsync(new GetBucketLocationRequest
+            {
+                BucketName = _bucketName
+            });
+            Console.WriteLine($"Bucket '{_bucketName}' уже существует.");
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            Console.WriteLine($"Bucket '{_bucketName}' не найден. Создаём...");
+            await _s3Client.PutBucketAsync(new PutBucketRequest
+            {
+                BucketName = _bucketName
+            });
+            Console.WriteLine($"Bucket '{_bucketName}' успешно создан.");
+        }
+    }
+    
+    
+    /// <summary>
+    /// Сделать bucket публичным для чтения (анонимный доступ к объектам).
+    /// </summary>
+    public async Task MakeBucketPublicAsync()
+    {
+        var policy = new
+        {
+            Version = "2012-10-17",
+            Statement = new[]
+            {
+                new
+                {
+                    Effect = "Allow",
+                    Principal = "*",
+                    Action = new[] { "s3:GetObject" },
+                    Resource = $"arn:aws:s3:::{_bucketName}/*"
+                }
+            }
+        };
+
+        var policyJson = JsonSerializer.Serialize(policy, new JsonSerializerOptions
+        {
+            WriteIndented = false
+        });
+
+        await _s3Client.PutBucketPolicyAsync(new PutBucketPolicyRequest
+        {
+            BucketName = _bucketName,
+            Policy = policyJson
+        });
+
+        Console.WriteLine($"Bucket '{_bucketName}' настроен как публичный для чтения.");
+    }
+    
     
     /// <summary>
     /// Загрузка файла в объектное хранилище.

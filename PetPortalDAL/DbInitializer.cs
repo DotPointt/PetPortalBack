@@ -1,4 +1,5 @@
 using System;
+using PetPortalCore.Abstractions.Services;
 using PetPortalDAL.Entities;
 using PetPortalDAL.Entities.LinkingTables;
 using PetPortalCore.Models;
@@ -10,7 +11,7 @@ public class DbInitializer
     private static readonly Random Rand = new();
     private static readonly Guid otherRoleId = new Guid("A0000000-0000-0000-0000-000000000000");
 
-    public static void Seed(PetPortalDbContext context)
+    public static async Task Seed(PetPortalDbContext context, IMinioService? minioService = null)
     {
         // === Roles ===
         if (!context.Roles.Any())
@@ -73,16 +74,13 @@ public class DbInitializer
         // === Users ===
         if (!context.Users.Any())
         {
-            // var adminRoleId = context.Roles.First(r => r.Name == "Admin").Id;
-            // var userRoleId = context.Roles.First(r => r.Name == "User").Id;
             var roleIds = context.Roles.Select(r => r.Id).ToList();
-
             var users = new List<UserEntity>();
             
             
             for (int i = 1; i <= 10; i++)
             {
-                users.Add(new UserEntity
+                var user = (new UserEntity
                 {
                     Id = Guid.NewGuid(),
                     Name = $"User{i}",
@@ -90,6 +88,32 @@ public class DbInitializer
                     PasswordHash = $"hashedPassword{i}",
                     RoleId = roleIds[Rand.Next(roleIds.Count)]
                 });
+                
+                // Генерируем аватар и загружаем в MinIO, если сервис доступен
+                if (minioService != null)
+                {
+                    var svgContent = GenerateAvatarSvg();
+                    var fileName = $"{user.Id}_avatar.svg";
+
+                    using var stream = new MemoryStream();
+                    using var writer = new StreamWriter(stream);
+                    await writer.WriteAsync(svgContent);
+                    await writer.FlushAsync();
+                    stream.Position = 0;
+
+                    try
+                    {
+                        await minioService.UploadFileAsync(fileName, stream, "image/svg+xml");
+                        user.AvatarUrl = fileName;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Логирование ошибки (можно заменить на ILogger)
+                        Console.WriteLine($"Ошибка загрузки аватара для {user.Name}: {ex.Message}");
+                        // Не прерываем инициализацию — продолжаем без аватара
+                    }
+                }
+                users.Add(user);
             }
 
             context.Users.AddRange(users);
@@ -316,5 +340,71 @@ public class DbInitializer
 
             context.SaveChanges();
         }
+    }
+    
+    
+    
+    public static string GenerateAvatarSvg()
+    {
+        // Пастельный фон
+        string bgColor = GeneratePastelColor();
+
+        // Контрастный, но мягкий цвет для пикселей (немного темнее фона или нейтральный)
+        // Вариант: использовать белый с низкой прозрачностью ИЛИ слегка затемнённый оттенок
+        // Здесь — белый с 30% непрозрачности для хорошей видимости
+        
+        // string pixelColor = "rgba(255, 255, 255, 0.3)";
+
+        string pixelColor = "rgba(0, 0, 0, 0.2)";
+        
+        // Генерация симметричного пиксельного узора
+        string pattern = GeneratePixelPattern(pixelColor);
+
+        return $@"<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>
+  <rect width='200' height='200' fill='{bgColor}' />
+  {pattern}
+</svg>";
+    }
+    
+    private static string GeneratePastelColor()
+    {
+        // Генерируем мягкие пастельные тона: высокая яркость, умеренная насыщенность
+        var r = Random.Shared.Next(180, 256);
+        var g = Random.Shared.Next(180, 256);
+        var b = Random.Shared.Next(180, 256);
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
+    
+    private static string GeneratePixelPattern(string fillColor)
+    {
+        const int gridSize = 5;
+        const int cellSize = 40; // 200 / 5
+
+        var mask = new bool[gridSize, gridSize];
+
+        // Заполняем левую половину + центр случайно
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int x = 0; x <= gridSize / 2; x++)
+            {
+                bool fill = Random.Shared.Next(2) == 1;
+                mask[y, x] = fill;
+                mask[y, gridSize - 1 - x] = fill; // зеркальное отражение
+            }
+        }
+
+        var rects = new List<string>();
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int x = 0; x < gridSize; x++)
+            {
+                if (mask[y, x])
+                {
+                    rects.Add($"<rect x='{x * cellSize}' y='{y * cellSize}' width='{cellSize}' height='{cellSize}' fill='{fillColor}' />");
+                }
+            }
+        }
+
+        return string.Join("\n  ", rects);
     }
 }

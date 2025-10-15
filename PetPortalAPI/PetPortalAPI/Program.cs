@@ -20,7 +20,7 @@ namespace PetPortalAPI
 {
     public abstract class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             ConfigureServices(builder.Services, builder.Configuration);
@@ -34,7 +34,7 @@ namespace PetPortalAPI
                 try
                 {
                     var context = services.GetRequiredService<PetPortalDbContext>();
-                    context.Database.Migrate(); // Применяет миграции
+                    await context.Database.MigrateAsync(); // Применяет миграции
                 }
                 catch (Exception ex)
                 {
@@ -44,7 +44,7 @@ namespace PetPortalAPI
             }
 
 
-            ConfigureApp(app);
+            await ConfigureApp(app);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace PetPortalAPI
         /// Настройка приложения.
         /// </summary>
         /// <param name="app">Экземпляр приложения.</param>
-        private static void ConfigureApp(WebApplication app)
+        private static async Task ConfigureApp(WebApplication app)
         {
             // Включение Swagger в режиме разработки
             if (app.Environment.IsDevelopment())
@@ -189,8 +189,12 @@ namespace PetPortalAPI
                 // Инициализация базы данных (если требуется)
                 using (var scope = app.Services.CreateScope())
                 {
+                    var minioService = scope.ServiceProvider.GetService<IMinioService>();
+                    await minioService.EnsureBucketExistsAsync();
+                    await minioService.MakeBucketPublicAsync();
+                    
                     var context = scope.ServiceProvider.GetRequiredService<PetPortalDbContext>();
-                    DbInitializer.Seed(context);  
+                    await DbInitializer.Seed(context, minioService);  
                 }
             }
 
@@ -215,7 +219,7 @@ namespace PetPortalAPI
 
 
             // Запуск приложения
-            app.Run();
+            await app.RunAsync();
         }
     }
 }

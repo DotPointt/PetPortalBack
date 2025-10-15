@@ -21,4 +21,8 @@ public interface IMinioService
     /// <returns>Поток файла.</returns>
     /// <exception cref="FileNotFoundException">Выбрасывается, если файл не найден.</exception>
     Task<MemoryStream> GetFileAsync(string fileName);
+    
+    public Task EnsureBucketExistsAsync();
+
+    public Task MakeBucketPublicAsync();
 }

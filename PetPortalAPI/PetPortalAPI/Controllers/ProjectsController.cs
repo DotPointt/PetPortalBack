@@ -80,7 +80,7 @@ public class ProjectsController : ControllerBase
                 {
                     var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
                     var arrayImg = stream.ToArray();
-                    imageBase64 = Convert.ToBase64String(arrayImg);
+                    imageBase64 = Convert.ToBase64String(arrayImg); //
                 }
 
                 var projectDto = new ProjectDto()
@@ -97,7 +97,7 @@ public class ProjectsController : ControllerBase
                     Deadline = p.Deadline,
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
-                    AvatarImageBase64 = imageBase64,
+                    AvatarImageBase64 = "http://localhost:9000/test/" + user.AvatarUrl, //
                     IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget,
                     Tags = p.Tags,
