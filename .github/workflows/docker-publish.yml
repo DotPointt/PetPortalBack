@@ -23,10 +23,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    secrets: inherit
     steps:
     - name: Deploy to VPS
       uses: appleboy/ssh-action@v1.0.3
+      secrets: inherit
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
