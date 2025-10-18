@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using PetPortalCore.Abstractions.Repositories;
+using PetPortalCore.Abstractions.Services;
 using PetPortalCore.DTOs;
 using PetPortalCore.Models;
 using PetPortalDAL.Entities;
@@ -18,14 +19,17 @@ public class ProjectsRepository : IProjectsRepository
     /// Контекст базы данных.
     /// </summary>
     private readonly PetPortalDbContext _context;
+    
+    private readonly IRabbitMqProducerService _producerService;
         
     /// <summary>
     /// Конструктор репозитория.
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>
-    public ProjectsRepository(PetPortalDbContext context)
+    public ProjectsRepository(PetPortalDbContext context, IRabbitMqProducerService  producerService)
     {
         _context = context;
+        _producerService =  producerService;
     }
 
     /// <summary>
@@ -266,6 +270,8 @@ public class ProjectsRepository : IProjectsRepository
         
         await _context.AddAsync(projectEntity);
         await _context.SaveChangesAsync();
+
+        await _producerService.PublishAsync<Project>(project, "ProjectCreated");
 
         return projectEntity.Id;
     }

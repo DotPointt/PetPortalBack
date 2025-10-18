@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PetPortalAPI.Controllers;
 using PetPortalAPI.Hubs;
+using PetPortalAPI.Options;
 using PetPortalApplication.AuthConfiguration;
 using PetPortalCore.Configs;
 using PetPortalDAL;
@@ -139,6 +140,7 @@ namespace PetPortalAPI
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
             services.AddScoped<IRespondService, RespondService>();
             services.AddScoped<IRolesService, RoleService>();
+            services.AddSingleton<IRabbitMqProducerService, RabbitMqProducerService>();
 
             // Регистрация репозиториев
             services.AddScoped<IProjectsRepository, ProjectsRepository>();
@@ -158,6 +160,9 @@ namespace PetPortalAPI
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddMapster();
+            
+            //Регистрация Настроек
+            services.Configure<RabbitMqOptions>( configuration.GetSection("RabbitMq"));
             
             #endregion
             
