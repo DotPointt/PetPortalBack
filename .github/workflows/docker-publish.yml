@@ -35,7 +35,7 @@ jobs:
           echo "Starting deployment..."
           
           # Переходим в директорию с репозиторием
-          cd /path/to/your/repository
+          cd /home/admin/PetPortalBack
           
           # Обновляем код
           git fetch origin
