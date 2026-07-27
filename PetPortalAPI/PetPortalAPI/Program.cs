@@ -115,9 +115,10 @@ namespace PetPortalAPI
             {
                 c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\PetPortalAPI.xml");
-                
-                c.IncludeXmlComments($@"{System.AppDomain.CurrentDomain.BaseDirectory}\PetPortalCore.xml");
+                // Path.Combine вместо '\' в пути - иначе XML-доки не находятся в Linux-контейнере
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PetPortalAPI.xml"));
+
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "PetPortalCore.xml"));
             });
 
             // Настройка контекста базы данных
@@ -167,11 +168,16 @@ namespace PetPortalAPI
             #endregion
             
             // Настройка CORS (Cross-Origin Resource Sharing)
+            // Источники можно переопределить через конфигурацию: Cors:AllowedOrigins (адреса через ';')
+            var allowedOrigins = configuration.GetValue<string>("Cors:AllowedOrigins")
+                ?.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                ?? new[] { "http://localhost:5173", "http://localhost:5174" };
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173", "http://localhost:5174") // Разрешенный источник
+                    builder.WithOrigins(allowedOrigins) // Разрешенные источники
                         .AllowAnyHeader() // Разрешение любых заголовков
                         .AllowAnyMethod() // Разрешение любых методов
                         .AllowCredentials(); // Разрешение учетных данных
@@ -185,21 +191,42 @@ namespace PetPortalAPI
         /// <param name="app">Экземпляр приложения.</param>
         private static async Task ConfigureApp(WebApplication app)
         {
-            // Включение Swagger в режиме разработки
-            if (app.Environment.IsDevelopment())
+            // Включение Swagger: в Development всегда, в остальных окружениях — при EnableSwagger=true
+            if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("EnableSwagger"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                
-                // Инициализация базы данных (если требуется)
-                using (var scope = app.Services.CreateScope())
+            }
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                var minioService = services.GetRequiredService<IMinioService>();
+
+                // Бакет MinIO нужен в любом окружении, операции идемпотентны
+                try
                 {
-                    var minioService = scope.ServiceProvider.GetService<IMinioService>();
                     await minioService.EnsureBucketExistsAsync();
                     await minioService.MakeBucketPublicAsync();
-                    
-                    var context = scope.ServiceProvider.GetRequiredService<PetPortalDbContext>();
-                    await DbInitializer.Seed(context, minioService);  
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "An error occurred while initializing the MinIO bucket.");
+                }
+
+                // Тестовые данные: в Development всегда, в остальных окружениях — при SeedDatabase=true
+                if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("SeedDatabase"))
+                {
+                    try
+                    {
+                        var context = services.GetRequiredService<PetPortalDbContext>();
+                        await DbInitializer.Seed(context, minioService);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "An error occurred while seeding the database.");
+                    }
                 }
             }
 
