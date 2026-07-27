@@ -1,7 +1,7 @@
 ﻿services:
   postgres:
     container_name: postgres
-    image: postgres:latest
+    image: postgres:17
     environment:
       POSTGRES_DB: "petportaldb"
       POSTGRES_USER: "postgres"
