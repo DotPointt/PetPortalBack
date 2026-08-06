@@ -67,6 +67,11 @@ public interface IProjectsService
     Task<bool> CheckCreatingLimit(Guid ownerId, int limit);
 
     /// <summary>
+    /// Количество проектов, созданных пользователем.
+    /// </summary>
+    Task<int> GetProjectCountByOwnerId(Guid ownerId);
+
+    /// <summary>
     /// Возвращает общее число проектов удволетворящих фильтрам
     /// </summary>
     /// <returns></returns>

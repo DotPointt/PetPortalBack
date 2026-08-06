@@ -31,6 +31,11 @@ public class RespondEntity
     /// Идентификатор проекта.
     /// </summary>
     public Guid ProjectId { get; set; }
+
+    /// <summary>
+    /// Статус отклика: Pending / Accepted / Rejected.
+    /// </summary>
+    public string Status { get; set; } = "Pending";
     
     /// <summary>
     /// Проект.

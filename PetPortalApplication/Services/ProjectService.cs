@@ -127,6 +127,11 @@ public class ProjectService : IProjectsService
         return cnt <= limit;
     }
 
+    public async Task<int> GetProjectCountByOwnerId(Guid ownerId)
+    {
+        return await _projectsRepository.GetProjectCountByOwnerIdAsync(ownerId);
+    }
+
 
     /// <summary>
     /// Возвращает общее число проектов удволетворящих фильтрам

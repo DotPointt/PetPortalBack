@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PetPortalAPI.Hubs;
@@ -13,6 +14,7 @@ namespace PetPortalAPI.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/chat")]
+[Authorize]
 public class ChatController : ControllerBase
 {
     /// <summary>

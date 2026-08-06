@@ -140,7 +140,10 @@ public class AuthorizationController : ControllerBase
         }
 
         var request = HttpContext.Request;
-        var baseUrl = $"{request.Scheme}://{request.Host}/api/Authorization/ResetPassword";
+        // Ссылка ведёт на фронтенд, где пользователь задаёт новый пароль
+        var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL")
+                           ?? "http://localhost:5173";
+        var baseUrl = $"{frontendBase.TrimEnd('/')}/forget-password";
 
         ///генерация восстановительнйо ссылки и токена в ней
         var token = _resetPasswordService.GenerateResetPasswordToken(32);

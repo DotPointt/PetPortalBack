@@ -54,6 +54,7 @@ public class UsersController : ControllerBase
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<UserDto>>> GetUsers()
     {  
         try
@@ -122,10 +123,15 @@ public class UsersController : ControllerBase
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> UpdateUser(UserDto request)
     {
         try
         {
+            var currentUserId = await _userService.GetUserIdFromJWTAsync(User);
+            if (currentUserId == null || currentUserId.Value != request.Id)
+                return Forbid();
+
             var id = await _userService.Update(request);
             
             return Ok(id);
@@ -137,19 +143,19 @@ public class UsersController : ControllerBase
     }
         
     /// <summary>
-    /// Удалить пользователя.
+    /// Удалить текущего пользователя.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>
-    /// Идентификатор удаленного пользователя.
-    /// В случае ошибки возвращает сообщение об ошибке.
-    /// </returns>
     [HttpDelete]
-    public async Task<ActionResult<Guid>> DeleteUser([FromBody] Guid id)
+    [Authorize]
+    public async Task<ActionResult<Guid>> DeleteUser()
     {
         try
         {
-            var userId = await _userService.Delete(id);
+            var currentUserId = await _userService.GetUserIdFromJWTAsync(User);
+            if (currentUserId == null)
+                return Unauthorized();
+
+            var userId = await _userService.Delete(currentUserId.Value);
 
             return Ok(userId);
         }

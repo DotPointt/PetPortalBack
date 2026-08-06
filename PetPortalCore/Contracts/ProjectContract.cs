@@ -60,17 +60,17 @@ public class ProjectContract
     /// <summary>
     /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
-    public StateOfProject StateOfProject = StateOfProject.Closed;
+    public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
 
     /// <summary>
     /// Бюджет проекта в рублях.
     /// </summary>
-    public uint Budget;
+    public uint Budget { get; set; }
 
     /// <summary>
     /// Указывает, является ли проект коммерческим.
     /// </summary>
-    public bool IsBusinessProject = false;
+    public bool IsBusinessProject { get; set; } = false;
 
     /// <summary>
     /// Список тегов, связанных с проектом.

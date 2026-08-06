@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PetPortalCore\PetPortalCore.csproj" />
+      <ProjectReference Include="..\PetPortalDAL\PetPortalDAL.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -154,6 +154,8 @@ public class Project
             teamDescription, 
             plan, 
             result, ownerId, Deadline, ApplyingDeadline, StateOfProject, Tags, RequiredRoles);
+        project.Budget = Budget;
+        project.IsBusinesProject = IsBusinesProject;
 
         return (project, error);
     }

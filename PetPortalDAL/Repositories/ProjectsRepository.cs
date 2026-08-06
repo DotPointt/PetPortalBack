@@ -44,7 +44,8 @@ public class ProjectsRepository : IProjectsRepository
     public async Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1, ProjectFilterDTO filters = null)
     {
         var projectsQuery = _context.Projects
-            .AsNoTracking();
+            .AsNoTracking()
+            .Where(p => p.StateOfProject != StateOfProject.Closed);
         
         projectsQuery = ApplySearchFilter(projectsQuery, searchElement);
         projectsQuery = ApplyFilters(projectsQuery, filters);
@@ -245,33 +246,90 @@ public class ProjectsRepository : IProjectsRepository
             ProjectTags = new List<ProjectTag>()
         };
 
-        foreach (var requiredRole in project.RequiredRoles)
+        foreach (var requiredRole in project.RequiredRoles ?? Enumerable.Empty<RequiredRole>())
         {
-            var projectRole = new ProjectRole
+            var roleName = (requiredRole.CustomRoleName
+                            ?? requiredRole.SystemRoleName
+                            ?? string.Empty).Trim();
+
+            RoleEntity? role = null;
+            if (requiredRole.RoleId != Guid.Empty)
+            {
+                role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == requiredRole.RoleId);
+            }
+
+            if (role == null && !string.IsNullOrWhiteSpace(roleName))
+            {
+                role = await _context.Roles
+                    .FirstOrDefaultAsync(r => r.Name.ToLower() == roleName.ToLower());
+            }
+
+            if (role == null)
+            {
+                if (string.IsNullOrWhiteSpace(roleName))
+                    continue;
+
+                role = new RoleEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = roleName,
+                    IsSystem = false
+                };
+                await _context.Roles.AddAsync(role);
+                await _context.SaveChangesAsync();
+            }
+
+            // Avoid duplicate project-role pairs
+            if (projectEntity.ProjectRoles.Any(pr => pr.RoleId == role.Id))
+                continue;
+
+            projectEntity.ProjectRoles.Add(new ProjectRole
             {
                 ProjectId = project.Id,
-                RoleId = requiredRole.RoleId,
-                CustomRoleName = requiredRole.CustomRoleName // может быть null
-            };
-
-            projectEntity.ProjectRoles.Add(projectRole);
+                RoleId = role.Id,
+                CustomRoleName = requiredRole.CustomRoleName
+            });
         }
 
-        foreach (var tag in project.Tags)
+        foreach (var tag in project.Tags ?? Enumerable.Empty<Tag>())
         {
-            var projectTag = new ProjectTag
+            var tagName = (tag.Name ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(tagName))
+                continue;
+
+            var existingTag = await _context.Tags
+                .FirstOrDefaultAsync(t => t.Name.ToLower() == tagName.ToLower());
+
+            if (existingTag == null)
+            {
+                existingTag = new TagEntity
+                {
+                    Id = tag.Id != Guid.Empty ? tag.Id : Guid.NewGuid(),
+                    Name = tagName
+                };
+                await _context.Tags.AddAsync(existingTag);
+                await _context.SaveChangesAsync();
+            }
+
+            projectEntity.ProjectTags.Add(new ProjectTag
             {
                 ProjectId = project.Id,
-                TagId = tag.Id
-            };
-            
-            projectEntity.ProjectTags.Add(projectTag);
+                TagId = existingTag.Id
+            });
         }
         
         await _context.AddAsync(projectEntity);
         await _context.SaveChangesAsync();
 
-        await _producerService.PublishAsync<Project>(project, "ProjectCreated");
+        try
+        {
+            await _producerService.PublishAsync<Project>(project, "ProjectCreated");
+        }
+        catch (Exception ex)
+        {
+            // Project is already persisted; messaging must not fail the create API
+            Console.WriteLine($"ProjectCreated publish failed: {ex.Message}");
+        }
 
         return projectEntity.Id;
     }
@@ -286,8 +344,16 @@ public class ProjectsRepository : IProjectsRepository
         await _context.Projects
             .Where(project => project.Id == projectData.Id)
             .ExecuteUpdateAsync(s => s
-                .SetProperty(project => project.Name, project => projectData.Name)
-                .SetProperty(project => project.Description, project => projectData.Description) //обновляются только 2 поля
+                .SetProperty(project => project.Name, projectData.Name)
+                .SetProperty(project => project.Description, projectData.Description)
+                .SetProperty(project => project.Requirements, projectData.Requirements)
+                .SetProperty(project => project.TeamDescription, projectData.TeamDescription)
+                .SetProperty(project => project.Result, projectData.Result)
+                .SetProperty(project => project.Plan, projectData.Plan)
+                .SetProperty(project => project.Budget, projectData.Budget)
+                .SetProperty(project => project.Deadline, projectData.Deadline)
+                .SetProperty(project => project.ApplyingDeadline, projectData.ApplyingDeadline)
+                .SetProperty(project => project.IsBusinesProject, projectData.IsBusinessProject)
             );
 
         return projectData.Id;
@@ -325,7 +391,8 @@ public class ProjectsRepository : IProjectsRepository
     /// <returns></returns>
     public async Task<int> GetTotalProjectCountAsync(string searchElement, ProjectFilterDTO filters = null)
     {
-        var query =  _context.Projects.AsNoTracking();
+        var query =  _context.Projects.AsNoTracking()
+            .Where(p => p.StateOfProject != StateOfProject.Closed);
             
         query = ApplySearchFilter(query, searchElement);
         query = ApplyFilters(query, filters);
@@ -335,14 +402,17 @@ public class ProjectsRepository : IProjectsRepository
 
     private  IQueryable<ProjectEntity> ApplySearchFilter(IQueryable<ProjectEntity> query, string searchElement)
     {
-        return _context.Projects
-            .Where(projectEntity => searchElement == string.Empty ||
-                                    projectEntity.Name.ToLower().Contains(searchElement.ToLower()) ||
-                                    projectEntity.ProjectRoles.Any(pr =>
-                                        pr.Role.Name.ToLower().Contains(searchElement.ToLower())) ||
-                                    projectEntity.ProjectRoles.Any(pr =>
-                                        pr.CustomRoleName != null &&
-                                        pr.CustomRoleName.ToLower().Contains(searchElement.ToLower())));
+        if (string.IsNullOrEmpty(searchElement))
+            return query;
+
+        var term = searchElement.ToLower();
+        return query.Where(projectEntity =>
+            projectEntity.Name.ToLower().Contains(term) ||
+            projectEntity.ProjectRoles.Any(pr =>
+                pr.Role.Name.ToLower().Contains(term)) ||
+            projectEntity.ProjectRoles.Any(pr =>
+                pr.CustomRoleName != null &&
+                pr.CustomRoleName.ToLower().Contains(term)));
     }
     
     private IQueryable<ProjectEntity> ApplyFilters(IQueryable<ProjectEntity> query, ProjectFilterDTO filters)

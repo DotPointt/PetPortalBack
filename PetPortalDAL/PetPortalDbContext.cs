@@ -92,6 +92,16 @@ public class PetPortalDbContext : DbContext
     /// Связь пользователей и проектов.
     /// </summary>
     public DbSet<UserProject> UserProjects { get; set; }
+
+    /// <summary>
+    /// Платежи за размещение проектов.
+    /// </summary>
+    public DbSet<PlacementPaymentEntity> PlacementPayments { get; set; }
+
+    /// <summary>
+    /// Избранные проекты.
+    /// </summary>
+    public DbSet<FavouriteEntity> Favourites { get; set; }
     
     #endregion
 
@@ -181,6 +191,30 @@ public class PetPortalDbContext : DbContext
             entity.HasOne(e => e.User)
                 .WithMany(user => user.UserProjects)
                 .HasForeignKey(e => e.UserId);
+        });
+
+        builder.Entity<PlacementPaymentEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.YooKassaPaymentId).IsUnique();
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<FavouriteEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.UserId, e.ProjectId }).IsUnique();
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Project)
+                .WithMany()
+                .HasForeignKey(e => e.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         

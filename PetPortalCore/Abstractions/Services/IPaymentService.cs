@@ -1,7 +1,19 @@
 namespace PetPortalCore.Abstractions.Services;
-using Yandex.Checkout.V3; //не хочу писать свои моделькиии пускай пока будет яндекс тут
+
 public interface IPaymentService
 {
-    public Task<Payment> CreatePaymentAsync(decimal аmount, string currency);
-    public Task HandlePaymentAsync(string id);
+    /// <summary>
+    /// Создать платёж за размещение проекта. Возвращает ConfirmationUrl.
+    /// </summary>
+    Task<string> CreatePlacementPaymentAsync(Guid projectId, Guid userId);
+
+    /// <summary>
+    /// Опросить YooKassa и при успехе открыть проект.
+    /// </summary>
+    Task HandlePaymentAsync(string yooKassaPaymentId);
+
+    /// <summary>
+    /// Обработать уведомление/подтверждение оплаты и открыть проект.
+    /// </summary>
+    Task<bool> ConfirmPaymentAndPublishAsync(string yooKassaPaymentId);
 }

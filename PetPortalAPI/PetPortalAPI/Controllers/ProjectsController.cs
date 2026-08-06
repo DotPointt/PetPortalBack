@@ -71,16 +71,23 @@ public class ProjectsController : ControllerBase
             var projects = await _projectsService.GetPaginatedFiltered(request.SortOrder, request.SortItem, request.SearchElement, request.Offset, request.Page, request.Filters);
 
             var response = new GetProjectsDto();
-            var imageBase64 = "";
 
             foreach (var p in projects)
             {
                 var user = await _usersService.GetUserById(p.OwnerId);
-                if (!user.AvatarUrl.IsNullOrEmpty())
+                var avatarUrl = "http://localhost:9000/test/" + (user.AvatarUrl ?? "");
+                try
                 {
-                    var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
-                    var arrayImg = stream.ToArray();
-                    imageBase64 = Convert.ToBase64String(arrayImg); //
+                    if (!user.AvatarUrl.IsNullOrEmpty())
+                    {
+                        var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
+                        stream.ToArray(); // validate file exists; keep public URL for FE
+                    }
+                }
+                catch
+                {
+                    // Missing avatar in MinIO must not break the catalogue
+                    avatarUrl = string.Empty;
                 }
 
                 var projectDto = new ProjectDto()
@@ -97,7 +104,7 @@ public class ProjectsController : ControllerBase
                     Deadline = p.Deadline,
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
-                    AvatarImageBase64 = "http://localhost:9000/test/" + user.AvatarUrl, //
+                    AvatarImageBase64 = avatarUrl,
                     IsBusinessProject = p.IsBusinesProject,
                     Budget = p.Budget,
                     Tags = p.Tags,
@@ -125,7 +132,7 @@ public class ProjectsController : ControllerBase
     /// Проект.
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
-    [HttpGet("{projectId}")]
+    [HttpGet("{projectId:guid}")]
     public async Task<ActionResult<ProjectDto>> GetProjectById(Guid projectId)
     {
         try
@@ -181,22 +188,86 @@ public class ProjectsController : ControllerBase
     /// </returns>
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<Guid>> CreateProject([FromBody] ProjectContract projectRequest) //сделать отдельный класс? в общем не должно быть неразберихи
+    public async Task<ActionResult<CreateProjectResponse>> CreateProject(
+        [FromBody] ProjectContract projectRequest,
+        [FromServices] IPaymentService paymentService)
     {
         try
         {
             var userid = await _usersService.GetUserIdFromJWTAsync(User);
-        
-            var valid = await _projectsService.CheckCreatingLimit(userid!.Value, limit: 100);
-            if (!valid)
+            if (userid == null)
+                return Unauthorized();
+
+            const int freeProjectsLimit = 5;
+            const int hardLimit = 100;
+
+            var projectsBefore = await _projectsService.GetProjectCountByOwnerId(userid.Value);
+            if (projectsBefore >= hardLimit)
                 return BadRequest("Вы превысили лимит проектов.");
 
+            var requiresPayment = projectsBefore >= freeProjectsLimit;
 
-            projectRequest.StateOfProject = StateOfProject.Open;
+            // First N projects are free and published immediately; further need payment
+            projectRequest.StateOfProject = requiresPayment
+                ? StateOfProject.Closed
+                : StateOfProject.Open;
 
             var projectGuid = await _projectsService.Create(projectRequest, userid.Value);
+            var projectsAfter = projectsBefore + 1;
 
-            return Ok(projectGuid);
+            string? paymentUrl = null;
+            if (requiresPayment)
+            {
+                try
+                {
+                    paymentUrl = await paymentService.CreatePlacementPaymentAsync(projectGuid, userid.Value);
+                }
+                catch (Exception payEx)
+                {
+                    Console.WriteLine($"Placement payment init failed: {payEx.Message}");
+                }
+            }
+
+            return Ok(new CreateProjectResponse
+            {
+                ProjectId = projectGuid,
+                PaymentUrl = paymentUrl,
+                RequiresPayment = requiresPayment,
+                ProjectsCount = projectsAfter,
+                FreeProjectsLimit = freeProjectsLimit,
+                FreeProjectsRemaining = Math.Max(0, freeProjectsLimit - projectsAfter)
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Квота бесплатных размещений для текущего пользователя.
+    /// </summary>
+    [HttpGet("quota")]
+    [Authorize]
+    public async Task<ActionResult<PlacementQuotaDto>> GetPlacementQuota()
+    {
+        try
+        {
+            var userid = await _usersService.GetUserIdFromJWTAsync(User);
+            if (userid == null)
+                return Unauthorized();
+
+            const int freeProjectsLimit = 5;
+            var count = await _projectsService.GetProjectCountByOwnerId(userid.Value);
+            var remaining = Math.Max(0, freeProjectsLimit - count);
+
+            return Ok(new PlacementQuotaDto
+            {
+                ProjectsCount = count,
+                FreeProjectsLimit = freeProjectsLimit,
+                FreeProjectsRemaining = remaining,
+                NextProjectRequiresPayment = count >= freeProjectsLimit
+            });
         }
         catch (Exception ex)
         {
@@ -214,29 +285,29 @@ public class ProjectsController : ControllerBase
     /// В случае ошибки возвращает сообщение об ошибке.
     /// </returns>
     [HttpPut("{id:guid}")]
+    [Authorize]
     public async Task<ActionResult<Guid>> UpdateProject(Guid id, [FromBody] ProjectDto request)
     {
         try
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-
-            if (userIdClaim == null)
+            var userId = await _usersService.GetUserIdFromJWTAsync(User);
+            if (userId == null)
             {
                 return Unauthorized("Идентификатор пользователя не найден в токене.");
             }
 
             var project = await _projectsService.GetById(id);
-            var userId = Guid.Parse(userIdClaim);
 
-            if (project.OwnerId == userId)
+            if (project.OwnerId == userId.Value)
             {
+                request.Id = id;
                 var projectId = await _projectsService.Update(request);
 
                 return Ok(projectId);
             }
             else
             {
-                return Forbid("Вы не являетесь владельцем этого проекта.");
+                return Forbid();
             }
         }
         catch (Exception ex)
@@ -248,16 +319,20 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Удалить проект.
     /// </summary>
-    /// <param name="id">Идентификатор проекта.</param>
-    /// <returns>
-    /// Идентификатор удаленного проекта.
-    /// В случае ошибки возвращает сообщение об ошибке.
-    /// </returns>
     [HttpDelete]
+    [Authorize]
     public async Task<ActionResult<Guid>> DeleteProject([FromBody] Guid id)
     {
         try
         {
+            var userId = await _usersService.GetUserIdFromJWTAsync(User);
+            if (userId == null)
+                return Unauthorized();
+
+            var project = await _projectsService.GetById(id);
+            if (project.OwnerId != userId.Value)
+                return Forbid();
+
             var projectId = await _projectsService.Delete(id);
 
             return Ok(projectId);

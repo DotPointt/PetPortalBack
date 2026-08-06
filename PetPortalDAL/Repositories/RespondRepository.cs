@@ -43,6 +43,7 @@ public class RespondRepository : IRespondRepository
                 Comment = r.Comment,
                 UserId = r.UserId,
                 ProjectId = r.ProjectId,
+                Status = r.Status ?? "Pending",
             })
             .ToList();
         
@@ -69,6 +70,7 @@ public class RespondRepository : IRespondRepository
                 Comment = r.Comment,
                 UserId = r.UserId,
                 ProjectId = r.ProjectId,
+                Status = r.Status ?? "Pending",
             })
             .ToList();
         
@@ -95,6 +97,7 @@ public class RespondRepository : IRespondRepository
                 Comment = r.Comment,
                 UserId = r.UserId,
                 ProjectId = r.ProjectId,
+                Status = r.Status ?? "Pending",
             })
             .ToList();
         
@@ -115,6 +118,7 @@ public class RespondRepository : IRespondRepository
             ProjectId = respondDto.ProjectId,
             Comment = respondDto.Comment,
             Role = respondDto.Role,
+            Status = "Pending",
         };
 
         try

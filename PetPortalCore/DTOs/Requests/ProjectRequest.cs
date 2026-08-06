@@ -12,13 +12,14 @@ public class ProjectRequest
     /// True - по порядку
     /// False - в обратном порядке
     /// </summary>
-    public bool SortOrder { get; set; }
+    public bool SortOrder { get; set; } = false;
     
     /// <summary>
-    /// Элемент, по которому сортируются проекты: «дата», «название», «срок подачи заявки»
+    /// Элемент, по которому сортируются проекты: date, budget, deadline…
+    /// По умолчанию — дата создания (новизна).
     /// </summary>
     /// <example>date</example>
-    public string? SortItem { get; set; }
+    public string? SortItem { get; set; } = "date";
 
     /// <summary>
     /// Поиск по строчке.
