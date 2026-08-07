@@ -56,6 +56,11 @@ public class UserEntity
     /// Путь к файлу аватара пользователя.
     /// </summary>
     public string? AvatarUrl { get; set; }
+
+    /// <summary>
+    /// Подтверждена ли электронная почта.
+    /// </summary>
+    public bool EmailConfirmed { get; set; }
     
     /// <summary>
     /// Роль пользователя.

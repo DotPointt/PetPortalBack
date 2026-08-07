@@ -80,4 +80,8 @@ public interface IUserService
     public Task<Guid> UpdatePasswordByIdAsync(Guid userId, string newPassword);
 
     public Task<Guid?> GetUserIdFromJWTAsync(ClaimsPrincipal user);
+
+    Task ConfirmEmailAsync(Guid userId);
+    Task<bool> IsEmailConfirmedAsync(Guid userId);
+    Task<UserDto?> FindUserByEmailAsync(string email);
 }

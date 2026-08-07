@@ -1,3 +1,5 @@
+using PetPortalCore.DTOs;
+
 namespace PetPortalCore.Abstractions;
 
 /// <summary>
@@ -6,9 +8,7 @@ namespace PetPortalCore.Abstractions;
 public interface IChatClient
 {
     /// <summary>
-    ///  Получение сообщения.
+    /// Получение нового сообщения в реальном времени.
     /// </summary>
-    /// <param name="userName">Имя пользователя.</param>
-    /// <param name="message">Сообщение от пользователя.</param>
-    public Task ReceiveMessage(string userName, string message);
+    Task ReceiveMessage(ChatMessageDto message);
 }

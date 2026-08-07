@@ -86,7 +86,8 @@ public class DbInitializer
                     Name = $"User{i}",
                     Email = $"user{i}@example.com",
                     PasswordHash = $"hashedPassword{i}",
-                    RoleId = roleIds[Rand.Next(roleIds.Count)]
+                    RoleId = roleIds[Rand.Next(roleIds.Count)],
+                    EmailConfirmed = true
                 });
                 
                 // Генерируем аватар и загружаем в MinIO, если сервис доступен

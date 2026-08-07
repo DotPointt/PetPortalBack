@@ -124,6 +124,7 @@ public class UsersRepository : IUsersRepository
             Telegram = user.Telegram,
             RoleId = user.RoleId,
             AvatarUrl = user.AvatarUrl,
+            EmailConfirmed = false,
         };
 
         await _context.AddAsync(userEntity);
@@ -181,5 +182,21 @@ public class UsersRepository : IUsersRepository
             .ExecuteDeleteAsync();
 
         return id;
+    }
+
+    public async Task<bool> IsEmailConfirmedAsync(Guid userId)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => u.EmailConfirmed)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task ConfirmEmailAsync(Guid userId)
+    {
+        await _context.Users
+            .Where(u => u.Id == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.EmailConfirmed, true));
     }
 }

@@ -178,6 +178,10 @@ public class UserService : IUserService
         if (!verify)
             throw new UnauthorizedAccessException("Не удалось войти: неверный пароль.");
 
+        if (!await _usersRepository.IsEmailConfirmedAsync(user.Id))
+            throw new UnauthorizedAccessException(
+                "Подтвердите email. Проверьте почту или запросите письмо повторно.");
+
         var roleName = await _roleRepository.GetRoleNameByUserId(user.Id);
         var token = _jwtProvider.GenerateToken(user.Id, user.Email, roleName);
         
@@ -382,5 +386,16 @@ public class UserService : IUserService
 
         return userid ? userId : null;
     }
-    
+
+    public Task ConfirmEmailAsync(Guid userId) => _usersRepository.ConfirmEmailAsync(userId);
+
+    public Task<bool> IsEmailConfirmedAsync(Guid userId) =>
+        _usersRepository.IsEmailConfirmedAsync(userId);
+
+    public async Task<UserDto?> FindUserByEmailAsync(string email)
+    {
+        var user = await _usersRepository.GetByEmail(email);
+        if (user == null) return null;
+        return await GetUserById(user.Id);
+    }
 }

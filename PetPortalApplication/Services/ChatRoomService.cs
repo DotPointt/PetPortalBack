@@ -63,4 +63,7 @@ public class ChatRoomService : IChatRoomService
     {
         return await _chatRoomRepository.CreateNamedChatAsync(name, userIds);
     }
+
+    public Task MarkRoomAsReadAsync(Guid roomId, Guid userId) =>
+        _chatRoomRepository.MarkRoomAsReadAsync(roomId, userId);
 }

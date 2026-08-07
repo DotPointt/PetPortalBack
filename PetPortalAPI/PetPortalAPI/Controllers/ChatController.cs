@@ -17,37 +17,22 @@ namespace PetPortalAPI.Controllers;
 [Authorize]
 public class ChatController : ControllerBase
 {
-    /// <summary>
-    /// Сервис по чатам.
-    /// </summary>
     private readonly IChatRoomService _chatRoomService;
-    
-    /// <summary>
-    /// Сервис по сообщениям.
-    /// </summary>
     private readonly IChatMessageService _chatMessageService;
-    
-    /// <summary>
-    /// Хаб чатов.
-    /// </summary>
+    private readonly IUserService _userService;
     private readonly IHubContext<ChatHub, IChatClient> _hubContext;
 
-    /// <summary>
-    /// Конструктор контроллера.
-    /// </summary>
-    /// <param name="chatRoomService">Сервис по чатам.</param>
-    /// <param name="chatMessageService">Сервис по сообщениям.</param>
-    /// <param name="hubContext">Хаб чатов.</param>
     public ChatController(
         IChatRoomService chatRoomService,
         IChatMessageService chatMessageService,
+        IUserService userService,
         IHubContext<ChatHub, IChatClient> hubContext)
     {
         _chatRoomService = chatRoomService;
         _chatMessageService = chatMessageService;
+        _userService = userService;
         _hubContext = hubContext;
     }
-
     /// <summary>
     /// Получить чаты пользователя.
     /// </summary>
@@ -109,10 +94,24 @@ public class ChatController : ControllerBase
     /// Отправить сообщение в чат.
     /// </summary>
     [HttpPost("messages/send")]
-    public async Task<ActionResult<Guid>> SendMessage([FromBody] SendMessageRequest request)
+    public async Task<ActionResult<ChatMessageDto>> SendMessage([FromBody] SendMessageRequest request)
     {
-        var messageId = await _chatMessageService.AddAsync(request.Message, request.SenderId, request.ChatRoomId);
-        return Ok(messageId);
+        var message = await _chatMessageService.AddAsync(request.Message, request.SenderId, request.ChatRoomId);
+
+        var room = await _chatRoomService.GetByIdAsync(request.ChatRoomId);
+        if (room?.UserIds != null)
+        {
+            foreach (var userId in room.UserIds.Distinct())
+            {
+                await _hubContext.Clients.Group(ChatHub.UserGroup(userId)).ReceiveMessage(message);
+            }
+        }
+        else
+        {
+            await _hubContext.Clients.Group(request.ChatRoomId.ToString()).ReceiveMessage(message);
+        }
+
+        return Ok(message);
     }
 
     /// <summary>
@@ -133,5 +132,19 @@ public class ChatController : ControllerBase
     {
         var deletedId = await _chatMessageService.DeleteAsync(messageId);
         return Ok(deletedId);
+    }
+
+    /// <summary>
+    /// Отметить сообщения комнаты прочитанными для текущего пользователя.
+    /// </summary>
+    [HttpPost("rooms/{roomId:guid}/read")]
+    public async Task<ActionResult> MarkRoomAsRead(Guid roomId)
+    {
+        var userId = await _userService.GetUserIdFromJWTAsync(User);
+        if (userId == null)
+            return Unauthorized();
+
+        await _chatRoomService.MarkRoomAsReadAsync(roomId, userId.Value);
+        return Ok();
     }
 }

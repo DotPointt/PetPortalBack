@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using PetPortalAPI.Hubs;
+using PetPortalApplication.Helpers;
+using PetPortalCore.Abstractions;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
 using PetPortalDAL;
 
 namespace PetPortalAPI.Controllers;
-
 /// <summary>
 /// Контроллер работы откликов.
 /// </summary>
@@ -20,6 +23,9 @@ public class RespondsController : ControllerBase
     private readonly IProjectsService _projectsService;
     private readonly IUserProjectService _membersService;
     private readonly IChatRoomService _chatRoomService;
+    private readonly IChatMessageService _chatMessageService;
+    private readonly IHubContext<ChatHub, IChatClient> _hubContext;
+    private readonly IMailSenderService _mailSender;
     private readonly PetPortalDbContext _db;
 
     public RespondsController(
@@ -28,6 +34,9 @@ public class RespondsController : ControllerBase
         IProjectsService projectsService,
         IUserProjectService membersService,
         IChatRoomService chatRoomService,
+        IChatMessageService chatMessageService,
+        IHubContext<ChatHub, IChatClient> hubContext,
+        IMailSenderService mailSender,
         PetPortalDbContext db)
     {
         _respondService = respondService;
@@ -35,9 +44,11 @@ public class RespondsController : ControllerBase
         _projectsService = projectsService;
         _membersService = membersService;
         _chatRoomService = chatRoomService;
+        _chatMessageService = chatMessageService;
+        _hubContext = hubContext;
+        _mailSender = mailSender;
         _db = db;
     }
-
     [HttpGet("AllResponds")]
     [Authorize]
     public async Task<ActionResult<List<RespondDto>>> GetAllResponds()
@@ -120,6 +131,7 @@ public class RespondsController : ControllerBase
             {
                 var roomName = $"Отклик · {project.Id:N} · {userId.Value:N}";
                 var existingId = await _chatRoomService.GetChatRoomIdByNameAsync(roomName);
+                var isNewRoom = false;
                 if (existingId.HasValue && existingId.Value != Guid.Empty)
                 {
                     chatRoomId = existingId.Value;
@@ -130,6 +142,25 @@ public class RespondsController : ControllerBase
                         roomName,
                         new List<Guid> { project.OwnerId, userId.Value });
                     chatRoomId = room.Id;
+                    isNewRoom = true;
+                }
+
+                // Первое системное сообщение при создании чата по отклику
+                if (isNewRoom && chatRoomId.HasValue)
+                {
+                    var responder = await _db.Users.AsNoTracking()
+                        .Where(u => u.Id == userId.Value)
+                        .Select(u => u.Name)
+                        .FirstOrDefaultAsync();
+                    var displayName = string.IsNullOrWhiteSpace(responder) ? "Пользователь" : responder.Trim();
+                    var systemText = $"{displayName} Откликнулся на ваш проект.";
+                    var systemMessage = await _chatMessageService.AddAsync(
+                        systemText, userId.Value, chatRoomId.Value);
+
+                    await _hubContext.Clients.Group(ChatHub.UserGroup(project.OwnerId))
+                        .ReceiveMessage(systemMessage);
+                    await _hubContext.Clients.Group(ChatHub.UserGroup(userId.Value))
+                        .ReceiveMessage(systemMessage);
                 }
             }
             catch (Exception chatEx)
@@ -137,8 +168,29 @@ public class RespondsController : ControllerBase
                 Console.WriteLine($"Chat create on respond failed: {chatEx.Message}");
             }
 
-            return Ok(new { success = true, respondId = id, chatRoomId });
-        }
+            try
+            {
+                var owner = await _userService.GetUserById(project.OwnerId);
+                var responder = await _userService.GetUserById(userId.Value);
+                var link = $"{AppUrls.FrontendBase}/account/project-responses";
+                var body = EmailTemplates.NewRespond(
+                    owner.Name,
+                    responder.Name,
+                    project.Name,
+                    respondCreateContract.Comment ?? "",
+                    link);
+                await _mailSender.SendEmailAsync(
+                    owner.Email,
+                    "Новый отклик на ваш проект — PetPortal",
+                    body,
+                    isBodyHtml: true);
+            }
+            catch (Exception mailEx)
+            {
+                Console.WriteLine($"Respond notification email failed: {mailEx.Message}");
+            }
+
+            return Ok(new { success = true, respondId = id, chatRoomId });        }
         catch (Exception ex)
         {
             return BadRequest(ex.ToString());

@@ -1,6 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PetPortalApplication.Helpers;
+using PetPortalCore.Abstractions.Repositories;
 using PetPortalCore.Abstractions.Services;
 using PetPortalCore.Contracts;
 using PetPortalCore.DTOs;
@@ -17,169 +18,183 @@ namespace PetPortalAPI.Controllers;
 [ApiController]
 public class AuthorizationController : ControllerBase
 {
-    /// <summary>
-    /// Сервис для работы с пользователями.
-    /// </summary>
     private readonly IUserService _userService;
-
     private readonly IMailSenderService _emailService;
-
     private readonly IPasswordHasher _passwordHasher;
-
     private readonly IResetPasswordService _resetPasswordService;
+    private readonly IEmailConfirmationService _emailConfirmationService;
+    private readonly IEmailConfirmationTokensRepository _emailConfirmationTokensRepository;
 
-        
-    /// <summary>
-    /// Конструктор контроллера.
-    /// </summary>
-    /// <param name="userService">Сервис для работы с пользователями.</param>
-    public AuthorizationController(IUserService userService, IMailSenderService emailService, IPasswordHasher passwordHasher, IResetPasswordService resetPasswordService)
+    public AuthorizationController(
+        IUserService userService,
+        IMailSenderService emailService,
+        IPasswordHasher passwordHasher,
+        IResetPasswordService resetPasswordService,
+        IEmailConfirmationService emailConfirmationService,
+        IEmailConfirmationTokensRepository emailConfirmationTokensRepository)
     {
         _userService = userService;
         _emailService = emailService;
         _passwordHasher = passwordHasher;
         _resetPasswordService = resetPasswordService;
+        _emailConfirmationService = emailConfirmationService;
+        _emailConfirmationTokensRepository = emailConfirmationTokensRepository;
     }
 
     /// <summary>
     /// Регистрация нового пользователя.
     /// </summary>
-    /// <param name="request">Данные пользователя для регистрации.</param>
-    /// <returns>
-    /// Возвращает идентификатор созданного пользователя и токен аутентификации.
-    /// В случае ошибки возвращает сообщение об ошибке.
-    /// </returns>
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] UserContract request)
     {
         try
         {
             var userId = await _userService.Register(request);
-            var token = await _userService.Login(request.Email, request.Password);
-            
-            // Устанавливаем токен в cookies
-            HttpContext.Response.Cookies.Append("jwttoken", token);
+            try
+            {
+                await SendConfirmationEmailAsync(userId, request.Email, request.Name);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Confirmation email failed: {ex.Message}");
+            }
 
-            return Ok(new { UserId = userId, Token = token });
+            return Ok(new
+            {
+                UserId = userId,
+                RequiresEmailConfirmation = true,
+                Message = "На вашу почту отправлено письмо для подтверждения регистрации."
+            });
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            // 409
-            return StatusCode(StatusCodes.Status409Conflict, 
-                new { Message = "Пользователь с такой почтой уже существует."});
+            return StatusCode(StatusCodes.Status409Conflict,
+                new { Message = "Пользователь с такой почтой уже существует." });
         }
         catch (ArgumentException ex)
         {
-            // 400 
-            return StatusCode(StatusCodes.Status400BadRequest, 
-                new { Message = ex.Message });
+            return StatusCode(StatusCodes.Status400BadRequest, new { Message = ex.Message });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // 500
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { Message = "Произошла внутренняя ошибка сервера:" });
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new { Message = "Произошла внутренняя ошибка сервера." });
         }
+    }
+
+    /// <summary>
+    /// Подтверждение email по ссылке из письма.
+    /// </summary>
+    [HttpPost("VerifyEmail")]
+    public async Task<ActionResult> VerifyEmail(string token, string userId)
+    {
+        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(userId))
+            return BadRequest(new { Message = "Некорректная ссылка подтверждения." });
+
+        if (!Guid.TryParse(userId, out var parsedUserId))
+            return BadRequest(new { Message = "Некорректный идентификатор пользователя." });
+
+        try
+        {
+            var dbToken = await _emailConfirmationService.GetTokenHashByUserId(parsedUserId);
+            if (dbToken.ExpiresAt < DateTime.UtcNow)
+                return BadRequest(new { Message = "Срок действия ссылки истёк. Запросите письмо повторно." });
+
+            var isValid = _passwordHasher.VerifyHashedPassword(dbToken.TokenHash, token);
+            if (!isValid)
+                return BadRequest(new { Message = "Недействительная ссылка подтверждения." });
+
+            await _userService.ConfirmEmailAsync(parsedUserId);
+            await _emailConfirmationTokensRepository.DeleteByUserIdAsync(parsedUserId);
+
+            return Ok(new { Message = "Email успешно подтверждён. Теперь вы можете войти." });
+        }
+        catch (InvalidOperationException)
+        {
+            return BadRequest(new { Message = "Ссылка подтверждения недействительна." });
+        }
+    }
+
+    /// <summary>
+    /// Повторная отправка письма подтверждения.
+    /// </summary>
+    [HttpPost("ResendConfirmationEmail")]
+    public async Task<ActionResult> ResendConfirmationEmail(string email)
+    {
+        var user = await _userService.FindUserByEmailAsync(email);
+        if (user == null)
+            return Ok(new { Message = "Если аккаунт существует, письмо будет отправлено." });
+
+        if (await _userService.IsEmailConfirmedAsync(user.Id))
+            return Ok(new { Message = "Email уже подтверждён." });
+
+        try
+        {
+            await SendConfirmationEmailAsync(user.Id, user.Email, user.Name);
+        }
+        catch
+        {
+            // Не раскрываем детали SMTP
+        }
+
+        return Ok(new { Message = "Если аккаунт существует, письмо будет отправлено." });
     }
 
     /// <summary>
     /// Аутентификация пользователя.
     /// </summary>
-    /// <param name="request">Данные для входа (email и пароль).</param>
-    /// <returns>
-    /// Возвращает токен аутентификации.
-    /// В случае ошибки возвращает сообщение об ошибке.
-    /// </returns>
     [HttpPost("login")]
     public async Task<ActionResult> Login([FromBody] UserLoginRequest request)
     {
         try
         {
             var token = await _userService.Login(request.Email, request.Password);
-
-            // Устанавливаем токен в cookies
             HttpContext.Response.Cookies.Append("jwttoken", token);
-
             return Ok(new { Token = token });
         }
         catch (UnauthorizedAccessException ex)
         {
-            // 401
             return Unauthorized(new { Message = ex.Message });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // 500
-            return StatusCode(StatusCodes.Status500InternalServerError, 
+            return StatusCode(StatusCodes.Status500InternalServerError,
                 new { Message = "Произошла внутренняя ошибка сервера." });
         }
     }
 
-    /// <summary>
-    /// Страничка для сброса пароля ( поле почты на которую нужно отправить ссылку для сброса пароля )
-    /// Возвращает только OK, чтобы злоумышленник не мог определить есть ли почта в бд
-    /// </summary>
-    /// <returns></returns>
     [HttpPost("ForgotPassword")]
     public async Task<ActionResult> ForgotPassword(string Email)
     {
         var user = await _userService.GetUserByEmail(Email);
-        
-        // try
-        // {
-        //     var user = await _userService.GetUserById(new Guid());
-        // }
-        // catch (Exception ex)
-        // {
-        //     throw (ex);
-        // }
-        
+
         if (user == null)
-        {
             return Ok();
-        }
 
-        var request = HttpContext.Request;
-        // Ссылка ведёт на фронтенд, где пользователь задаёт новый пароль
-        var frontendBase = Environment.GetEnvironmentVariable("FRONTEND_BASE_URL")
-                           ?? "http://localhost:5173";
-        var baseUrl = $"{frontendBase.TrimEnd('/')}/forget-password";
-
-        ///генерация восстановительнйо ссылки и токена в ней
+        var baseUrl = $"{AppUrls.FrontendBase}/forget-password";
         var token = _resetPasswordService.GenerateResetPasswordToken(32);
         var url = _resetPasswordService.GeneratePasswordResetLink(baseUrl, token, user.Id);
-        
-        
-        //Хэширование токена и сохранение в БД
-        var hashedToken = _passwordHasher.HashPassword(token);
-        var id = Guid.NewGuid();
-        await _resetPasswordService.SaveTokenHash(ResetPasswordTokens.Create(id, user.Id, hashedToken, DateTime.UtcNow.ToUniversalTime().AddDays(1)));
 
-        //Сгенерить адекватное письмо( добавить текста)
-        //отправка восстановительной ссылки
+        var hashedToken = _passwordHasher.HashPassword(token);
+        await _resetPasswordService.SaveTokenHash(
+            ResetPasswordTokens.Create(Guid.NewGuid(), user.Id, hashedToken, DateTime.UtcNow.AddDays(1)));
+
         await _emailService.SendEmailAsync(user.Email, "Восстановление пароля", url);
 
         return Ok();
     }
-    
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="code">Код из url ссылки на восстановление с почты</param>
-    /// <returns></returns>
+
     [HttpPost("ResetPassword")]
-    public async Task<ActionResult> ResetPassword( string token, string userId ,string newPassword1, string newPassword2)
+    public async Task<ActionResult> ResetPassword(string token, string userId, string newPassword1, string newPassword2)
     {
-        ///Сброс пароля 
         if (token == null)
             return BadRequest(new { error = "Ошибка: Срок действия токена истёк, или был получен новый токен." });
-        
+
         if (newPassword1 != newPassword2)
             return BadRequest(new { error = "Ошибка: Пароли не совпадают!" });
 
-        //сравнить хэш токена пришедшего с хэшем токена из бд
         var dbTokenHash = await _resetPasswordService.GetTokenHashByUserId(new Guid(userId));
-        var isValidToken = _passwordHasher.VerifyHashedPassword(dbTokenHash.TokenHash ,token);
+        var isValidToken = _passwordHasher.VerifyHashedPassword(dbTokenHash.TokenHash, token);
 
         if (isValidToken)
         {
@@ -190,37 +205,25 @@ public class AuthorizationController : ControllerBase
         return BadRequest(new { error = "Ошибка: Срок действия токена истёк!" });
     }
 
-    /// <summary>
-    /// Получение информации о текущем пользователе.
-    /// </summary>
-    /// <param name="userData">Данные о пользователе.</param>
-    /// <returns>Информация о текущем пользователе.</returns>
     [HttpPut("ChangeProfileData")]
     [Authorize]
     public async Task<ActionResult> ChangeProfileData(UserDto userData)
     {
         try
         {
-            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
-            {
                 throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
-            }
 
             if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
-            {
                 throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
-            }
-            
+
             var user = await _userService.GetUserById(userId);
 
             if (user.Id != userData.Id)
-            {
                 return BadRequest(new { error = "Изменять можно только свой профиль." });
-            }
 
             var id = await _userService.Update(userData);
-            
             return Ok(id);
         }
         catch (Exception ex)
@@ -228,11 +231,7 @@ public class AuthorizationController : ControllerBase
             return BadRequest(ex.ToString());
         }
     }
-   
-    /// <summary>
-    /// Получение информации о текущем пользователе.
-    /// </summary>
-    /// <returns>Информация о текущем пользователе.</returns>
+
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult> GetCurrentUser()
@@ -240,12 +239,10 @@ public class AuthorizationController : ControllerBase
         try
         {
             var userId = await _userService.GetUserIdFromJWTAsync(User);
-            
             if (userId == null)
                 return Unauthorized();
-            
+
             var user = await _userService.GetUserById(userId.Value);
-            
             return Ok(user);
         }
         catch (Exception ex)
@@ -254,29 +251,17 @@ public class AuthorizationController : ControllerBase
         }
     }
 
-    /*
-    /// <summary>
-    /// Получение текущего пользователя.
-    /// </summary>
-    /// <returns>Текущего пользователя.</returns>
-    /// <exception cref="UnauthorizedAccessException">
-    /// Идентификатор пользователя не найден в токене, или
-    /// неверный формат идентификатора пользователя.
-    /// </exception>
-    public async Task<User> CurrentUser()
+    private async Task SendConfirmationEmailAsync(Guid userId, string email, string name)
     {
-        var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim == null)
-        {
-            throw new UnauthorizedAccessException("Идентификатор пользователя не найден в токене.");
-        }
+        var token = _emailConfirmationService.GenerateToken(32);
+        var baseUrl = $"{AppUrls.FrontendBase}/verify-email";
+        var link = _emailConfirmationService.GenerateConfirmationLink(baseUrl, token, userId);
+        var hashedToken = _passwordHasher.HashPassword(token);
 
-        if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
-        {
-            throw new UnauthorizedAccessException("Неверный формат идентификатора пользователя.");
-        }
-        
-        return await _userService.GetUserById(userId);
+        await _emailConfirmationService.SaveTokenHash(
+            EmailConfirmationToken.Create(Guid.NewGuid(), userId, hashedToken, DateTime.UtcNow.AddDays(1)));
+
+        var body = EmailTemplates.ConfirmRegistration(name, link);
+        await _emailService.SendEmailAsync(email, "Подтверждение регистрации — PetPortal", body, isBodyHtml: true);
     }
-    */
 }

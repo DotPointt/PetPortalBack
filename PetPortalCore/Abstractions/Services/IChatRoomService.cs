@@ -35,4 +35,5 @@ public interface IChatRoomService
     /// <param name="userIds">Идентификаторы пользователей.</param>
     /// <returns>Созданный чат.</returns>
     Task<ChatRoomDto> CreateNamedChatAsync(string name, List<Guid> userIds);
+    Task MarkRoomAsReadAsync(Guid roomId, Guid userId);
 }

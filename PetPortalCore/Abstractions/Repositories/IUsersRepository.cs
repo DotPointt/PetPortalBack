@@ -55,7 +55,8 @@ public interface IUsersRepository
     /// <summary>
     /// Удалить пользователя.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>Идентификатор удаленного пользователя.</returns>
     Task<Guid> Delete(Guid id);
+
+    Task<bool> IsEmailConfirmedAsync(Guid userId);
+    Task ConfirmEmailAsync(Guid userId);
 }

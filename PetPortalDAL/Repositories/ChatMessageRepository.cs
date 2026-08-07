@@ -31,6 +31,16 @@ public class ChatMessageRepository : IChatMessageRepository
         return message.Id;
     }
 
+    private static ChatMessageDto Map(ChatMessageEntity message) => new()
+    {
+        Id = message.Id,
+        SenderId = message.SenderId,
+        ChatRoomId = message.ChatRoomId,
+        Message = message.Message,
+        SentAt = message.SentAt,
+        SenderName = message.Sender?.Name ?? "Пользователь",
+    };
+
     public async Task<List<ChatMessageDto>> GetMessagesByRoomIdAsync(Guid roomId)
     {
         var messageEntities = await _context.ChatMessages
@@ -39,18 +49,7 @@ public class ChatMessageRepository : IChatMessageRepository
             .OrderBy(m => m.SentAt)
             .ToListAsync();
 
-        var messages = messageEntities
-            .Select(message => new ChatMessageDto()
-            {
-                Id = message.Id,
-                SenderId = message.SenderId,
-                ChatRoomId = message.ChatRoomId,
-                Message = message.Message,
-                SentAt = message.SentAt,
-            })
-            .ToList();
-        
-        return messages;
+        return messageEntities.Select(Map).ToList();
     }
 
     public async Task<List<ChatMessageDto>> GetLastMessagesAsync(Guid roomId, int count)
@@ -62,18 +61,7 @@ public class ChatMessageRepository : IChatMessageRepository
             .Take(count)
             .ToListAsync();
         
-        var messages = messageEntities
-            .Select(message => new ChatMessageDto()
-            {
-                Id = message.Id,
-                SenderId = message.SenderId,
-                ChatRoomId = message.ChatRoomId,
-                Message = message.Message,
-                SentAt = message.SentAt,
-            })
-            .ToList();
-        
-        return messages;
+        return messageEntities.Select(Map).ToList();
     }
 
     public async Task<ChatMessageDto?> GetByIdAsync(Guid messageId)
@@ -82,16 +70,7 @@ public class ChatMessageRepository : IChatMessageRepository
             .Include(m => m.Sender)
             .FirstOrDefaultAsync(m => m.Id == messageId);
 
-       return messageEntity == null
-           ? null
-           : new ChatMessageDto()
-           {
-               Id = messageEntity.Id,
-               SenderId = messageEntity.SenderId,
-               ChatRoomId = messageEntity.ChatRoomId,
-               Message = messageEntity.Message,
-               SentAt = messageEntity.SentAt,
-           };
+       return messageEntity == null ? null : Map(messageEntity);
     }
 
     public async Task<Guid> DeleteAsync(Guid messageId)

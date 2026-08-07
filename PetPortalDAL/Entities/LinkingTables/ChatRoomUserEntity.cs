@@ -21,6 +21,11 @@ public class ChatRoomUserEntity
     public UserEntity User { get; set; }
     
     /// <summary>
+    /// Время последнего прочтения сообщений в комнате.
+    /// </summary>
+    public DateTime? LastReadAt { get; set; }
+    
+    /// <summary>
     /// Комната чата.
     /// </summary>
     public ChatRoomEntity ChatRoom { get; set; }

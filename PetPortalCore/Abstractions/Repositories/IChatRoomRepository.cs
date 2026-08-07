@@ -8,4 +8,5 @@ public interface IChatRoomRepository
     Task<List<ChatRoomDto>> GetUserChatRoomsAsync(Guid userId);
     Task<Guid?> GetChatRoomIdByNameAsync(string name);
     Task<ChatRoomDto> CreateNamedChatAsync(string name, List<Guid> userIds);
+    Task MarkRoomAsReadAsync(Guid roomId, Guid userId);
 }

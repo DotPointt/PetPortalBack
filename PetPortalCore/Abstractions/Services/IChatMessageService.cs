@@ -10,11 +10,7 @@ public interface IChatMessageService
     /// <summary>
     /// Записать сообщение в бд.
     /// </summary>
-    /// <param name="message">Сообщение.</param>
-    /// <param name="senderId">Идентификатор отправителя.</param>
-    /// <param name="chatId">Идентификатор чата.</param>
-    /// <returns>Идентификатор сообщения.</returns>
-    Task<Guid> AddAsync(string message, Guid senderId, Guid chatId);
+    Task<ChatMessageDto> AddAsync(string message, Guid senderId, Guid chatId);
 
     /// <summary>
     /// Получить сообщения комнаты.

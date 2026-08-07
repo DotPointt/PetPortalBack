@@ -18,5 +18,20 @@ public class ChatRoomDto
     /// <summary>
     /// Идентификаторы участников чата.
     /// </summary>
-    public List<Guid> UserIds { get; set; }
+    public List<Guid> UserIds { get; set; } = new();
+
+    /// <summary>
+    /// Имена участников: userId → display name.
+    /// </summary>
+    public Dictionary<Guid, string> ParticipantNames { get; set; } = new();
+
+    /// <summary>
+    /// Текст последнего сообщения.
+    /// </summary>
+    public string? LastMessage { get; set; }
+
+    /// <summary>
+    /// Время последнего сообщения.
+    /// </summary>
+    public DateTime? LastMessageTime { get; set; }
 }

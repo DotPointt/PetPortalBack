@@ -82,8 +82,17 @@ namespace PetPortalAPI
                     {
                         OnMessageReceived = context =>
                         {
-                            // Получение токена из cookies
-                            context.Token = context.Request.Cookies["jwttoken"];
+                            // SignalR может передавать токен в query; иначе — cookie
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                            {
+                                context.Token = accessToken;
+                            }
+                            else
+                            {
+                                context.Token = context.Request.Cookies["jwttoken"];
+                            }
                             return Task.CompletedTask;
                         }
                     };
@@ -139,6 +148,9 @@ namespace PetPortalAPI
             services.AddScoped<IChatRoomService, ChatRoomService>();
             services.AddScoped<IPaymentService, YooKassaService>();
             services.AddScoped<IResetPasswordService, ResetPasswordService>();
+            services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
+            services.AddScoped<IUnreadChatEmailService, UnreadChatEmailService>();
+            services.AddHostedService<UnreadChatEmailBackgroundService>();
             services.AddScoped<IRespondService, RespondService>();
             services.AddScoped<IRolesService, RoleService>();
             services.AddSingleton<IRabbitMqProducerService, RabbitMqProducerService>();
@@ -150,6 +162,8 @@ namespace PetPortalAPI
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
             services.AddScoped<IResetPasswordTokensRepository, ResetPasswordTokensRepository>();
+            services.AddScoped<IEmailConfirmationTokensRepository, EmailConfirmationTokensRepository>();
+            services.AddScoped<IChatNotificationRepository, ChatNotificationRepository>();
             services.AddScoped<IChatRoomRepository, ChatRoomRepository>();
             services.AddScoped<IStackRepository, StackRepository>();
             services.AddScoped<IExperienceRepository, ExperienceRepository>();

@@ -33,6 +33,10 @@ public class PetPortalDbContext : DbContext
 
     public DbSet<ResetPasswordTokenEntity> ResetPasswordTokenEntities { get; set; }
 
+    public DbSet<EmailConfirmationTokenEntity> EmailConfirmationTokenEntities { get; set; }
+
+    public DbSet<ChatMessageEmailNotificationEntity> ChatMessageEmailNotifications { get; set; }
+
     /// <summary>
     /// Пользователи в базе данных.
     /// </summary>
@@ -122,6 +126,8 @@ public class PetPortalDbContext : DbContext
         builder.ApplyConfiguration(new ChatRoomConfiguration());
         builder.ApplyConfiguration(new ChatRoomUserConfiguration());
         builder.ApplyConfiguration(new ResetPasswordTokensConfigurations());
+        builder.ApplyConfiguration(new EmailConfirmationTokenConfiguration());
+        builder.ApplyConfiguration(new ChatMessageEmailNotificationConfiguration());
         builder.ApplyConfiguration(new EducationConfiguration());
         builder.ApplyConfiguration(new ExperienceConfiguration());
         builder.ApplyConfiguration(new StackConfiguration());
