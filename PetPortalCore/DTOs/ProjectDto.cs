@@ -63,6 +63,12 @@ public class ProjectDto
     public DateTime? ApplyingDeadline { get; set; } = null;
 
     /// <summary>
+    /// Дата публикации объявления. Нужна фронтенду, чтобы ограничить срок
+    /// приёма заявок двумя месяцами и сортировать «мои проекты».
+    /// </summary>
+    public DateTime? CreatedDate { get; set; } = null;
+
+    /// <summary>
     /// Бюджет проекта в рублях.
     /// </summary>
     public uint Budget { get; set; } = 0;
@@ -70,7 +76,7 @@ public class ProjectDto
     /// <summary>
     /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
-    public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
+    public StateOfProject StateOfProject { get; set; } = StateOfProject.Archived;
     
     /// <summary>
     /// Указывает, является ли проект коммерческим.

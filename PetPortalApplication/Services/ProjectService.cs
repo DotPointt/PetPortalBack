@@ -112,6 +112,25 @@ public class ProjectService : IProjectsService
     }
 
     /// <summary>
+    /// Перевести проект в архив. Действие необратимо.
+    /// </summary>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Идентификатор проекта.</returns>
+    public async Task<Guid> Archive(Guid id)
+    {
+        return await _projectsRepository.Archive(id);
+    }
+
+    /// <summary>
+    /// Перевести в архив все проекты с истёкшим сроком приёма заявок.
+    /// </summary>
+    /// <returns>Количество заархивированных проектов.</returns>
+    public async Task<int> ArchiveExpired()
+    {
+        return await _projectsRepository.ArchiveExpired();
+    }
+
+    /// <summary>
     /// Проверка лимита создания проектов.
     /// </summary>
     /// <param name="ownerId">Идентификатор владельца проекта.</param>

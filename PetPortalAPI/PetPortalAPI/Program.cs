@@ -151,6 +151,7 @@ namespace PetPortalAPI
             services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
             services.AddScoped<IUnreadChatEmailService, UnreadChatEmailService>();
             services.AddHostedService<UnreadChatEmailBackgroundService>();
+            services.AddHostedService<ProjectArchivingBackgroundService>();
             services.AddScoped<IRespondService, RespondService>();
             services.AddScoped<IRolesService, RoleService>();
             services.AddSingleton<IRabbitMqProducerService, RabbitMqProducerService>();
@@ -227,6 +228,18 @@ namespace PetPortalAPI
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "An error occurred while initializing the MinIO bucket.");
+                }
+
+                // Приведение существующих данных к актуальной схеме нужно в любом
+                // окружении — это миграция данных, а не тестовые записи
+                try
+                {
+                    var context = services.GetRequiredService<PetPortalDbContext>();
+                    DbInitializer.NormalizeExistingData(context);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "An error occurred while normalizing existing data.");
                 }
 
                 // Тестовые данные: в Development всегда, в остальных окружениях — при SeedDatabase=true

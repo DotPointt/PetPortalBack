@@ -66,7 +66,7 @@ public class ProjectEntity : BaseAuditableEntity
     /// <summary>
     /// Текущее состояние проекта (открыт/закрыт для участия).
     /// </summary>
-    public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
+    public StateOfProject StateOfProject { get; set; } = StateOfProject.Archived;
     
     /// <summary>
     /// If project is to be done for money

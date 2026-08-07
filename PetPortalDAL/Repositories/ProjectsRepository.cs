@@ -69,6 +69,7 @@ public class ProjectsRepository : IProjectsRepository
                 Plan = project.Plan,
                 Result = project.Result,
                 OwnerId = project.OwnerId,
+                CreatedDate = project.CreatedDate,
                 Deadline = project.Deadline,
                 ApplyingDeadline = project.ApplyingDeadline,
                 StateOfProject = project.StateOfProject,
@@ -119,6 +120,7 @@ public class ProjectsRepository : IProjectsRepository
                 Plan = project.Plan,
                 Result = project.Result,
                 OwnerId = project.OwnerId,
+                CreatedDate = project.CreatedDate,
                 Deadline = project.Deadline,
                 ApplyingDeadline = project.ApplyingDeadline,
                 StateOfProject = project.StateOfProject,
@@ -151,6 +153,7 @@ public class ProjectsRepository : IProjectsRepository
                 Plan = project.Plan,
                 Result = project.Result,
                 OwnerId = project.OwnerId,
+                CreatedDate = project.CreatedDate,
                 Deadline = project.Deadline,
                 ApplyingDeadline = project.ApplyingDeadline,
                 StateOfProject = project.StateOfProject,
@@ -173,15 +176,24 @@ public class ProjectsRepository : IProjectsRepository
         var project = await _context.Projects
             .Include(p => p.ProjectRoles)
                 .ThenInclude(pt => pt.Role)
+            .Include(p => p.ProjectTags)
+                .ThenInclude(pt => pt.Tag)
             .AsNoTracking()
             .Where(p => p.Id == projectId)
             .FirstOrDefaultAsync();
-        
+
         if (project == null)
             throw new Exception("Проект не найден.");
 
         return new Project
         {
+            Tags = project.ProjectTags
+                .Select(pt => new Tag
+                {
+                    Id = pt.Tag.Id,
+                    Name = pt.Tag.Name
+                })
+                .ToList(),
             Id = project.Id,
             Name = project.Name,
             Description = project.Description,
@@ -190,6 +202,7 @@ public class ProjectsRepository : IProjectsRepository
             Plan = project.Plan,
             Result = project.Result,
             OwnerId = project.OwnerId,
+            CreatedDate = project.CreatedDate,
             Deadline = project.Deadline,
             ApplyingDeadline = project.ApplyingDeadline,
             StateOfProject = project.StateOfProject,
@@ -220,6 +233,7 @@ public class ProjectsRepository : IProjectsRepository
             Result = project.Result,
             Plan = project.Plan,
             OwnerId = project.OwnerId,
+            CreatedDate = project.CreatedDate,
             Deadline = project.Deadline,
             ApplyingDeadline = project.ApplyingDeadline,
             StateOfProject = project.StateOfProject,
@@ -343,6 +357,39 @@ public class ProjectsRepository : IProjectsRepository
     }
 
     /// <summary>
+    /// Перевести проект в архив. Действие необратимо.
+    /// </summary>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Идентификатор проекта.</returns>
+    public async Task<Guid> Archive(Guid id)
+    {
+        await _context.Projects
+            .Where(project => project.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(project => project.StateOfProject, StateOfProject.Archived)
+                .SetProperty(project => project.UpdatedDate, DateTime.UtcNow));
+
+        return id;
+    }
+
+    /// <summary>
+    /// Перевести в архив все проекты, у которых истёк срок приёма заявок.
+    /// </summary>
+    /// <returns>Количество заархивированных проектов.</returns>
+    public async Task<int> ArchiveExpired()
+    {
+        var now = DateTime.UtcNow;
+
+        return await _context.Projects
+            .Where(project => project.StateOfProject != StateOfProject.Archived
+                              && project.ApplyingDeadline != null
+                              && project.ApplyingDeadline < now)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(project => project.StateOfProject, StateOfProject.Archived)
+                .SetProperty(project => project.UpdatedDate, now));
+    }
+
+    /// <summary>
     /// Удалить проект из базы данных.
     /// </summary>
     /// <param name="id">Идентификатор проекта.</param>
@@ -396,10 +443,8 @@ public class ProjectsRepository : IProjectsRepository
         string? sortItem,
         bool ascending)
     {
-        var ordered = query.OrderBy(p =>
-            p.StateOfProject == StateOfProject.Open ? 0 :
-            p.StateOfProject == StateOfProject.InProgress ? 1 :
-            p.StateOfProject == StateOfProject.NotSelected ? 2 : 3);
+        // архивные всегда в конце списка, даже если их попросили показать
+        var ordered = query.OrderBy(p => p.StateOfProject == StateOfProject.Archived ? 1 : 0);
 
         switch (sortItem?.ToLower())
         {
@@ -454,17 +499,18 @@ public class ProjectsRepository : IProjectsRepository
     
     private IQueryable<ProjectEntity> ApplyFilters(IQueryable<ProjectEntity> query, ProjectFilterDTO filters)
     {
-        if (filters == null) 
+        // архивные проекты скрыты, пока их не попросили показать явно
+        if (filters == null || !filters.ShowArchived)
+        {
+            query = query.Where(p => p.StateOfProject != StateOfProject.Archived);
+        }
+
+        if (filters == null)
             return query;
 
         if (filters.RoleId != null)
         {
             query = query.Where(p => p.ProjectRoles.Any(pr => pr.RoleId == filters.RoleId));
-        }
-
-        if (filters.StateOfProject != null && filters.StateOfProject != StateOfProject.NotSelected)
-        {
-            query = query.Where(p => p.StateOfProject == filters.StateOfProject);
         }
 
         if (filters.IsCommercial.HasValue)

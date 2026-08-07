@@ -102,9 +102,14 @@ public class Project
     public DateTime? ApplyingDeadline { get; set; } = null;
 
     /// <summary>
+    /// Дата публикации объявления.
+    /// </summary>
+    public DateTime? CreatedDate { get; set; } = null;
+
+    /// <summary>
     /// If people can join the project at the moment
     /// </summary>
-    public StateOfProject StateOfProject { get; set; } = StateOfProject.Closed;
+    public StateOfProject StateOfProject { get; set; } = StateOfProject.Archived;
 
     /// <summary>
     /// If project is to be done for money
@@ -139,7 +144,7 @@ public class Project
     public static (Project project, string Error) Create(Guid id, string name, string description,   string requirements, 
         string teamDescription, 
         string plan, 
-        string result,Guid ownerId,bool IsBusinesProject, uint Budget,  DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed, List<Tag> Tags = null,
+        string result,Guid ownerId,bool IsBusinesProject, uint Budget,  DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Archived, List<Tag> Tags = null,
         List<RequiredRole> RequiredRoles = null
         )
     {
@@ -160,15 +165,36 @@ public class Project
         return (project, error);
     }
 
-    //public abstract (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Closed);
+    //public abstract (Project project, string Error) Create(Guid id, string name, string description, Guid ownerId, DateTime? Deadline = null, DateTime? ApplyingDeadline = null, StateOfProject StateOfProject = StateOfProject.Archived);
 
 }
 
 
+/// <summary>
+/// Состояние проекта. Актуальных состояния два: идёт набор и архив.
+/// </summary>
 public enum StateOfProject
 {
+    /// <summary>
+    /// Устаревшее значение. Оставлено ради совместимости со старыми записями в БД,
+    /// при чтении трактуется как <see cref="Open"/>.
+    /// </summary>
     NotSelected = 0,
+
+    /// <summary>
+    /// Идёт набор — проект открыт для откликов.
+    /// </summary>
     Open = 1,
+
+    /// <summary>
+    /// Устаревшее значение. Оставлено ради совместимости со старыми записями в БД,
+    /// при чтении трактуется как <see cref="Open"/>.
+    /// </summary>
     InProgress = 2,
-    Closed = 3
+
+    /// <summary>
+    /// В архиве — набор закрыт. Проект попадает сюда вручную владельцем
+    /// либо автоматически по истечении срока приёма заявок. Обратного хода нет.
+    /// </summary>
+    Archived = 3
 }

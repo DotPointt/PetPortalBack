@@ -298,7 +298,10 @@ public class DbInitializer
             {
                 var ownerId = users[Rand.Next(users.Count)].Id;
                 var projectId = Guid.NewGuid();
-                
+
+                // последние пять проектов — архивные: срок приёма заявок уже истёк
+                var isArchived = i >= 25;
+
                 projects.Add(new ProjectEntity
                 {
                     Id = projectId,
@@ -312,8 +315,10 @@ public class DbInitializer
                     // чем больше i, тем «свежее» проект — чтобы сортировка по дате была наглядной
                     CreatedDate = DateTime.UtcNow.AddDays(-(30 - i)).AddMinutes(Rand.Next(0, 600)),
                     Deadline = DateTime.UtcNow.AddDays(Rand.Next(30, 365)),
-                    ApplyingDeadline = DateTime.UtcNow.AddDays(Rand.Next(7, 30)),
-                    StateOfProject = (StateOfProject)Rand.Next(1, 4),
+                    ApplyingDeadline = isArchived
+                        ? DateTime.UtcNow.AddDays(-Rand.Next(1, 20))
+                        : DateTime.UtcNow.AddDays(Rand.Next(7, 30)),
+                    StateOfProject = isArchived ? StateOfProject.Archived : StateOfProject.Open,
                     IsBusinesProject = Rand.NextDouble() > 0.5,
                     Budget = (uint)Rand.Next(500_000, 2_000_000)
                 });
@@ -348,25 +353,6 @@ public class DbInitializer
             context.SaveChanges();
             
             context.ProjectRoles.AddRange(projectRoles);
-            context.SaveChanges();
-        }
-
-        // === Бэкфилл дат публикации ===
-        // Раньше CreatedDate нигде не проставлялся, поэтому у старых проектов он пустой
-        // и сортировка «по дате публикации» для них не работает.
-        var projectsWithoutCreatedDate = context.Projects
-            .Where(project => project.CreatedDate == null)
-            .OrderBy(project => project.Id)
-            .ToList();
-
-        if (projectsWithoutCreatedDate.Count > 0)
-        {
-            var baseDate = DateTime.UtcNow.AddDays(-projectsWithoutCreatedDate.Count);
-            for (var i = 0; i < projectsWithoutCreatedDate.Count; i++)
-            {
-                projectsWithoutCreatedDate[i].CreatedDate = baseDate.AddDays(i);
-            }
-
             context.SaveChanges();
         }
 
@@ -520,5 +506,51 @@ public class DbInitializer
         }
 
         return string.Join("\n  ", rects);
+    }
+
+    /// <summary>
+    /// Приведение уже существующих данных к актуальной схеме.
+    /// В отличие от <see cref="Seed"/> выполняется в любом окружении: это миграция
+    /// данных, а не тестовые записи.
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    public static void NormalizeExistingData(PetPortalDbContext context)
+    {
+        // === Нормализация статусов ===
+        // Раньше состояний было четыре, сейчас актуальны только «идёт набор» и «в архиве».
+        // Старые NotSelected/InProgress приводим к «идёт набор».
+        var legacyStateProjects = context.Projects
+            .Where(project => project.StateOfProject == StateOfProject.NotSelected
+                              || project.StateOfProject == StateOfProject.InProgress)
+            .ToList();
+
+        foreach (var project in legacyStateProjects)
+        {
+            project.StateOfProject = StateOfProject.Open;
+        }
+
+        if (legacyStateProjects.Count > 0)
+        {
+            context.SaveChanges();
+        }
+
+        // === Бэкфилл дат публикации ===
+        // Раньше CreatedDate нигде не проставлялся, поэтому у старых проектов он пустой,
+        // а без него не работает ни сортировка каталога, ни «сначала новые» в моих проектах.
+        var projectsWithoutCreatedDate = context.Projects
+            .Where(project => project.CreatedDate == null)
+            .OrderBy(project => project.Id)
+            .ToList();
+
+        if (projectsWithoutCreatedDate.Count > 0)
+        {
+            var baseDate = DateTime.UtcNow.AddDays(-projectsWithoutCreatedDate.Count);
+            for (var i = 0; i < projectsWithoutCreatedDate.Count; i++)
+            {
+                projectsWithoutCreatedDate[i].CreatedDate = baseDate.AddDays(i);
+            }
+
+            context.SaveChanges();
+        }
     }
 }

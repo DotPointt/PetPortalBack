@@ -58,6 +58,19 @@ public interface IProjectsRepository
     /// </summary>
     /// <param name="id">Идентификатор проекта.</param>
     /// <returns>Идентификатор удаленного проекта.</returns>
+    /// <summary>
+    /// Перевести проект в архив. Действие необратимо.
+    /// </summary>
+    /// <param name="id">Идентификатор проекта.</param>
+    /// <returns>Идентификатор проекта.</returns>
+    Task<Guid> Archive(Guid id);
+
+    /// <summary>
+    /// Перевести в архив все проекты с истёкшим сроком приёма заявок.
+    /// </summary>
+    /// <returns>Количество заархивированных проектов.</returns>
+    Task<int> ArchiveExpired();
+
     Task<Guid> Delete(Guid id);
 
     /// <summary>

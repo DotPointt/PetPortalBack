@@ -19,6 +19,11 @@ namespace PetPortalAPI.Controllers;
 public class ProjectsController : ControllerBase
 {
     /// <summary>
+    /// Максимальный срок приёма заявок — два месяца с момента публикации объявления.
+    /// </summary>
+    private const int MaxApplyingPeriodMonths = 2;
+
+    /// <summary>
     /// Сервис для работы с проектами.
     /// </summary>
     private readonly IProjectsService _projectsService;
@@ -101,6 +106,7 @@ public class ProjectsController : ControllerBase
                     Result = p.Result,
                     OwnerId = p.OwnerId,
                     OwnerName = user.Name,
+                    CreatedDate = p.CreatedDate,
                     Deadline = p.Deadline,
                     ApplyingDeadline = p.ApplyingDeadline,
                     StateOfProject = p.StateOfProject,
@@ -141,13 +147,22 @@ public class ProjectsController : ControllerBase
             var user = await _usersService.GetUserById(project.OwnerId);
             var imageBase64 = "";
 
-            if (!user.AvatarUrl.IsNullOrEmpty())
+            try
             {
-                var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
-                var arrayImg = stream.ToArray();
-                imageBase64 = Convert.ToBase64String(arrayImg);
+                if (!user.AvatarUrl.IsNullOrEmpty())
+                {
+                    var stream = await _minioService.GetFileAsync(user.AvatarUrl ?? "");
+                    var arrayImg = stream.ToArray();
+                    imageBase64 = Convert.ToBase64String(arrayImg);
+                }
             }
-            
+            catch (Exception avatarEx)
+            {
+                // Отсутствующая в MinIO аватарка не должна ломать страницу проекта:
+                // раньше запрос падал в 400 и фронт показывал пустой проект с Invalid Date
+                Console.WriteLine($"Avatar load failed for user {user.Id}: {avatarEx.Message}");
+            }
+
             var projectDto = new ProjectDto()
             {
                 Id = project.Id,
@@ -159,6 +174,7 @@ public class ProjectsController : ControllerBase
                 Result = project.Result,
                 OwnerId = project.OwnerId,
                 OwnerName = user.Name,
+                CreatedDate = project.CreatedDate,
                 Deadline = project.Deadline,
                 ApplyingDeadline = project.ApplyingDeadline,
                 StateOfProject = project.StateOfProject,
@@ -205,11 +221,17 @@ public class ProjectsController : ControllerBase
             if (projectsBefore >= hardLimit)
                 return BadRequest("Вы превысили лимит проектов.");
 
+            var applyingDeadlineError = ValidateApplyingDeadline(
+                projectRequest.ApplyingDeadline,
+                DateTime.UtcNow);
+            if (applyingDeadlineError != null)
+                return BadRequest(applyingDeadlineError);
+
             var requiresPayment = projectsBefore >= freeProjectsLimit;
 
             // First N projects are free and published immediately; further need payment
             projectRequest.StateOfProject = requiresPayment
-                ? StateOfProject.Closed
+                ? StateOfProject.Archived
                 : StateOfProject.Open;
 
             var projectGuid = await _projectsService.Create(projectRequest, userid.Value);
@@ -300,6 +322,12 @@ public class ProjectsController : ControllerBase
 
             if (project.OwnerId == userId.Value)
             {
+                var applyingDeadlineError = ValidateApplyingDeadline(
+                    request.ApplyingDeadline,
+                    project.CreatedDate ?? DateTime.UtcNow);
+                if (applyingDeadlineError != null)
+                    return BadRequest(applyingDeadlineError);
+
                 request.Id = id;
                 var projectId = await _projectsService.Update(request);
 
@@ -341,5 +369,56 @@ public class ProjectsController : ControllerBase
         {
             return BadRequest(ex.ToString());
         }
+    }
+
+    /// <summary>
+    /// Перевести проект в архив. Доступно только владельцу, действие необратимо.
+    /// </summary>
+    /// <param name="id">Идентификатор проекта.</param>
+    [SwaggerOperation(Summary = "Перевод проекта в архив")]
+    [HttpPost("{id:guid}/archive")]
+    [Authorize]
+    public async Task<ActionResult<Guid>> ArchiveProject(Guid id)
+    {
+        try
+        {
+            var userId = await _usersService.GetUserIdFromJWTAsync(User);
+            if (userId == null)
+                return Unauthorized("Идентификатор пользователя не найден в токене.");
+
+            var project = await _projectsService.GetById(id);
+            if (project.OwnerId != userId.Value)
+                return Forbid();
+
+            if (project.StateOfProject == StateOfProject.Archived)
+                return Ok(id);
+
+            var projectId = await _projectsService.Archive(id);
+
+            return Ok(projectId);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Проверяет, что срок приёма заявок не превышает двух месяцев
+    /// с момента публикации объявления.
+    /// </summary>
+    /// <param name="applyingDeadline">Проверяемый срок приёма заявок.</param>
+    /// <param name="publishedAt">Дата публикации объявления.</param>
+    /// <returns>Текст ошибки либо null, если срок допустим.</returns>
+    private static string? ValidateApplyingDeadline(DateTime? applyingDeadline, DateTime publishedAt)
+    {
+        if (applyingDeadline == null)
+            return null;
+
+        var maxApplyingDeadline = publishedAt.AddMonths(MaxApplyingPeriodMonths);
+
+        return applyingDeadline.Value.ToUniversalTime() > maxApplyingDeadline.ToUniversalTime()
+            ? $"Срок приёма заявок не может быть больше {MaxApplyingPeriodMonths} месяцев с момента публикации объявления."
+            : null;
     }
 }
