@@ -44,29 +44,12 @@ public class ProjectsRepository : IProjectsRepository
     public async Task<List<Project>> Get(bool sortOrder, string? sortItem, string searchElement, int offset = 10, int page = 1, ProjectFilterDTO filters = null)
     {
         var projectsQuery = _context.Projects
-            .AsNoTracking()
-            .Where(p => p.StateOfProject != StateOfProject.Closed);
-        
+            .AsNoTracking();
+
         projectsQuery = ApplySearchFilter(projectsQuery, searchElement);
         projectsQuery = ApplyFilters(projectsQuery, filters);
-        
-        
 
-        Expression<Func<ProjectEntity, object>> selectorKey = sortItem?.ToLower() switch
-        {
-            "date" => project => project.CreatedDate,
-            "budget" => project => project.Budget,
-            "applyingdeadline" => project => project.ApplyingDeadline,
-            "deadline" => project => project.Deadline,
-            _ => project => project.Id
-        };
-
-        projectsQuery = sortOrder   
-            ? projectsQuery.OrderBy(selectorKey)
-            : projectsQuery.OrderByDescending(selectorKey);
-        
-        
-        var projectsEntities = await projectsQuery
+        var projectsEntities = await ApplySorting(projectsQuery, sortItem, sortOrder)
             .Include(p => p.ProjectTags)
                 .ThenInclude(pt => pt.Tag)
             .Include(p => p.ProjectRoles)
@@ -391,13 +374,67 @@ public class ProjectsRepository : IProjectsRepository
     /// <returns></returns>
     public async Task<int> GetTotalProjectCountAsync(string searchElement, ProjectFilterDTO filters = null)
     {
-        var query =  _context.Projects.AsNoTracking()
-            .Where(p => p.StateOfProject != StateOfProject.Closed);
-            
+        var query =  _context.Projects.AsNoTracking();
+
         query = ApplySearchFilter(query, searchElement);
         query = ApplyFilters(query, filters);
         
         return await query.CountAsync();
+    }
+
+    /// <summary>
+    /// Сортировка каталога.
+    /// Первичный ключ сортировки всегда состояние проекта: сначала «Идёт набор»,
+    /// затем «В процессе», в самом низу — завершённые. Выбранная пользователем
+    /// сортировка применяется уже внутри этих групп.
+    /// </summary>
+    /// <param name="query">Запрос проектов.</param>
+    /// <param name="sortItem">Элемент сортировки: date, budget, applyingdeadline, deadline.</param>
+    /// <param name="ascending">True — по возрастанию, false — по убыванию.</param>
+    private IOrderedQueryable<ProjectEntity> ApplySorting(
+        IQueryable<ProjectEntity> query,
+        string? sortItem,
+        bool ascending)
+    {
+        var ordered = query.OrderBy(p =>
+            p.StateOfProject == StateOfProject.Open ? 0 :
+            p.StateOfProject == StateOfProject.InProgress ? 1 :
+            p.StateOfProject == StateOfProject.NotSelected ? 2 : 3);
+
+        switch (sortItem?.ToLower())
+        {
+            case "budget":
+                ordered = ascending
+                    ? ordered.ThenBy(p => p.Budget)
+                    : ordered.ThenByDescending(p => p.Budget);
+                break;
+
+            case "applyingdeadline":
+                // проекты без срока подачи заявок всегда в конце группы
+                ordered = ordered.ThenBy(p => p.ApplyingDeadline == null);
+                ordered = ascending
+                    ? ordered.ThenBy(p => p.ApplyingDeadline)
+                    : ordered.ThenByDescending(p => p.ApplyingDeadline);
+                break;
+
+            case "deadline":
+                ordered = ordered.ThenBy(p => p.Deadline == null);
+                ordered = ascending
+                    ? ordered.ThenBy(p => p.Deadline)
+                    : ordered.ThenByDescending(p => p.Deadline);
+                break;
+
+            case "date":
+            default:
+                ordered = ordered.ThenBy(p => p.CreatedDate == null);
+                ordered = ascending
+                    ? ordered.ThenBy(p => p.CreatedDate)
+                    : ordered.ThenByDescending(p => p.CreatedDate);
+                break;
+        }
+
+        // стабильный порядок при одинаковых значениях ключа сортировки
+        return ordered.ThenBy(p => p.Id);
     }
 
     private  IQueryable<ProjectEntity> ApplySearchFilter(IQueryable<ProjectEntity> query, string searchElement)

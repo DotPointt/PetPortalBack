@@ -109,7 +109,72 @@ public class PetPortalDbContext : DbContext
     
     #endregion
 
-    /// <summary>    
+    #region Аудит
+
+    /// <inheritdoc />
+    public override int SaveChanges()
+    {
+        ApplyAuditInformation();
+        return base.SaveChanges();
+    }
+
+    /// <inheritdoc />
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ApplyAuditInformation();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    /// <inheritdoc />
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ApplyAuditInformation();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        ApplyAuditInformation();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    /// <summary>
+    /// Проставляет даты создания и обновления сущностям с аудитом.
+    /// Без этого CreatedDate оставался пустым и сортировка «по дате публикации» не работала.
+    /// </summary>
+    private void ApplyAuditInformation()
+    {
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<BaseAuditableEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedDate ??= now;
+                    entry.Entity.UpdatedDate ??= now;
+                    break;
+                case EntityState.Modified:
+                    entry.Entity.UpdatedDate = now;
+
+                    var createdDate = entry.Property(nameof(BaseAuditableEntity.CreatedDate));
+                    // не даём затереть уже проставленную дату создания,
+                    // но разрешаем заполнить её, если она была пустой
+                    if (createdDate.OriginalValue != null)
+                    {
+                        createdDate.IsModified = false;
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    #endregion
+
+    /// <summary>
     /// Конфигурация моделей.
     /// </summary>
     /// <param name="builder">Конструктор моделей.</param>

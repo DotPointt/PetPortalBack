@@ -14,60 +14,152 @@ public class DbInitializer
     public static async Task Seed(PetPortalDbContext context, IMinioService? minioService = null)
     {
         // === Roles ===
-        if (!context.Roles.Any())
+        // Справочник специальностей. Сгруппирован по темам так же, как и на фронтенде
+        // (src/data/role-categories.ts) — при добавлении роли туда её нужно добавить и здесь.
+        var roleNames = new[]
         {
-            var roleNames = new[]
-            {
-                "Backend Developer",
-                "Frontend Developer",
-                "Fullstack Developer",
-                "DevOps Engineer",
-                "UI/UX Designer",
-                "Product Manager",
-                "Project Manager",
-                "QA Engineer",
-                "Security Specialist",
-                "Data Scientist",
-                "Data Analyst",
-                "ML Engineer",
-                "AI Researcher",
-                "Mobile Developer (iOS)",
-                "Mobile Developer (Android)",
-                "Game Developer",
-                "Embedded Systems Engineer",
-                "Blockchain Developer",
-                "Cloud Architect",
-                "SRE (Site Reliability Engineer)",
-                "Technical Writer",
-                "Scrum Master",
-                "Business Analyst",
-                "System Architect",
-                "Database Administrator",
-                "Network Engineer",
-                "Penetration Tester",
-                "NLP Engineer",
-                "Computer Vision Engineer",
-                "AR/VR Developer"
-            };
+            // Management
+            "Product Manager",
+            "Product Owner",
+            "Project Manager",
+            "Delivery Manager",
+            "Engineering Manager",
+            "Team Lead",
+            "Tech Lead",
+            "Scrum Master",
+            "Business Analyst",
+            "System Architect",
 
-            var roles = new List<RoleEntity>();
-            foreach (var roleName in roleNames)
-            {
-                roles.Add(new RoleEntity
-                {
-                    Id = Guid.NewGuid(),
-                    Name = roleName
-                });
-            }
+            // Frontend
+            "Frontend Developer",
+            "React Developer",
+            "Vue Developer",
+            "Angular Developer",
+            "Frontend Architect",
 
-            // Роль "Другое" с легко узнаваемым GUID
-            roles.Add(new RoleEntity
+            // Backend
+            "Backend Developer",
+            "Node.js Developer",
+            "Python Developer",
+            "Java Developer",
+            "C#/.NET Developer",
+            "Go Developer",
+            "PHP Developer",
+            "Ruby Developer",
+            "Rust Developer",
+            "Database Administrator",
+
+            // Fullstack
+            "Fullstack Developer",
+            "Web Developer",
+
+            // Mobile
+            "Mobile Developer (iOS)",
+            "Mobile Developer (Android)",
+            "Flutter Developer",
+            "React Native Developer",
+
+            // AI / ML / Data
+            "AI Researcher",
+            "ML Engineer",
+            "MLOps Engineer",
+            "LLM Engineer",
+            "Prompt Engineer",
+            "NLP Engineer",
+            "Computer Vision Engineer",
+            "Data Scientist",
+            "Data Engineer",
+            "Data Analyst",
+            "BI Analyst",
+
+            // DevOps & Infrastructure
+            "DevOps Engineer",
+            "SRE (Site Reliability Engineer)",
+            "Platform Engineer",
+            "Kubernetes Engineer",
+            "Release Engineer",
+            "Cloud Architect",
+            "Network Engineer",
+
+            // Hardware & IoT
+            "Embedded Systems Engineer",
+            "IoT Engineer",
+            "Robotics Engineer",
+            "Hardware Engineer",
+
+            // Design
+            "UI/UX Designer",
+            "Product Designer",
+            "UX Researcher",
+            "Graphic Designer",
+            "Motion Designer",
+            "Illustrator",
+            "3D Artist",
+
+            // QA & Testing
+            "QA Engineer",
+            "QA Automation Engineer",
+            "Manual QA Engineer",
+            "Performance Engineer",
+
+            // Security
+            "Security Specialist",
+            "Security Analyst",
+            "DevSecOps Engineer",
+            "Penetration Tester",
+
+            // Blockchain & Web3
+            "Blockchain Developer",
+            "Smart Contract Developer",
+            "Web3 Developer",
+
+            // GameDev & XR
+            "Game Developer",
+            "Game Designer",
+            "Level Designer",
+            "Unity Developer",
+            "Unreal Engine Developer",
+            "AR/VR Developer",
+
+            // Content & Marketing
+            "Technical Writer",
+            "Copywriter",
+            "Content Manager",
+            "Marketing Specialist",
+            "SMM Manager",
+            "Community Manager",
+            "Localization Specialist"
+        };
+
+        // Добавляем только отсутствующие роли, чтобы справочник можно было
+        // расширять без пересоздания базы (существующие Id не меняются).
+        var existingRoleNames = context.Roles
+            .Select(role => role.Name)
+            .ToHashSet();
+
+        var newRoles = roleNames
+            .Where(roleName => !existingRoleNames.Contains(roleName))
+            .Select(roleName => new RoleEntity
+            {
+                Id = Guid.NewGuid(),
+                Name = roleName
+            })
+            .ToList();
+
+        // Роль "Другое" с легко узнаваемым GUID
+        if (!context.Roles.Any(role => role.Id == otherRoleId || role.Name == "Другое"))
+        {
+            newRoles.Add(new RoleEntity
             {
                 Id = otherRoleId,
-                Name = "Другое"
+                Name = "Другое",
+                IsSystem = true
             });
+        }
 
-            context.Roles.AddRange(roles);
+        if (newRoles.Count > 0)
+        {
+            context.Roles.AddRange(newRoles);
             context.SaveChanges();
         }
 
@@ -217,6 +309,8 @@ public class DbInitializer
                     Plan = plans[Rand.Next(plans.Length)],
                     Result = results[i % 10],
                     OwnerId = ownerId,
+                    // чем больше i, тем «свежее» проект — чтобы сортировка по дате была наглядной
+                    CreatedDate = DateTime.UtcNow.AddDays(-(30 - i)).AddMinutes(Rand.Next(0, 600)),
                     Deadline = DateTime.UtcNow.AddDays(Rand.Next(30, 365)),
                     ApplyingDeadline = DateTime.UtcNow.AddDays(Rand.Next(7, 30)),
                     StateOfProject = (StateOfProject)Rand.Next(1, 4),
@@ -254,6 +348,25 @@ public class DbInitializer
             context.SaveChanges();
             
             context.ProjectRoles.AddRange(projectRoles);
+            context.SaveChanges();
+        }
+
+        // === Бэкфилл дат публикации ===
+        // Раньше CreatedDate нигде не проставлялся, поэтому у старых проектов он пустой
+        // и сортировка «по дате публикации» для них не работает.
+        var projectsWithoutCreatedDate = context.Projects
+            .Where(project => project.CreatedDate == null)
+            .OrderBy(project => project.Id)
+            .ToList();
+
+        if (projectsWithoutCreatedDate.Count > 0)
+        {
+            var baseDate = DateTime.UtcNow.AddDays(-projectsWithoutCreatedDate.Count);
+            for (var i = 0; i < projectsWithoutCreatedDate.Count; i++)
+            {
+                projectsWithoutCreatedDate[i].CreatedDate = baseDate.AddDays(i);
+            }
+
             context.SaveChanges();
         }
 
