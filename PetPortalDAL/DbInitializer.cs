@@ -11,6 +11,12 @@ public class DbInitializer
     private static readonly Random Rand = new();
     private static readonly Guid otherRoleId = new Guid("A0000000-0000-0000-0000-000000000000");
 
+    /// <summary>Домен почты тестовых пользователей — по нему узнаём демо-проекты.</summary>
+    private const string DemoEmailDomain = "@example.com";
+
+    /// <summary>Сколько самых старых демо-проектов держим в архиве для примера.</summary>
+    private const int DemoArchivedCount = 5;
+
     public static async Task Seed(PetPortalDbContext context, IMinioService? minioService = null)
     {
         // === Roles ===
@@ -176,7 +182,7 @@ public class DbInitializer
                 {
                     Id = Guid.NewGuid(),
                     Name = $"User{i}",
-                    Email = $"user{i}@example.com",
+                    Email = $"user{i}{DemoEmailDomain}",
                     PasswordHash = $"hashedPassword{i}",
                     RoleId = roleIds[Rand.Next(roleIds.Count)],
                     EmailConfirmed = true
@@ -294,15 +300,13 @@ public class DbInitializer
             var projects = new List<ProjectEntity>();
             var projectRoles = new List<ProjectRole>();
             
-            for (int i = 0; i < 30; i++)
+            const int projectCount = 30;
+            for (int i = 0; i < projectCount; i++)
             {
                 var ownerId = users[Rand.Next(users.Count)].Id;
                 var projectId = Guid.NewGuid();
 
-                // последние пять проектов — архивные: срок приёма заявок уже истёк
-                var isArchived = i >= 25;
-
-                projects.Add(new ProjectEntity
+                var project = new ProjectEntity
                 {
                     Id = projectId,
                     Name = (projectNames[i % 10] + " (" + i + ") "),
@@ -312,16 +316,11 @@ public class DbInitializer
                     Plan = plans[Rand.Next(plans.Length)],
                     Result = results[i % 10],
                     OwnerId = ownerId,
-                    // чем больше i, тем «свежее» проект — чтобы сортировка по дате была наглядной
-                    CreatedDate = DateTime.UtcNow.AddDays(-(30 - i)).AddMinutes(Rand.Next(0, 600)),
-                    Deadline = DateTime.UtcNow.AddDays(Rand.Next(30, 365)),
-                    ApplyingDeadline = isArchived
-                        ? DateTime.UtcNow.AddDays(-Rand.Next(1, 20))
-                        : DateTime.UtcNow.AddDays(Rand.Next(7, 30)),
-                    StateOfProject = isArchived ? StateOfProject.Archived : StateOfProject.Open,
                     IsBusinesProject = Rand.NextDouble() > 0.5,
                     Budget = (uint)Rand.Next(500_000, 2_000_000)
-                });
+                };
+                ApplyDemoSchedule(project, i, projectCount);
+                projects.Add(project);
                 
                 var roleCount = Rand.Next(2, 6);
                 var selectedRoleIds = allRoleIds
@@ -355,6 +354,9 @@ public class DbInitializer
             context.ProjectRoles.AddRange(projectRoles);
             context.SaveChanges();
         }
+
+        // === Продление демо-проектов ===
+        RefreshExpiredDemoProjects(context);
 
         // === UserProjects ===
         if (!context.UserProjects.Any())
@@ -441,9 +443,63 @@ public class DbInitializer
             context.SaveChanges();
         }
     }
-    
-    
-    
+
+    /// <summary>
+    /// Сроки демо-проекта относительно сегодняшнего дня. Первые <see cref="DemoArchivedCount"/> —
+    /// самые старые: срок приёма заявок у них уже истёк, они в архиве. Остальные принимают отклики.
+    /// </summary>
+    /// <param name="project">Демо-проект.</param>
+    /// <param name="index">Порядковый номер проекта: чем больше, тем «свежее» публикация.</param>
+    /// <param name="total">Всего демо-проектов.</param>
+    private static void ApplyDemoSchedule(ProjectEntity project, int index, int total)
+    {
+        var now = DateTime.UtcNow;
+        var isArchived = index < DemoArchivedCount;
+
+        // чем больше index, тем «свежее» проект — чтобы сортировка по дате была наглядной.
+        // Открытые проекты опубликованы не раньше 25 дней назад, поэтому их срок приёма заявок
+        // укладывается в лимит «два месяца с момента публикации»
+        project.CreatedDate = now.AddDays(-(total - index)).AddMinutes(Rand.Next(0, 600));
+        project.ApplyingDeadline = isArchived
+            ? now.AddDays(-Rand.Next(1, 20))
+            : now.AddDays(Rand.Next(7, 30));
+        project.Deadline = now.AddDays(Rand.Next(30, 365));
+        project.StateOfProject = isArchived ? StateOfProject.Archived : StateOfProject.Open;
+    }
+
+    /// <summary>
+    /// Демо-проекты создаются один раз, и через месяц у всех истекает срок приёма заявок:
+    /// фоновая служба переводит их в архив, и каталог пустеет. Если среди демо-проектов
+    /// не осталось ни одного открытого, заново раздаём им сроки от сегодняшнего дня.
+    /// Пока хоть один демо-проект открыт, ничего не трогаем — в том числе архивированные вручную.
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    private static void RefreshExpiredDemoProjects(PetPortalDbContext context)
+    {
+        var demoOwnerIds = context.Users
+            .Where(user => user.Email.EndsWith(DemoEmailDomain))
+            .Select(user => user.Id)
+            .ToList();
+
+        var demoProjects = context.Projects
+            .Where(project => demoOwnerIds.Contains(project.OwnerId))
+            .OrderBy(project => project.CreatedDate)
+            .ToList();
+
+        if (demoProjects.Count == 0
+            || demoProjects.Any(project => project.StateOfProject != StateOfProject.Archived))
+        {
+            return;
+        }
+
+        for (var i = 0; i < demoProjects.Count; i++)
+        {
+            ApplyDemoSchedule(demoProjects[i], i, demoProjects.Count);
+        }
+
+        context.SaveChanges();
+    }
+
     public static string GenerateAvatarSvg()
     {
         // Пастельный фон
